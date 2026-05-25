@@ -1,0 +1,145 @@
+"use client";
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Users, Shield, Edit2, Check, X } from 'lucide-react';
+import { db } from '@/lib/firebase';
+import { ref, onValue, update } from 'firebase/database';
+import { useAuth } from '@/context/AuthContext';
+
+export default function UsersPage() {
+  const { user: currentUser } = useAuth();
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState(null);
+  const [selectedRole, setSelectedRole] = useState('viewer');
+
+  useEffect(() => {
+    const usersRef = ref(db, 'users');
+    const unsubscribe = onValue(usersRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const uList = Object.entries(data).map(([id, val]) => ({
+          id,
+          ...val,
+        }));
+        setUsers(uList);
+      } else {
+        setUsers([]);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleEdit = (u) => {
+    setEditingId(u.id);
+    setSelectedRole(u.role);
+  };
+
+  const handleSave = async (uid) => {
+    try {
+      await update(ref(db, `users/${uid}`), {
+        role: selectedRole
+      });
+      setEditingId(null);
+    } catch (error) {
+      console.error("Error updating role:", error);
+    }
+  };
+
+  const getRoleBadge = (role) => {
+    switch(role) {
+      case 'admin': return <span className="bg-red-500/20 text-red-500 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Admin</span>;
+      case 'scorer': return <span className="bg-[var(--color-cricket-accent)]/20 text-[var(--color-cricket-accent)] px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Scorer</span>;
+      default: return <span className="bg-gray-500/20 text-gray-400 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Viewer</span>;
+    }
+  };
+
+  return (
+    <div className="p-8">
+      <div className="flex items-center gap-3 mb-8">
+        <Users className="text-[var(--color-cricket-blue)]" size={32} />
+        <div>
+          <h1 className="text-3xl font-black text-white">Access Control</h1>
+          <p className="text-gray-400">Manage user roles and scorer permissions</p>
+        </div>
+      </div>
+
+      <div className="glass rounded-2xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-white/10 bg-white/5">
+                <th className="p-4 text-xs font-bold uppercase tracking-widest text-gray-500">Email</th>
+                <th className="p-4 text-xs font-bold uppercase tracking-widest text-gray-500">Role</th>
+                <th className="p-4 text-xs font-bold uppercase tracking-widest text-gray-500">Joined</th>
+                <th className="p-4 text-xs font-bold uppercase tracking-widest text-gray-500 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan="4" className="p-8 text-center">
+                    <div className="w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto"></div>
+                  </td>
+                </tr>
+              ) : users.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="p-8 text-center text-gray-500">No users found</td>
+                </tr>
+              ) : (
+                users.map((u) => (
+                  <tr key={u.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                    <td className="p-4 font-medium text-white">
+                      {u.email}
+                      {currentUser?.uid === u.id && <span className="ml-2 text-[10px] text-gray-500 bg-gray-800 px-2 py-0.5 rounded uppercase font-bold">You</span>}
+                    </td>
+                    <td className="p-4">
+                      {editingId === u.id ? (
+                        <select 
+                          value={selectedRole}
+                          onChange={(e) => setSelectedRole(e.target.value)}
+                          className="bg-black border border-white/20 rounded px-2 py-1 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        >
+                          <option value="viewer">Viewer</option>
+                          <option value="scorer">Scorer</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      ) : (
+                        getRoleBadge(u.role)
+                      )}
+                    </td>
+                    <td className="p-4 text-sm text-gray-400">
+                      {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'Unknown'}
+                    </td>
+                    <td className="p-4 text-right">
+                      {editingId === u.id ? (
+                        <div className="flex items-center justify-end gap-2">
+                          <button onClick={() => handleSave(u.id)} className="p-2 bg-green-500/20 text-green-500 rounded-lg hover:bg-green-500 hover:text-white transition-colors">
+                            <Check size={16} />
+                          </button>
+                          <button onClick={() => setEditingId(null)} className="p-2 bg-gray-500/20 text-gray-400 rounded-lg hover:bg-gray-500 hover:text-white transition-colors">
+                            <X size={16} />
+                          </button>
+                        </div>
+                      ) : (
+                        <button 
+                          onClick={() => handleEdit(u)} 
+                          disabled={currentUser?.uid === u.id} // Don't let user change their own role to prevent accidental lockout
+                          className="p-2 bg-blue-500/10 text-blue-500 rounded-lg hover:bg-blue-500 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
