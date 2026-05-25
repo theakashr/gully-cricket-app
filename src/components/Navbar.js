@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Trophy, Home, Activity, LogIn } from 'lucide-react';
+import { Trophy, Home, Activity, LogIn, Calendar } from 'lucide-react';
 
 export default function Navbar() {
   return (
@@ -24,9 +24,10 @@ export default function Navbar() {
         
         <div className="hidden md:flex gap-8">
           {[
-            { name: 'Live Scores', icon: Activity, href: '/' },
+            { name: 'Home', icon: Home, href: '/' },
+            { name: 'Matches', icon: Activity, href: '/matches' },
             { name: 'Tournaments', icon: Trophy, href: '/tournaments' },
-            { name: 'Dashboard', icon: Home, href: '/dashboard' },
+            { name: 'Dashboard', icon: LogIn, href: '/dashboard' },
           ].map((item, index) => (
             <motion.div 
               key={item.name}

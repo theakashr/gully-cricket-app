@@ -6,8 +6,15 @@ import { AuthProvider } from '@/context/AuthContext';
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata = {
-  title: 'Gully Cricket Live - Premium Scoring Platform',
-  description: 'Live cricket scoring, match centers, and tournament management.',
+  title: "Gully Cricket Live",
+  description: "Premium Local Cricket Scoring Engine",
+  manifest: "/manifest.json",
+  themeColor: "#00ff41",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Gully Cricket",
+  },
 };
 
 export default function RootLayout({ children }) {

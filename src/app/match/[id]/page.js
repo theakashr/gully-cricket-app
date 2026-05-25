@@ -19,16 +19,31 @@ export default function MatchCenterPage({ params: paramsPromise }) {
   useEffect(() => {
     const matchRef = ref(db, `matches/${matchId}`);
     const unsubscribe = onValue(matchRef, async (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
         setMatch(data);
         
-        // Fetch teams once
+        // Fetch teams if we haven't already
         if (!teamA || !teamB) {
-           const taSnap = await get(ref(db, `teams/${data.teamA}`));
-           const tbSnap = await get(ref(db, `teams/${data.teamB}`));
-           if(taSnap.exists()) setTeamA(taSnap.val());
-           if(tbSnap.exists()) setTeamB(tbSnap.val());
+           try {
+              if (data.teamA) {
+                 const taSnap = await get(ref(db, `teams/${data.teamA}`));
+                 setTeamA(taSnap.exists() ? taSnap.val() : { id: data.teamA, shortName: 'TBA', name: 'Unknown Team A' });
+              } else {
+                 setTeamA({ shortName: 'TBA', name: 'Unknown Team A' });
+              }
+              
+              if (data.teamB) {
+                 const tbSnap = await get(ref(db, `teams/${data.teamB}`));
+                 setTeamB(tbSnap.exists() ? tbSnap.val() : { id: data.teamB, shortName: 'TBA', name: 'Unknown Team B' });
+              } else {
+                 setTeamB({ shortName: 'TBA', name: 'Unknown Team B' });
+              }
+           } catch (error) {
+              console.error("Error fetching teams:", error);
+              setTeamA({ shortName: 'TBA', name: 'Error' });
+              setTeamB({ shortName: 'TBA', name: 'Error' });
+           }
         }
 
         if (data.balls) {
