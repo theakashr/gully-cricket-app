@@ -105,7 +105,7 @@ export default function UsersPage() {
           onClick={() => setIsAdding(!isAdding)}
           className={`px-5 py-2.5 rounded-xl font-bold uppercase tracking-wider text-xs transition-all shadow-sm flex items-center justify-center ${
             isAdding 
-              ? 'bg-slate-200 text-slate-700 hover:bg-slate-350' 
+              ? 'bg-slate-200 text-slate-700 hover:bg-slate-300' 
               : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-100 hover:shadow'
           }`}
         >

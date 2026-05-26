@@ -7,7 +7,7 @@ import { ref, push, set, onValue, remove } from 'firebase/database';
 import { useAuth } from '@/context/AuthContext';
 
 export default function MatchesPage() {
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, role: userRole } = useAuth();
   const [matches, setMatches] = useState([]);
   const [tournaments, setTournaments] = useState([]);
   const [teams, setTeams] = useState([]);
@@ -64,6 +64,7 @@ export default function MatchesPage() {
 
   const handleCreateMatch = async (e) => {
     e.preventDefault();
+    if (userRole === 'viewer') return;
     if (!newMatch.tournamentId || !newMatch.teamA || !newMatch.teamB || !newMatch.scorerId || !newMatch.tossWinner) {
       alert("Please fill all fields, including the Toss result.");
       return;
@@ -116,6 +117,7 @@ export default function MatchesPage() {
   };
 
   const handleDelete = async (id) => {
+    if (userRole === 'viewer') return;
     if (confirm("Delete this match? All scoring data will be lost.")) {
       await remove(ref(db, `matches/${id}`));
     }
@@ -136,155 +138,164 @@ export default function MatchesPage() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
-        {/* Create Match Form */}
+        {/* Create Match Form / Read Only Block */}
         <div className="lg:col-span-1">
-          <div className="glass rounded-2xl p-6 border border-slate-200/80 shadow-sm sticky top-8">
-            <h2 className="text-xl font-bold text-slate-900 mb-6">Initialize Match</h2>
-            <form onSubmit={handleCreateMatch} className="space-y-4">
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Tournament</label>
-                  <select 
-                    value={newMatch.tournamentId}
-                    onChange={e => setNewMatch({...newMatch, tournamentId: e.target.value})}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
-                    required
-                  >
-                    <option value="" className="text-slate-500">Select...</option>
-                    {tournaments.map(t => <option key={t.id} value={t.id} className="text-slate-800 font-medium">{t.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Match Stage</label>
-                  <input 
-                    type="text"
-                    list="stage-options"
-                    value={newMatch.stage}
-                    onChange={e => setNewMatch({...newMatch, stage: e.target.value})}
-                    placeholder="e.g. Match 1"
-                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
-                    required
-                  />
-                  <datalist id="stage-options">
-                    <option value="Match 1" />
-                    <option value="Match 2" />
-                    <option value="Match 3" />
-                    <option value="Match 4" />
-                    <option value="Match 5" />
-                    <option value="League Match" />
-                    <option value="Quarter-Final" />
-                    <option value="Semi-Final" />
-                    <option value="Final" />
-                  </datalist>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Scheduled Time (Optional)</label>
-                  <input 
-                    type="datetime-local"
-                    value={newMatch.scheduledTime}
-                    onChange={e => setNewMatch({...newMatch, scheduledTime: e.target.value})}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Team A</label>
-                  <select 
-                    value={newMatch.teamA}
-                    onChange={e => setNewMatch({...newMatch, teamA: e.target.value, tossWinner: ''})}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
-                    required
-                  >
-                    <option value="" className="text-slate-500">Select</option>
-                    {teams.map(t => <option key={t.id} value={t.id} className="text-slate-800 font-medium">{t.shortName}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Team B</label>
-                  <select 
-                    value={newMatch.teamB}
-                    onChange={e => setNewMatch({...newMatch, teamB: e.target.value, tossWinner: ''})}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
-                    required
-                  >
-                    <option value="" className="text-slate-500">Select</option>
-                    {teams.map(t => <option key={t.id} value={t.id} className="text-slate-800 font-medium">{t.shortName}</option>)}
-                  </select>
-                </div>
-              </div>
-
-              {/* Toss Section */}
-              {(newMatch.teamA && newMatch.teamB) && (
-                <div className="bg-slate-50 border border-slate-200/60 p-4 rounded-xl space-y-4">
+          {userRole === 'viewer' ? (
+            <div className="glass rounded-2xl p-6 border border-slate-200/80 shadow-sm sticky top-8 bg-slate-50/50">
+              <h2 className="text-lg font-black text-slate-900 mb-2">Read-Only Mode</h2>
+              <p className="text-xs text-slate-600 font-bold leading-relaxed">
+                You are currently logged in with a **Viewer** account. You can monitor live game states, review schedules, and open the public score center, but you cannot schedule matches or open the scorer entry panels.
+              </p>
+            </div>
+          ) : (
+            <div className="glass rounded-2xl p-6 border border-slate-200/80 shadow-sm sticky top-8">
+              <h2 className="text-xl font-bold text-slate-900 mb-6">Initialize Match</h2>
+              <form onSubmit={handleCreateMatch} className="space-y-4">
+                
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 block">Toss Won By</label>
-                     <div className="flex gap-2">
-                       <button type="button" onClick={() => setNewMatch({...newMatch, tossWinner: newMatch.teamA})} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all shadow-sm ${newMatch.tossWinner === newMatch.teamA ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}>
-                         {getTeamName(newMatch.teamA)}
-                       </button>
-                       <button type="button" onClick={() => setNewMatch({...newMatch, tossWinner: newMatch.teamB})} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all shadow-sm ${newMatch.tossWinner === newMatch.teamB ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}>
-                         {getTeamName(newMatch.teamB)}
-                       </button>
-                     </div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Tournament</label>
+                    <select 
+                      value={newMatch.tournamentId}
+                      onChange={e => setNewMatch({...newMatch, tournamentId: e.target.value})}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
+                      required
+                    >
+                      <option value="" className="text-slate-500">Select...</option>
+                      {tournaments.map(t => <option key={t.id} value={t.id} className="text-slate-805 font-medium">{t.name}</option>)}
+                    </select>
                   </div>
-                  
-                  {newMatch.tossWinner && (
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Match Stage</label>
+                    <input 
+                      type="text"
+                      list="stage-options"
+                      value={newMatch.stage}
+                      onChange={e => setNewMatch({...newMatch, stage: e.target.value})}
+                      placeholder="e.g. Match 1"
+                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
+                      required
+                    />
+                    <datalist id="stage-options">
+                      <option value="Match 1" />
+                      <option value="Match 2" />
+                      <option value="Match 3" />
+                      <option value="Match 4" />
+                      <option value="Match 5" />
+                      <option value="League Match" />
+                      <option value="Quarter-Final" />
+                      <option value="Semi-Final" />
+                      <option value="Final" />
+                    </datalist>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Scheduled Time (Optional)</label>
+                    <input 
+                      type="datetime-local"
+                      value={newMatch.scheduledTime}
+                      onChange={e => setNewMatch({...newMatch, scheduledTime: e.target.value})}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Team A</label>
+                    <select 
+                      value={newMatch.teamA}
+                      onChange={e => setNewMatch({...newMatch, teamA: e.target.value, tossWinner: ''})}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
+                      required
+                    >
+                      <option value="" className="text-slate-500">Select</option>
+                      {teams.map(t => <option key={t.id} value={t.id} className="text-slate-805 font-medium">{t.shortName}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Team B</label>
+                    <select 
+                      value={newMatch.teamB}
+                      onChange={e => setNewMatch({...newMatch, teamB: e.target.value, tossWinner: ''})}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
+                      required
+                    >
+                      <option value="" className="text-slate-500">Select</option>
+                      {teams.map(t => <option key={t.id} value={t.id} className="text-slate-850 font-medium">{t.shortName}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Toss Section */}
+                {(newMatch.teamA && newMatch.teamB) && (
+                  <div className="bg-slate-50 border border-slate-200/60 p-4 rounded-xl space-y-4">
                     <div>
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 block">Decision</label>
-                      <div className="flex gap-2">
-                         <button type="button" onClick={() => setNewMatch({...newMatch, tossDecision: 'bat'})} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all shadow-sm ${newMatch.tossDecision === 'bat' ? 'bg-slate-800 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}>
-                           Batting First
+                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 block">Toss Won By</label>
+                       <div className="flex gap-2">
+                         <button type="button" onClick={() => setNewMatch({...newMatch, tossWinner: newMatch.teamA})} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all shadow-sm ${newMatch.tossWinner === newMatch.teamA ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}>
+                           {getTeamName(newMatch.teamA)}
                          </button>
-                         <button type="button" onClick={() => setNewMatch({...newMatch, tossDecision: 'bowl'})} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all shadow-sm ${newMatch.tossDecision === 'bowl' ? 'bg-slate-800 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}>
-                           Bowling First
+                         <button type="button" onClick={() => setNewMatch({...newMatch, tossWinner: newMatch.teamB})} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all shadow-sm ${newMatch.tossWinner === newMatch.teamB ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}>
+                           {getTeamName(newMatch.teamB)}
                          </button>
-                      </div>
+                       </div>
                     </div>
-                  )}
-                </div>
-              )}
+                    
+                    {newMatch.tossWinner && (
+                      <div>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 block">Decision</label>
+                        <div className="flex gap-2">
+                           <button type="button" onClick={() => setNewMatch({...newMatch, tossDecision: 'bat'})} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all shadow-sm ${newMatch.tossDecision === 'bat' ? 'bg-slate-800 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}>
+                             Batting First
+                           </button>
+                           <button type="button" onClick={() => setNewMatch({...newMatch, tossDecision: 'bowl'})} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all shadow-sm ${newMatch.tossDecision === 'bowl' ? 'bg-slate-800 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}>
+                             Bowling First
+                           </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Total Overs</label>
-                  <input 
-                    type="number"
-                    value={newMatch.overs}
-                    onChange={e => setNewMatch({...newMatch, overs: parseInt(e.target.value) || 20})}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
-                    min="1" max="50"
-                    required
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Total Overs</label>
+                    <input 
+                      type="number"
+                      value={newMatch.overs}
+                      onChange={e => setNewMatch({...newMatch, overs: parseInt(e.target.value) || 20})}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
+                      min="1" max="50"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Scorer</label>
+                    <select 
+                      value={newMatch.scorerId}
+                      onChange={e => setNewMatch({...newMatch, scorerId: e.target.value})}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
+                      required
+                    >
+                      <option value="" className="text-slate-500">Select...</option>
+                      {scorers.map(s => <option key={s.id} value={s.id} className="text-slate-800 font-medium">{s.email.split('@')[0]}</option>)}
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Scorer</label>
-                  <select 
-                    value={newMatch.scorerId}
-                    onChange={e => setNewMatch({...newMatch, scorerId: e.target.value})}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
-                    required
-                  >
-                    <option value="" className="text-slate-500">Select...</option>
-                    {scorers.map(s => <option key={s.id} value={s.id} className="text-slate-800 font-medium">{s.email.split('@')[0]}</option>)}
-                  </select>
-                </div>
-              </div>
 
-              <button 
-                type="submit"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow shadow-emerald-100 mt-4"
-              >
-                <Plus size={20} />
-                Initialize Match
-              </button>
-            </form>
-          </div>
+                <button 
+                  type="submit"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow shadow-emerald-100 mt-4"
+                >
+                  <Plus size={20} />
+                  Initialize Match
+                </button>
+              </form>
+            </div>
+          )}
         </div>
 
         {/* Matches List */}
@@ -301,13 +312,14 @@ export default function MatchesPage() {
           ) : (
             matches.map((m) => {
               const isAssigned = m.scorerId === currentUser?.uid || currentUser?.role === 'admin' || currentUser?.role === 'manager';
+              const canOpenScorer = isAssigned && userRole !== 'viewer';
               
               return (
                 <div key={m.id} className="glass-card rounded-2xl p-6 border-l-4 border-l-emerald-500 border border-white shadow-sm hover:shadow transition-all group relative">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <span className={`text-[9px] px-2.5 py-0.5 rounded font-black tracking-wider uppercase ${
-                        m.status === 'live' ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500'
+                        m.status === 'live' ? 'bg-red-100 text-red-650' : 'bg-slate-100 text-slate-500'
                       }`}>
                         {m.status}
                       </span>
@@ -320,17 +332,19 @@ export default function MatchesPage() {
                         </p>
                       )}
                     </div>
-                    <button 
-                      onClick={() => handleDelete(m.id)}
-                      className="text-slate-300 hover:text-red-600 transition-colors opacity-100 md:opacity-0 group-hover:opacity-100 p-1"
-                    >
-                      <Trash2 size={18} />
-                    </button>
+                    {userRole !== 'viewer' && (
+                      <button 
+                        onClick={() => handleDelete(m.id)}
+                        className="text-slate-300 hover:text-red-650 transition-colors opacity-100 md:opacity-0 group-hover:opacity-100 p-1"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    )}
                   </div>
 
                   <div className="flex items-center justify-between bg-slate-50/80 border border-slate-150 rounded-xl p-4 mb-4">
                     <div className="text-2xl font-black text-slate-800">{getTeamName(m.score?.innings1?.team)} <span className="text-[10px] text-slate-400 uppercase tracking-widest block font-bold mt-0.5">Batting First</span></div>
-                    <div className="text-slate-350 font-black italic text-sm">VS</div>
+                    <div className="text-slate-400 font-black italic text-sm">VS</div>
                     <div className="text-2xl font-black text-slate-800">{getTeamName(m.score?.innings2?.team)} <span className="text-[10px] text-slate-400 uppercase tracking-widest block font-bold mt-0.5">Bowling First</span></div>
                   </div>
 
@@ -345,7 +359,7 @@ export default function MatchesPage() {
                         <ExternalLink size={16} /> Public View
                       </Link>
                       
-                      {isAssigned && (
+                      {canOpenScorer && (
                         <Link href={`/scorer/${m.id}`} className="flex-1 sm:flex-none bg-emerald-100 hover:bg-emerald-250 text-emerald-700 px-4 py-2 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all shadow-sm">
                           <PlayCircle size={16} /> Score Panel
                         </Link>

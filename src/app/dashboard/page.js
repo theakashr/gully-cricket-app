@@ -1,12 +1,14 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Users, Shield, Plus, Activity, Settings, Calendar, User } from 'lucide-react';
+import { Trophy, Users, Shield, Plus, Activity, Settings, Calendar, User, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { ref, onValue } from 'firebase/database';
+import { useAuth } from '@/context/AuthContext';
 
 export default function DashboardPage() {
+  const { role } = useAuth();
   const [data, setData] = useState({
     tournaments: [],
     matches: [],
@@ -28,7 +30,7 @@ export default function DashboardPage() {
         } else {
            let arr = [];
            if (val) {
-             arr = Object.entries(val).map(([id, data]) => ({ id, ...data }));
+             arr = Object.entries(val).map(([id, val2]) => ({ id, ...val2 }));
            }
            setData(prev => ({ ...prev, [key]: arr }));
         }
@@ -42,7 +44,7 @@ export default function DashboardPage() {
     setupListener('players', 'players');
 
     // Simulate small loading delay for smooth UI
-    const timer = setTimeout(() => setLoading(false), 500);
+    const timer = setTimeout(() => setLoading(false), 550);
 
     return () => {
       unsubscribes.forEach(u => u());
@@ -88,7 +90,9 @@ export default function DashboardPage() {
       <div className="flex justify-between items-center mb-10">
         <div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">Dashboard Overview</h1>
-          <p className="text-slate-500 mt-1 text-sm font-medium">Manage tournaments, teams, and live scoring</p>
+          <p className="text-slate-550 mt-1 text-sm font-semibold">
+            {role === 'viewer' ? 'Read-Only Viewer Account access' : 'Manage tournaments, teams, and live scoring'}
+          </p>
         </div>
         <button className="glass p-3 rounded-xl hover:bg-slate-100/80 transition-colors shadow-sm">
           <Settings size={20} className="text-slate-500" />
@@ -117,7 +121,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-8">
-        {/* Quick Actions */}
+        {/* Quick Actions / Navigator */}
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -125,43 +129,59 @@ export default function DashboardPage() {
           className="glass rounded-3xl p-6 border border-slate-200/80 shadow-sm"
         >
           <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-            <Activity className="text-[var(--color-cricket-accent)]" /> Quick Actions
+            <Activity className="text-[var(--color-cricket-accent)]" /> {role === 'viewer' ? 'Dashboard Sections' : 'Quick Actions'}
           </h2>
           <div className="space-y-4">
             <Link href="/dashboard/matches" className="block w-full glass hover:bg-slate-100/50 border border-slate-200/80 p-4 rounded-xl flex items-center gap-4 transition-all hover:shadow-sm group">
               <div className="bg-[var(--color-cricket-accent)]/20 p-3 rounded-lg group-hover:scale-110 transition-transform">
-                <Plus size={20} className="text-[var(--color-cricket-accent)]" />
+                {role === 'viewer' ? <ChevronRight size={20} className="text-[var(--color-cricket-accent)]" /> : <Plus size={20} className="text-[var(--color-cricket-accent)]" />}
               </div>
               <div className="text-left">
-                <h4 className="text-slate-800 font-bold text-lg leading-tight">Start New Match</h4>
-                <p className="text-xs text-slate-500 font-medium">Initialize a live scoring session</p>
+                <h4 className="text-slate-800 font-bold text-lg leading-tight">
+                  {role === 'viewer' ? 'Explore Matches' : 'Start New Match'}
+                </h4>
+                <p className="text-xs text-slate-500 font-semibold">
+                  {role === 'viewer' ? 'Monitor scores, stages, and over details' : 'Initialize a live scoring session'}
+                </p>
               </div>
             </Link>
             <Link href="/dashboard/tournaments" className="block w-full glass hover:bg-slate-100/50 border border-slate-200/80 p-4 rounded-xl flex items-center gap-4 transition-all hover:shadow-sm group">
               <div className="bg-blue-500/20 p-3 rounded-lg group-hover:scale-110 transition-transform">
-                <Trophy size={20} className="text-blue-500" />
+                {role === 'viewer' ? <ChevronRight size={20} className="text-blue-500" /> : <Trophy size={20} className="text-blue-500" />}
               </div>
               <div className="text-left">
-                <h4 className="text-slate-800 font-bold text-lg leading-tight">Create Tournament</h4>
-                <p className="text-xs text-slate-500 font-medium">Set up a new league or cup</p>
+                <h4 className="text-slate-800 font-bold text-lg leading-tight">
+                  {role === 'viewer' ? 'Explore Tournaments' : 'Create Tournament'}
+                </h4>
+                <p className="text-xs text-slate-500 font-semibold">
+                  {role === 'viewer' ? 'Browse active leagues, fixtures, and standings' : 'Set up a new league or cup'}
+                </p>
               </div>
             </Link>
             <Link href="/dashboard/teams" className="block w-full glass hover:bg-slate-100/50 border border-slate-200/80 p-4 rounded-xl flex items-center gap-4 transition-all hover:shadow-sm group">
               <div className="bg-purple-500/20 p-3 rounded-lg group-hover:scale-110 transition-transform">
-                <Shield size={20} className="text-purple-500" />
+                {role === 'viewer' ? <ChevronRight size={20} className="text-purple-500" /> : <Shield size={20} className="text-purple-500" />}
               </div>
               <div className="text-left">
-                <h4 className="text-slate-800 font-bold text-lg leading-tight">Manage Teams</h4>
-                <p className="text-xs text-slate-500 font-medium">Add franchises and squads</p>
+                <h4 className="text-slate-800 font-bold text-lg leading-tight">
+                  {role === 'viewer' ? 'Explore Teams' : 'Manage Teams'}
+                </h4>
+                <p className="text-xs text-slate-500 font-semibold">
+                  {role === 'viewer' ? 'Inspect team franchises and squads' : 'Add franchises and squads'}
+                </p>
               </div>
             </Link>
             <Link href="/dashboard/players" className="block w-full glass hover:bg-slate-100/50 border border-slate-200/80 p-4 rounded-xl flex items-center gap-4 transition-all hover:shadow-sm group">
               <div className="bg-yellow-500/20 p-3 rounded-lg group-hover:scale-110 transition-transform">
-                <User size={20} className="text-yellow-500" />
+                {role === 'viewer' ? <ChevronRight size={20} className="text-yellow-500" /> : <User size={20} className="text-yellow-500" />}
               </div>
               <div className="text-left">
-                <h4 className="text-slate-800 font-bold text-lg leading-tight">Manage Players</h4>
-                <p className="text-xs text-slate-500 font-medium">Register players to global database</p>
+                <h4 className="text-slate-800 font-bold text-lg leading-tight">
+                  {role === 'viewer' ? 'Explore Players' : 'Manage Players'}
+                </h4>
+                <p className="text-xs text-slate-500 font-semibold">
+                  {role === 'viewer' ? 'Browse global players, batting and bowling styles' : 'Register players to global database'}
+                </p>
               </div>
             </Link>
           </div>
@@ -182,8 +202,8 @@ export default function DashboardPage() {
           <div className="space-y-4">
              {recentMatches.length === 0 ? (
                <div className="text-center p-8 bg-slate-50/50 rounded-2xl border border-slate-200/80">
-                 <Calendar size={32} className="mx-auto text-slate-300 mb-2" />
-                 <p className="text-slate-400 font-medium text-sm">No matches found</p>
+                 <Calendar size={32} className="mx-auto text-slate-400 mb-2" />
+                 <p className="text-slate-400 font-semibold text-sm">No matches found</p>
                </div>
              ) : (
                recentMatches.map(m => {
@@ -205,7 +225,7 @@ export default function DashboardPage() {
                  }
 
                  return (
-                   <Link href={m.status === 'completed' ? `/match/${m.id}` : `/scorer/${m.id}`} key={m.id} className="block">
+                   <Link href={m.status === 'completed' ? `/match/${m.id}` : (role === 'viewer' ? `/match/${m.id}` : `/scorer/${m.id}`)} key={m.id} className="block">
                      <div className={`border rounded-2xl p-4 transition-all relative overflow-hidden group ${
                        m.status === 'live' 
                          ? 'bg-emerald-50/30 border-emerald-500/20 hover:bg-emerald-50/50' 
@@ -216,7 +236,7 @@ export default function DashboardPage() {
                        )}
                        
                        <div className="flex justify-between items-center mb-3">
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 truncate pr-2 max-w-[200px]">{tourney.name}</span>
+                          <span className="text-[10px] font-black text-slate-450 uppercase tracking-widest pl-2 truncate pr-2 max-w-[200px]">{tourney.name}</span>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-black tracking-wider uppercase flex items-center gap-1 ${
                              m.status === 'live' ? 'bg-red-100 text-red-600' :
                              m.status === 'completed' ? 'bg-emerald-100 text-emerald-600' :
@@ -230,7 +250,7 @@ export default function DashboardPage() {
                        <div className="flex justify-between items-center pl-2">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center overflow-hidden flex-shrink-0">
-                              {tA.logoUrl ? <img src={tA.logoUrl} className="w-full h-full object-cover" /> : <span className="text-[10px] font-black text-blue-600">{tA.shortName}</span>}
+                              {tA.logoUrl ? <img src={tA.logoUrl} alt="Logo" className="w-full h-full object-cover" /> : <span className="text-[10px] font-black text-blue-600">{tA.shortName}</span>}
                             </div>
                             <span className="font-bold text-slate-800 text-lg">{tA.shortName}</span>
                           </div>
@@ -242,7 +262,7 @@ export default function DashboardPage() {
                           <div className="flex items-center gap-3">
                             <span className="font-bold text-slate-800 text-lg">{tB.shortName}</span>
                             <div className="w-8 h-8 rounded-full bg-violet-500/10 border border-violet-500/20 flex items-center justify-center overflow-hidden flex-shrink-0">
-                              {tB.logoUrl ? <img src={tB.logoUrl} className="w-full h-full object-cover" /> : <span className="text-[10px] font-black text-violet-600">{tB.shortName}</span>}
+                              {tB.logoUrl ? <img src={tB.logoUrl} alt="Logo" className="w-full h-full object-cover" /> : <span className="text-[10px] font-black text-violet-600">{tB.shortName}</span>}
                             </div>
                           </div>
                        </div>

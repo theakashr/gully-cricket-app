@@ -6,8 +6,10 @@ import { db, storage } from '@/lib/firebase';
 import { ref, push, set, onValue, remove } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 export default function PlayersPage() {
+  const { role: userRole } = useAuth();
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -38,6 +40,7 @@ export default function PlayersPage() {
 
   const handleCreatePlayer = async (e) => {
     e.preventDefault();
+    if (userRole === 'viewer') return;
     if (!name.trim()) return;
 
     setIsUploading(true);
@@ -64,7 +67,6 @@ export default function PlayersPage() {
       setName('');
       setPhotoUrl('');
       setPhotoFile(null);
-      // Keep previous roles selected for ease of bulk entry
     } catch (error) {
       console.error("Error creating player:", error);
       alert("Failed to upload image or create player.");
@@ -74,6 +76,7 @@ export default function PlayersPage() {
   };
 
   const handleDeletePlayer = async (id) => {
+    if (userRole === 'viewer') return;
     if (confirm("Delete this player? They will remain in existing scorecards but won't be selectable for new matches.")) {
       await remove(ref(db, `players/${id}`));
     }
@@ -92,130 +95,137 @@ export default function PlayersPage() {
       </div>
 
       <div className="grid md:grid-cols-3 gap-8">
-        {/* Create Player Form */}
+        {/* Create Player Form / Read Only Block */}
         <div className="md:col-span-1">
-          <div className="glass rounded-2xl p-6 border border-slate-200/80 shadow-sm sticky top-8">
-            <h2 className="text-xl font-bold text-slate-900 mb-4">Register Player</h2>
-            <form onSubmit={handleCreatePlayer} className="space-y-4">
-              <div>
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Full Name</label>
-                <input 
-                  type="text" 
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Virat Kohli"
-                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
-                  required
-                />
-              </div>
+          {userRole === 'viewer' ? (
+            <div className="glass rounded-2xl p-6 border border-slate-200/80 shadow-sm sticky top-8 bg-slate-50/50">
+              <h2 className="text-lg font-black text-slate-900 mb-2">Read-Only Mode</h2>
+              <p className="text-xs text-slate-600 font-bold leading-relaxed">
+                You are currently logged in with a **Viewer** account. You can view all players and their styles, but you do not have permission to register new players or remove them from the database.
+              </p>
+            </div>
+          ) : (
+            <div className="glass rounded-2xl p-6 border border-slate-200/80 shadow-sm sticky top-8">
+              <h2 className="text-xl font-bold text-slate-900 mb-4">Register Player</h2>
+              <form onSubmit={handleCreatePlayer} className="space-y-4">
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Full Name</label>
+                  <input 
+                    type="text" 
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="e.g. Virat Kohli"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
+                    required
+                  />
+                </div>
 
-              <div>
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Role</label>
-                <select 
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
-                >
-                  <option value="Batsman">Batsman</option>
-                  <option value="Bowler">Bowler</option>
-                  <option value="All-Rounder">All-Rounder</option>
-                  <option value="Wicket Keeper">Wicket Keeper</option>
-                </select>
-              </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Role</label>
+                  <select 
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
+                  >
+                    <option value="Batsman">Batsman</option>
+                    <option value="Bowler">Bowler</option>
+                    <option value="All-Rounder">All-Rounder</option>
+                    <option value="Wicket Keeper">Wicket Keeper</option>
+                  </select>
+                </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                 <div>
-                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Batting</label>
-                   <select 
-                     value={battingStyle}
-                     onChange={(e) => setBattingStyle(e.target.value)}
-                     className="w-full bg-white border border-slate-200 rounded-xl px-3 py-3 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
-                   >
-                     <option value="Right-Handed">RHB</option>
-                     <option value="Left-Handed">LHB</option>
-                   </select>
-                 </div>
-                 <div>
-                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Bowling</label>
-                   <select 
-                     value={bowlingStyle}
-                     onChange={(e) => setBowlingStyle(e.target.value)}
-                     className="w-full bg-white border border-slate-200 rounded-xl px-3 py-3 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
-                   >
-                     <option value="None">None</option>
-                     <option value="Right-arm Fast">Right Fast</option>
-                     <option value="Right-arm Spin">Right Spin</option>
-                     <option value="Left-arm Fast">Left Fast</option>
-                     <option value="Left-arm Spin">Left Spin</option>
-                   </select>
-                 </div>
-              </div>
-
-              <div>
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Profile Picture (Optional)</label>
-                
-                <div className="space-y-3">
-                   {/* File Upload Option */}
-                   <div className="relative overflow-hidden bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between group hover:bg-slate-100 transition-all cursor-pointer">
-                     <div className="flex items-center gap-3">
-                        <Camera size={18} className="text-emerald-600" />
-                        <span className="text-sm text-slate-700 font-bold truncate max-w-[150px] md:max-w-[200px]">
-                          {photoFile ? photoFile.name : 'Choose from Gallery...'}
-                        </span>
-                     </div>
-                     <span className="text-xs font-bold text-slate-400 uppercase tracking-widest group-hover:text-slate-700 transition-colors">Browse</span>
-                     <input 
-                       type="file" 
-                       accept="image/*"
-                       onChange={(e) => {
-                         if (e.target.files[0]) {
-                           setPhotoFile(e.target.files[0]);
-                           setPhotoUrl(''); // Clear URL if file is selected
-                         }
-                       }}
-                       className="absolute inset-0 opacity-0 cursor-pointer"
-                     />
+                <div className="grid grid-cols-2 gap-3">
+                   <div>
+                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Batting</label>
+                     <select 
+                       value={battingStyle}
+                       onChange={(e) => setBattingStyle(e.target.value)}
+                       className="w-full bg-white border border-slate-200 rounded-xl px-3 py-3 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
+                     >
+                       <option value="Right-Handed">RHB</option>
+                       <option value="Left-Handed">LHB</option>
+                     </select>
                    </div>
-
-                   <div className="flex items-center gap-4">
-                     <div className="h-[1px] flex-1 bg-slate-200"></div>
-                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">OR</span>
-                     <div className="h-[1px] flex-1 bg-slate-200"></div>
-                   </div>
-
-                   {/* URL Option */}
-                   <div className="relative flex items-center">
-                     <LinkIcon className="absolute left-3.5 text-slate-400" size={16} />
-                     <input 
-                       type="url" 
-                       value={photoUrl}
-                       onChange={(e) => {
-                         setPhotoUrl(e.target.value);
-                         if (e.target.value) setPhotoFile(null); // Clear file if URL is typed
-                       }}
-                       placeholder="Paste image link..."
-                       className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
-                     />
+                   <div>
+                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Bowling</label>
+                     <select 
+                       value={bowlingStyle}
+                       onChange={(e) => setBowlingStyle(e.target.value)}
+                       className="w-full bg-white border border-slate-200 rounded-xl px-3 py-3 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
+                     >
+                       <option value="None">None</option>
+                       <option value="Right-arm Fast">Right Fast</option>
+                       <option value="Right-arm Spin">Right Spin</option>
+                       <option value="Left-arm Fast">Left Fast</option>
+                       <option value="Left-arm Spin">Left Spin</option>
+                     </select>
                    </div>
                 </div>
-              </div>
 
-              <button 
-                type="submit"
-                disabled={isUploading}
-                className="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow disabled:opacity-50 mt-6 shadow-emerald-100"
-              >
-                {isUploading ? (
-                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                ) : (
-                  <>
-                    <Plus size={18} />
-                    Register Player
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Profile Picture (Optional)</label>
+                  
+                  <div className="space-y-3">
+                     <div className="relative overflow-hidden bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between group hover:bg-slate-100 transition-all cursor-pointer">
+                       <div className="flex items-center gap-3">
+                          <Camera size={18} className="text-emerald-600" />
+                          <span className="text-sm text-slate-700 font-bold truncate max-w-[150px] md:max-w-[200px]">
+                            {photoFile ? photoFile.name : 'Choose from Gallery...'}
+                          </span>
+                       </div>
+                       <span className="text-xs font-bold text-slate-400 uppercase tracking-widest group-hover:text-slate-700 transition-colors">Browse</span>
+                       <input 
+                         type="file" 
+                         accept="image/*"
+                         onChange={(e) => {
+                           if (e.target.files[0]) {
+                             setPhotoFile(e.target.files[0]);
+                             setPhotoUrl('');
+                           }
+                         }}
+                         className="absolute inset-0 opacity-0 cursor-pointer"
+                       />
+                     </div>
+
+                     <div className="flex items-center gap-4">
+                       <div className="h-[1px] flex-1 bg-slate-200"></div>
+                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">OR</span>
+                       <div className="h-[1px] flex-1 bg-slate-200"></div>
+                     </div>
+
+                     <div className="relative flex items-center">
+                       <LinkIcon className="absolute left-3.5 text-slate-400" size={16} />
+                       <input 
+                         type="url" 
+                         value={photoUrl}
+                         onChange={(e) => {
+                           setPhotoUrl(e.target.value);
+                           if (e.target.value) setPhotoFile(null);
+                         }}
+                         placeholder="Paste image link..."
+                         className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
+                       />
+                     </div>
+                  </div>
+                </div>
+
+                <button 
+                  type="submit"
+                  disabled={isUploading}
+                  className="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow disabled:opacity-50 mt-6 shadow-emerald-100"
+                >
+                  {isUploading ? (
+                    <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      <Plus size={18} />
+                      Register Player
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          )}
         </div>
 
         {/* Players List */}
@@ -254,18 +264,20 @@ export default function PlayersPage() {
                       <span className="inline-block bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full mb-1">
                         {p.role}
                       </span>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest flex flex-col gap-0.5 mt-1.5">
+                      <p className="text-[10px] text-slate-405 font-bold uppercase tracking-widest flex flex-col gap-0.5 mt-1.5">
                         <span>🏏 {p.battingStyle}</span>
                         {p.bowlingStyle !== 'None' && <span>🥎 {p.bowlingStyle}</span>}
                       </p>
                    </div>
                    
-                   <button 
-                     onClick={() => handleDeletePlayer(p.id)}
-                     className="absolute top-3 right-3 w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all opacity-100 md:opacity-0 group-hover:opacity-100 shadow-sm"
-                   >
-                     <Trash2 size={14} />
-                   </button>
+                   {userRole !== 'viewer' && (
+                     <button 
+                       onClick={() => handleDeletePlayer(p.id)}
+                       className="absolute top-3 right-3 w-8 h-8 rounded-full bg-red-50 text-red-650 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all opacity-100 md:opacity-0 group-hover:opacity-100 shadow-sm"
+                     >
+                       <Trash2 size={14} />
+                     </button>
+                   )}
                  </motion.div>
                ))}
             </div>

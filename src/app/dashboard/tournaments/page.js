@@ -5,8 +5,10 @@ import { Trophy, Plus, Trash2 } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { ref, push, set, onValue, remove } from 'firebase/database';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 export default function TournamentsPage() {
+  const { role } = useAuth();
   const [tournaments, setTournaments] = useState([]);
   const [newTournamentName, setNewTournamentName] = useState('');
   const [loading, setLoading] = useState(true);
@@ -32,6 +34,7 @@ export default function TournamentsPage() {
 
   const handleCreate = async (e) => {
     e.preventDefault();
+    if (role === 'viewer') return;
     if (!newTournamentName.trim()) return;
 
     try {
@@ -50,6 +53,7 @@ export default function TournamentsPage() {
   };
 
   const handleDelete = async (id) => {
+    if (role === 'viewer') return;
     if (confirm("Are you sure you want to delete this tournament?")) {
       try {
         await remove(ref(db, `tournaments/${id}`));
@@ -72,31 +76,40 @@ export default function TournamentsPage() {
       </div>
 
       <div className="grid md:grid-cols-3 gap-8">
-        {/* Create Form */}
+        {/* Create Form / Read Only Block */}
         <div className="md:col-span-1">
-          <div className="glass rounded-2xl p-6 border border-slate-200/80 shadow-sm sticky top-8">
-            <h2 className="text-xl font-bold text-slate-900 mb-4">Create New</h2>
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div>
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Tournament Name</label>
-                <input 
-                  type="text" 
-                  value={newTournamentName}
-                  onChange={(e) => setNewTournamentName(e.target.value)}
-                  placeholder="e.g. Summer Cup 2026"
-                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
-                  required
-                />
-              </div>
-              <button 
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow shadow-blue-200"
-              >
-                <Plus size={18} />
-                Create Tournament
-              </button>
-            </form>
-          </div>
+          {role === 'viewer' ? (
+            <div className="glass rounded-2xl p-6 border border-slate-200/80 shadow-sm sticky top-8 bg-slate-50/50">
+              <h2 className="text-lg font-black text-slate-900 mb-2">Read-Only Mode</h2>
+              <p className="text-xs text-slate-600 font-bold leading-relaxed">
+                You are currently logged in with a **Viewer** account. You can explore active tournaments, fixtures, and standings, but you do not have permission to create or delete tournament brackets.
+              </p>
+            </div>
+          ) : (
+            <div className="glass rounded-2xl p-6 border border-slate-200/80 shadow-sm sticky top-8">
+              <h2 className="text-xl font-bold text-slate-900 mb-4">Create New</h2>
+              <form onSubmit={handleCreate} className="space-y-4">
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Tournament Name</label>
+                  <input 
+                    type="text" 
+                    value={newTournamentName}
+                    onChange={(e) => setNewTournamentName(e.target.value)}
+                    placeholder="e.g. Summer Cup 2026"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
+                    required
+                  />
+                </div>
+                <button 
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow shadow-blue-200"
+                >
+                  <Plus size={18} />
+                  Create Tournament
+                </button>
+              </form>
+            </div>
+          )}
         </div>
 
         {/* List */}
@@ -121,7 +134,7 @@ export default function TournamentsPage() {
                 className="glass-card rounded-2xl p-5 border border-white shadow-sm flex justify-between items-center group hover:shadow transition-all"
               >
                 <div>
-                  <Link href={`/tournament/${t.id}`} className="hover:underline decoration-blue-600 underline-offset-4 decoration-2">
+                  <Link href={`/dashboard/tournaments/${t.id}`} className="hover:underline decoration-blue-600 underline-offset-4 decoration-2">
                     <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2.5">
                       {t.name}
                       {t.status === 'active' && (
@@ -132,12 +145,14 @@ export default function TournamentsPage() {
                   <p className="text-xs text-slate-400 font-medium mt-1">Created: {new Date(t.createdAt).toLocaleDateString()}</p>
                 </div>
                 
-                <button 
-                  onClick={() => handleDelete(t.id)}
-                  className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center opacity-100 md:opacity-0 group-hover:opacity-100 hover:bg-red-600 hover:text-white transition-all shadow-sm"
-                >
-                  <Trash2 size={18} />
-                </button>
+                {role !== 'viewer' && (
+                  <button 
+                    onClick={() => handleDelete(t.id)}
+                    className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center opacity-100 md:opacity-0 group-hover:opacity-100 hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                )}
               </motion.div>
             ))
           )}

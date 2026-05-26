@@ -13,7 +13,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, role } = useAuth();
+  const { user, role, optInAdmin } = useAuth();
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -24,7 +24,12 @@ export default function Navbar() {
     { name: 'Home', icon: Home, href: '/' },
     { name: 'Matches', icon: Activity, href: '/matches' },
     { name: 'Tournaments', icon: Trophy, href: '/tournaments' },
-    { name: 'Dashboard', icon: LogIn, href: '/dashboard' },
+    ...(user && (role === 'admin' || role === 'manager' || role === 'scorer' || (role === 'viewer' && optInAdmin))
+      ? [{ name: 'Dashboard', icon: LogIn, href: '/dashboard' }]
+      : !user
+        ? [{ name: 'Dashboard', icon: LogIn, href: '/dashboard' }]
+        : []
+    )
   ];
 
   // Hide navbar on dashboard pages (dashboard has its own sidebar)

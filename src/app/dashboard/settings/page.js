@@ -6,7 +6,7 @@ import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 
 export default function SettingsPage() {
-  const { user, role, loading } = useAuth();
+  const { user, role, optInAdmin, updateOptInAdmin, loading } = useAuth();
   const router = useRouter();
 
   if (loading) {
@@ -63,6 +63,43 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
+
+        {/* Admin Access Preferences (Viewer role only) */}
+        {role === 'viewer' && (
+          <div className="pb-8 border-b border-slate-100">
+            <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+              <Shield size={18} className="text-emerald-600" />
+              Admin View Preferences
+            </h3>
+            
+            <div className="bg-emerald-50/30 border border-emerald-100 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+              <div className="flex-1">
+                <h4 className="font-bold text-slate-805">Spectator Admin View (Read-Only)</h4>
+                <p className="text-xs font-semibold text-slate-500 mt-1 leading-relaxed">
+                  Opt-in to enable a read-only view of the SKCC admin panel in the sidebar/navbar to inspect detailed stats, brackets, and team configurations.
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => updateOptInAdmin(!optInAdmin)}
+                  className={`w-14 h-8 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 focus:outline-none ${
+                    optInAdmin ? 'bg-emerald-600' : 'bg-slate-300'
+                  }`}
+                >
+                  <div
+                    className={`bg-white w-6 h-6 rounded-full shadow-md transform transition-transform duration-300 ${
+                      optInAdmin ? 'translate-x-6' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+                <span className="text-sm font-black uppercase text-slate-700 w-12 text-center">
+                  {optInAdmin ? 'On' : 'Off'}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Security / Logout */}
         <div>

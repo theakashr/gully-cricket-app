@@ -220,21 +220,20 @@ export default function MatchCenterPage({ params: paramsPromise }) {
                  )}
               </div>
             </div>
-            
-            <div className="flex flex-col items-start sm:items-end w-full sm:w-auto">
+                <div className="flex flex-col items-start sm:items-end w-full sm:w-auto">
               <p className="text-slate-400 text-[10px] font-black tracking-widest uppercase mb-1.5">Current Run Rate</p>
               <div className="bg-blue-50 border border-blue-200/60 px-5 py-2.5 rounded-2xl mb-1.5">
                 <p className="text-3xl font-black text-blue-700 tabular-nums">{crr}</p>
               </div>
               {targetRuns && match.status !== 'completed' && (
-                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">REQ: <span className="text-slate-850">{(runsNeeded / (ballsRemaining / 6)).toFixed(2) || 0}</span></p>
+                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">REQ: <span className="text-slate-905 font-black">{(runsNeeded / (ballsRemaining / 6)).toFixed(2) || 0}</span></p>
               )}
             </div>
           </div>
           
           <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
              <div className="flex items-center gap-4">
-                <span className="text-xl font-black text-slate-450">{bowlingTeam}</span>
+                <span className="text-xl font-black text-slate-500">{bowlingTeam}</span>
                 <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">{match.currentInnings === 1 ? 'Yet to bat' : `Scored ${match.score.innings1.runs}/${match.score.innings1.wickets}`}</span>
              </div>
              
@@ -242,11 +241,11 @@ export default function MatchCenterPage({ params: paramsPromise }) {
                 <p className="text-sm text-emerald-700 font-bold">
                   Need {runsNeeded} runs from {ballsRemaining} balls
                 </p>
-             ) : (
-                <p className="text-xs text-slate-450 font-bold uppercase tracking-wider text-[10px]">
+              ) : (
+                <p className="text-xs text-slate-500 font-bold uppercase tracking-wider text-[10px]">
                   Toss: {getTeamShort(match.toss?.wonBy)} elected to {match.toss?.decision}
                 </p>
-             )}
+              )}
           </div>
           
           {/* Current Players Display */}
@@ -256,35 +255,35 @@ export default function MatchCenterPage({ params: paramsPromise }) {
                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5"><span className="text-sm">🏏</span> Batsmen</span>
                </div>
                <div className="flex justify-between items-center">
-                 <div className="text-slate-850 font-bold text-base flex items-center">
+                 <div className="text-slate-900 font-bold text-base flex items-center">
                    {match.score[currInningsKey].currentPlayers.striker?.name || 'Striker'} 
                    <span className="text-emerald-600 ml-1.5 text-sm font-black">*</span>
                  </div>
-                 <div className="text-slate-500 font-bold text-sm tabular-nums">
+                 <div className="text-slate-550 font-bold text-sm tabular-nums">
                    <span className="text-slate-800 font-black">{match.score[currInningsKey].currentPlayers.striker?.runs || 0}</span> ({match.score[currInningsKey].currentPlayers.striker?.balls || 0})
                  </div>
                </div>
                <div className="flex justify-between items-center mt-1">
-                 <div className="text-slate-500 font-medium text-sm">
+                 <div className="text-slate-700 font-medium text-sm">
                    {match.score[currInningsKey].currentPlayers.nonStriker?.name || 'Non-Striker'}
                  </div>
-                 <div className="text-slate-400 font-bold text-sm tabular-nums">
-                   <span className="text-slate-700 font-black">{match.score[currInningsKey].currentPlayers.nonStriker?.runs || 0}</span> ({match.score[currInningsKey].currentPlayers.nonStriker?.balls || 0})
+                 <div className="text-slate-500 font-bold text-sm tabular-nums">
+                   <span className="text-slate-800 font-black">{match.score[currInningsKey].currentPlayers.nonStriker?.runs || 0}</span> ({match.score[currInningsKey].currentPlayers.nonStriker?.balls || 0})
                  </div>
                </div>
                
                <div className="mt-2 pt-3 border-t border-slate-100 flex justify-between items-center">
                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5"><span className="text-sm">🥎</span> Bowler</span>
                  <div className="text-right">
-                    <span className="text-emerald-700 font-extrabold text-base block leading-tight mb-0.5">
+                    <span className="text-emerald-700 font-extrabold text-base block leading-tight mb-0.5 animate-pulse">
                       {match.score[currInningsKey].currentPlayers.bowler?.name || 'TBD'}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-mono tracking-wider block font-bold">
+                    <span className="text-[10px] text-slate-500 font-mono tracking-wider block font-bold">
                       {match.score[currInningsKey].currentPlayers.bowler?.overs || 0} O - {match.score[currInningsKey].currentPlayers.bowler?.runs || 0} R - {match.score[currInningsKey].currentPlayers.bowler?.wickets || 0} W
                     </span>
                  </div>
-               </div>
-            </div>
+              </div>
+           </div>
           )}
           </div>
         </div>
@@ -325,7 +324,7 @@ export default function MatchCenterPage({ params: paramsPromise }) {
                   >
                     <div className="w-14 flex-shrink-0 text-center flex flex-col justify-center">
                       <span className="text-sm font-black text-slate-400">{ball.over.toFixed(1)}</span>
-                      <span className="text-[9px] text-slate-350 font-black uppercase tracking-widest mt-0.5">Inn {ball.innings}</span>
+                      <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-0.5">Inn {ball.innings}</span>
                     </div>
                     <div className="flex-shrink-0">
                       <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-base shadow-sm border ${

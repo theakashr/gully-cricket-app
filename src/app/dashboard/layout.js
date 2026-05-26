@@ -14,7 +14,7 @@ export default function DashboardLayout({ children }) {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const { role } = useAuth();
+  const { role, optInAdmin, updateOptInAdmin } = useAuth();
 
   const allNavItems = [
     { name: 'Overview', href: '/dashboard', icon: Home },
@@ -33,8 +33,65 @@ export default function DashboardLayout({ children }) {
     router.push('/login');
   };
 
+  const isSettingsPage = pathname === '/dashboard/settings';
+
+  if (role === 'viewer' && !optInAdmin && !isSettingsPage) {
+    return (
+      <ProtectedRoute allowedRoles={['admin', 'manager', 'viewer']}>
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50/50">
+          <div className="w-full max-w-xl bg-white border border-slate-200 rounded-3xl p-8 md:p-12 shadow-xl text-center space-y-8 relative overflow-hidden">
+            {/* Background blur decorative element */}
+            <div className="absolute -top-12 -right-12 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl"></div>
+
+            <div className="w-20 h-20 mx-auto rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shadow-md">
+              <Shield className="text-[var(--color-cricket-accent)] animate-pulse" size={40} />
+            </div>
+
+            <div className="space-y-3">
+              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-100/50">
+                Spectator / Viewer Feature
+              </span>
+              <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                Opt-in to Read-Only <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-cricket-accent)] to-[var(--color-cricket-blue)]">
+                  Admin Dashboard
+                </span>
+              </h1>
+            </div>
+
+            <p className="text-sm md:text-base text-gray-600 font-medium leading-relaxed max-w-md mx-auto">
+              By default, spectator accounts do not see the club administrative panel. 
+              You can opt-in to view a secure, <strong>Read-Only Mode</strong> of the dashboard. 
+              This allows you to browse tournament logs, team rosters, player details, and matches without the ability to modify any live data.
+            </p>
+
+            <div className="pt-4 flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={() => router.push('/')}
+                className="px-6 py-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-sm font-bold text-slate-700 transition-all flex items-center justify-center gap-2"
+              >
+                Return to Public Site
+              </button>
+              <button
+                onClick={() => updateOptInAdmin(true)}
+                className="px-8 py-3.5 bg-gradient-to-r from-[var(--color-cricket-accent)] to-[var(--color-cricket-blue)] hover:shadow-lg hover:shadow-[var(--color-cricket-accent)]/20 text-white font-black uppercase tracking-wider text-xs rounded-xl transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
+              >
+                Yes, Enable Read-Only Admin Panel
+              </button>
+            </div>
+
+            <p className="text-[11px] text-slate-400 font-semibold italic pt-2">
+              * You can toggle this setting off anytime from the Account Settings page.
+            </p>
+          </div>
+        </div>
+      </ProtectedRoute>
+    );
+  }
+
   return (
-    <ProtectedRoute allowedRoles={['admin', 'manager']}>
+    <ProtectedRoute allowedRoles={['admin', 'manager', 'viewer']}>
       <div className="flex min-h-screen bg-slate-50/50">
         
         {/* Mobile Top Bar */}
