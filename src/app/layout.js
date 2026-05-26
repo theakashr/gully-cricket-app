@@ -2,6 +2,7 @@ import './globals.css';
 import { Inter } from 'next/font/google';
 import Navbar from '@/components/Navbar';
 import { AuthProvider } from '@/context/AuthContext';
+import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -60,6 +61,17 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <Navbar />
           <main className="flex-1">
+            <Toaster 
+              position="top-center"
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: '#111',
+                  color: '#fff',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                },
+              }} 
+            />
             {children}
           </main>
         </AuthProvider>

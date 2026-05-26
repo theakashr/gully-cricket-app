@@ -1,10 +1,11 @@
 "use client";
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, ArrowLeft, Trophy } from 'lucide-react';
 import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { ref, onValue, get } from 'firebase/database';
+import toast from 'react-hot-toast';
 
 export default function MatchCenterPage({ params: paramsPromise }) {
   const params = use(paramsPromise);
@@ -15,6 +16,7 @@ export default function MatchCenterPage({ params: paramsPromise }) {
   const [teamB, setTeamB] = useState(null);
   const [balls, setBalls] = useState([]);
   const [loading, setLoading] = useState(true);
+  const prevBallsLength = useRef(0);
 
   useEffect(() => {
     const matchRef = ref(db, `matches/${matchId}`);
@@ -51,6 +53,18 @@ export default function MatchCenterPage({ params: paramsPromise }) {
           const ballsArr = Object.entries(data.balls)
             .map(([id, val]) => ({ id, ...val }))
             .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // newest first
+          
+          if (prevBallsLength.current > 0 && ballsArr.length > prevBallsLength.current) {
+             const latestBall = ballsArr[0];
+             if (latestBall.type === 'wicket') {
+               toast.error('WICKET! ☝️', { duration: 5000 });
+             } else if (latestBall.runs === 6) {
+               toast.success('SIX! 🚀', { duration: 4000, style: { background: '#00ff41', color: '#000' } });
+             } else if (latestBall.runs === 4) {
+               toast.success('FOUR! ✨', { duration: 4000, style: { background: '#00ff41', color: '#000' } });
+             }
+          }
+          prevBallsLength.current = ballsArr.length;
           setBalls(ballsArr);
         }
       }
