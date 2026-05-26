@@ -215,6 +215,8 @@ export default function TournamentPage({ params: paramsPromise }) {
 
   const orangeLeader = playerStats.orangeCap[0];
   const purpleLeader = playerStats.purpleCap[0];
+  const liveMatch = matches.find(m => m.status === 'live');
+  const recentMatch = matches.find(m => m.status === 'completed');
 
   return (
     <div className="container mx-auto px-2 md:px-4 py-6 md:py-8 max-w-4xl pb-24 md:pb-8">
@@ -275,6 +277,103 @@ export default function TournamentPage({ params: paramsPromise }) {
       >
         {activeTab === 'standings' && (
           <div className="space-y-6">
+             {/* Live & Recent Match Dashboard Widgets */}
+             {(liveMatch || recentMatch) && (
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  {liveMatch && (
+                     <Link href={`/match/${liveMatch.id}`} className="block relative group overflow-hidden rounded-3xl p-6 border border-red-500/30 bg-black/40 hover:bg-black/60 transition-all shadow-[0_0_30px_rgba(239,68,68,0.15)]">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 to-red-400"></div>
+                        <div className="flex justify-between items-center mb-4">
+                           <span className="bg-red-500/20 text-red-500 border border-red-500/30 px-3 py-1 rounded-full text-[10px] font-black tracking-widest flex items-center gap-2 uppercase shadow-lg shadow-red-500/20">
+                             <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> LIVE
+                           </span>
+                           {liveMatch.stage && <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{liveMatch.stage}</span>}
+                        </div>
+                        
+                        <div className="flex justify-between items-center mb-4">
+                           <div className="flex items-center gap-3 w-5/12">
+                             <div className="w-12 h-12 rounded-full bg-white/5 flex flex-shrink-0 items-center justify-center overflow-hidden border border-white/10">
+                               {getTeamDetails(liveMatch.teamA).logoUrl ? <img src={getTeamDetails(liveMatch.teamA).logoUrl} alt="Logo" className="w-full h-full object-cover" /> : <span className="text-xs font-bold text-gray-400">{getTeamDetails(liveMatch.teamA).shortName}</span>}
+                             </div>
+                             <span className="font-bold text-white text-lg md:text-xl truncate">{getTeamDetails(liveMatch.teamA).shortName}</span>
+                           </div>
+                           <div className="w-2/12 text-center text-xs font-black text-gray-600 italic">VS</div>
+                           <div className="flex flex-row-reverse items-center gap-3 w-5/12">
+                             <div className="w-12 h-12 rounded-full bg-white/5 flex flex-shrink-0 items-center justify-center overflow-hidden border border-white/10">
+                               {getTeamDetails(liveMatch.teamB).logoUrl ? <img src={getTeamDetails(liveMatch.teamB).logoUrl} alt="Logo" className="w-full h-full object-cover" /> : <span className="text-xs font-bold text-gray-400">{getTeamDetails(liveMatch.teamB).shortName}</span>}
+                             </div>
+                             <span className="font-bold text-white text-lg md:text-xl truncate">{getTeamDetails(liveMatch.teamB).shortName}</span>
+                           </div>
+                        </div>
+
+                        {/* Live Score Block */}
+                        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex justify-between items-center relative overflow-hidden backdrop-blur-sm">
+                           <div className="absolute right-0 bottom-0 opacity-5 -mr-4 -mb-4">
+                              <BarChart3 size={100} />
+                           </div>
+                           <div>
+                              <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest mb-1">{getTeamDetails(liveMatch.score[`innings${liveMatch.currentInnings}`]?.team).name} Batting</p>
+                              <div className="flex items-end gap-2">
+                                <h3 className="text-4xl font-black text-white leading-none tracking-tighter">
+                                  {liveMatch.score[`innings${liveMatch.currentInnings}`]?.runs}<span className="text-2xl text-gray-500">/{liveMatch.score[`innings${liveMatch.currentInnings}`]?.wickets}</span>
+                                </h3>
+                                <p className="text-sm font-bold text-gray-400 mb-1">({(liveMatch.score[`innings${liveMatch.currentInnings}`]?.overs || 0).toFixed(1)})</p>
+                              </div>
+                           </div>
+                           <div className="text-right flex flex-col justify-end">
+                              <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">CRR</p>
+                              <p className="text-xl font-black text-[var(--color-cricket-blue)]">
+                                {liveMatch.score[`innings${liveMatch.currentInnings}`]?.runs > 0 ? (liveMatch.score[`innings${liveMatch.currentInnings}`]?.runs / (Math.floor(liveMatch.score[`innings${liveMatch.currentInnings}`]?.overs || 0) + (((liveMatch.score[`innings${liveMatch.currentInnings}`]?.overs || 0) % 1) * 10 / 6))).toFixed(2) : '0.00'}
+                              </p>
+                           </div>
+                        </div>
+                     </Link>
+                  )}
+
+                  {recentMatch && (
+                     <Link href={`/match/${recentMatch.id}`} className="block relative group overflow-hidden rounded-3xl p-6 border border-white/10 bg-black/40 hover:bg-black/60 transition-all shadow-xl">
+                        <div className="flex justify-between items-center mb-4">
+                           <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/10">Recent Match</span>
+                           <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{new Date(recentMatch.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        
+                        <div className="space-y-4">
+                           <div className="flex justify-between items-center bg-white/5 rounded-xl p-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
+                                  {getTeamDetails(recentMatch.teamA).logoUrl ? <img src={getTeamDetails(recentMatch.teamA).logoUrl} alt="Logo" className="w-full h-full object-cover" /> : <Shield size={14} className="text-gray-400"/>}
+                                </div>
+                                <span className="font-bold text-white">{getTeamDetails(recentMatch.teamA).shortName}</span>
+                              </div>
+                              <div className="font-black text-lg text-white">
+                                {recentMatch.score?.innings1?.team === recentMatch.teamA ? `${recentMatch.score?.innings1?.runs}/${recentMatch.score?.innings1?.wickets}` : `${recentMatch.score?.innings2?.runs}/${recentMatch.score?.innings2?.wickets}`}
+                              </div>
+                           </div>
+                           
+                           <div className="flex justify-between items-center bg-white/5 rounded-xl p-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
+                                  {getTeamDetails(recentMatch.teamB).logoUrl ? <img src={getTeamDetails(recentMatch.teamB).logoUrl} alt="Logo" className="w-full h-full object-cover" /> : <Shield size={14} className="text-gray-400"/>}
+                                </div>
+                                <span className="font-bold text-white">{getTeamDetails(recentMatch.teamB).shortName}</span>
+                              </div>
+                              <div className="font-black text-lg text-white">
+                                {recentMatch.score?.innings1?.team === recentMatch.teamB ? `${recentMatch.score?.innings1?.runs}/${recentMatch.score?.innings1?.wickets}` : `${recentMatch.score?.innings2?.runs}/${recentMatch.score?.innings2?.wickets}`}
+                              </div>
+                           </div>
+                        </div>
+
+                        <div className="mt-4 text-center">
+                           <p className="text-xs font-bold text-[var(--color-cricket-accent)] uppercase tracking-wider">{recentMatch.result?.margin}</p>
+                           {getMatchMVP(recentMatch) && (
+                              <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-widest">MVP: <span className="text-yellow-500 font-bold">{getMatchMVP(recentMatch).name}</span></p>
+                           )}
+                        </div>
+                     </Link>
+                  )}
+               </div>
+             )}
+
              {/* Tournament Leaders Widgets (IPL Style) */}
              <div className="grid grid-cols-2 gap-3 md:gap-6">
                 <div className="glass rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden border border-orange-500/20">
