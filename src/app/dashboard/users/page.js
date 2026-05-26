@@ -70,7 +70,8 @@ export default function UsersPage() {
       </div>
 
       <div className="glass rounded-2xl overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-white/10 bg-white/5">
@@ -130,7 +131,7 @@ export default function UsersPage() {
                       ) : (
                         <button 
                           onClick={() => handleEdit(u)} 
-                          disabled={currentUser?.uid === u.id} // Don't let user change their own role to prevent accidental lockout
+                          disabled={currentUser?.uid === u.id}
                           className="p-2 bg-blue-500/10 text-blue-500 rounded-lg hover:bg-blue-500 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                           <Edit2 size={16} />
@@ -142,6 +143,68 @@ export default function UsersPage() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden space-y-4 p-4">
+          {loading ? (
+            <div className="p-8 text-center">
+              <div className="w-8 h-8 border-4 border-[var(--color-cricket-accent)]/30 border-t-[var(--color-cricket-accent)] rounded-full animate-spin mx-auto"></div>
+            </div>
+          ) : users.length === 0 ? (
+            <div className="p-8 text-center text-gray-500 glass rounded-xl">No users found</div>
+          ) : (
+            users.map((u) => (
+              <div key={u.id} className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-3">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1 break-all">
+                    <p className="font-bold text-white text-sm">
+                      {u.email}
+                      {currentUser?.uid === u.id && <span className="ml-2 text-[9px] text-gray-400 bg-black px-2 py-0.5 rounded uppercase font-black border border-white/10">You</span>}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">Joined: {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'Unknown'}</p>
+                  </div>
+                  <div>
+                    {editingId !== u.id && getRoleBadge(u.role)}
+                  </div>
+                </div>
+
+                {editingId === u.id ? (
+                  <div className="bg-black/50 p-3 rounded-lg border border-white/5 space-y-3 mt-2">
+                    <div>
+                      <label className="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-1 block">Change Role</label>
+                      <select 
+                        value={selectedRole}
+                        onChange={(e) => setSelectedRole(e.target.value)}
+                        className="w-full bg-black border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[var(--color-cricket-accent)]"
+                      >
+                        <option value="viewer">Viewer</option>
+                        <option value="scorer">Scorer</option>
+                        <option value="manager">Manager</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </div>
+                    <div className="flex justify-end gap-2 pt-2 border-t border-white/5">
+                      <button onClick={() => setEditingId(null)} className="flex-1 py-2 bg-gray-500/20 text-gray-400 rounded-lg hover:bg-gray-500 hover:text-white transition-colors text-xs font-bold uppercase tracking-wider">
+                        Cancel
+                      </button>
+                      <button onClick={() => handleSave(u.id)} className="flex-1 py-2 bg-[var(--color-cricket-accent)]/20 text-[var(--color-cricket-accent)] rounded-lg hover:bg-[var(--color-cricket-accent)] hover:text-black transition-colors text-xs font-bold uppercase tracking-wider">
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button 
+                    onClick={() => handleEdit(u)} 
+                    disabled={currentUser?.uid === u.id}
+                    className="w-full mt-2 py-2 bg-white/5 text-gray-300 rounded-lg flex items-center justify-center gap-2 hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-xs font-bold uppercase tracking-widest"
+                  >
+                    <Edit2 size={14} /> Edit Role
+                  </button>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </div>
       </div>
