@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Trophy, Plus, Trash2 } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { ref, push, set, onValue, remove } from 'firebase/database';
+import Link from 'next/link';
 
 export default function TournamentsPage() {
   const [tournaments, setTournaments] = useState([]);
@@ -118,12 +119,14 @@ export default function TournamentsPage() {
                 className="glass rounded-2xl p-6 flex justify-between items-center group"
               >
                 <div>
-                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                    {t.name}
-                    {t.status === 'active' && (
-                      <span className="text-[10px] bg-green-500/20 text-green-500 px-2 py-0.5 rounded font-black tracking-wider uppercase">Active</span>
-                    )}
-                  </h3>
+                  <Link href={`/tournament/${t.id}`} className="hover:underline decoration-blue-500 underline-offset-4">
+                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                      {t.name}
+                      {t.status === 'active' && (
+                        <span className="text-[10px] bg-green-500/20 text-green-500 px-2 py-0.5 rounded font-black tracking-wider uppercase no-underline">Active</span>
+                      )}
+                    </h3>
+                  </Link>
                   <p className="text-xs text-gray-500 mt-1">Created: {new Date(t.createdAt).toLocaleDateString()}</p>
                 </div>
                 
