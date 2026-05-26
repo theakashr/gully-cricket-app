@@ -10,17 +10,10 @@ export const metadata = {
   title: "SKCC CRICKETRS Live",
   description: "Premium Local Cricket Scoring Engine - Ball by Ball Live Scoring, Real-time Match Center, Tournament Management",
   manifest: "/manifest.json",
-  themeColor: "#00ff41",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "SKCC CRICKETRS",
-  },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
   },
   icons: {
     icon: [
@@ -36,7 +29,7 @@ export const metadata = {
     "apple-mobile-web-app-capable": "yes",
     "application-name": "SKCC CRICKETRS",
     "apple-mobile-web-app-title": "SKCC CRICKETRS",
-    "msapplication-TileColor": "#000000",
+    "msapplication-TileColor": "#ffffff",
     "msapplication-TileImage": "/icons/icon-144x144.png",
   },
 };
@@ -46,7 +39,7 @@ export const viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#00ff41",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({ children }) {
