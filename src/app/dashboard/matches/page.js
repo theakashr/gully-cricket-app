@@ -17,6 +17,7 @@ export default function MatchesPage() {
   // Form State
   const [newMatch, setNewMatch] = useState({
     tournamentId: '',
+    stage: 'League',
     teamA: '',
     teamB: '',
     scorerId: '',
@@ -85,6 +86,7 @@ export default function MatchesPage() {
       const matchRef = push(ref(db, 'matches'));
       await set(matchRef, {
         tournamentId: newMatch.tournamentId,
+        stage: newMatch.stage || 'League',
         teamA: newMatch.teamA,
         teamB: newMatch.teamB,
         scorerId: newMatch.scorerId,
@@ -105,7 +107,7 @@ export default function MatchesPage() {
         }
       });
       
-      setNewMatch({ tournamentId: '', teamA: '', teamB: '', scorerId: '', overs: 20, tossWinner: '', tossDecision: 'bat' });
+      setNewMatch({ tournamentId: '', stage: 'League', teamA: '', teamB: '', scorerId: '', overs: 20, tossWinner: '', tossDecision: 'bat' });
     } catch (error) {
       console.error("Error creating match:", error);
     }
@@ -136,17 +138,33 @@ export default function MatchesPage() {
             <h2 className="text-xl font-bold text-white mb-6">Initialize Match</h2>
             <form onSubmit={handleCreateMatch} className="space-y-4">
               
-              <div>
-                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Tournament</label>
-                <select 
-                  value={newMatch.tournamentId}
-                  onChange={e => setNewMatch({...newMatch, tournamentId: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--color-cricket-accent)]"
-                  required
-                >
-                  <option value="" className="text-black">Select Tournament</option>
-                  {tournaments.map(t => <option key={t.id} value={t.id} className="text-black">{t.name}</option>)}
-                </select>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Tournament</label>
+                  <select 
+                    value={newMatch.tournamentId}
+                    onChange={e => setNewMatch({...newMatch, tournamentId: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--color-cricket-accent)]"
+                    required
+                  >
+                    <option value="" className="text-black">Select Tournament</option>
+                    {tournaments.map(t => <option key={t.id} value={t.id} className="text-black">{t.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Match Stage</label>
+                  <select 
+                    value={newMatch.stage}
+                    onChange={e => setNewMatch({...newMatch, stage: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--color-cricket-accent)]"
+                    required
+                  >
+                    <option value="League" className="text-black">League</option>
+                    <option value="Quarter-Final" className="text-black">Quarter-Final</option>
+                    <option value="Semi-Final" className="text-black">Semi-Final</option>
+                    <option value="Final" className="text-black">Final</option>
+                  </select>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -269,7 +287,7 @@ export default function MatchesPage() {
                         {m.status}
                       </span>
                       <p className="text-xs text-gray-500 mt-2">
-                        {tournaments.find(t => t.id === m.tournamentId)?.name || 'Unknown Tournament'} • {m.overs} Overs
+                        {tournaments.find(t => t.id === m.tournamentId)?.name || 'Unknown Tournament'} • {m.stage || 'League'} • {m.overs} Overs
                       </p>
                     </div>
                     <button 
