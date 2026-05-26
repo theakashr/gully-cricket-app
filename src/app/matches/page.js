@@ -59,7 +59,7 @@ export default function MatchesHub() {
              <Trophy size={28} className="text-emerald-600" />
            </div>
            <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight mb-3">Matches Hub</h1>
-           <p className="text-slate-500 font-medium max-w-md mx-auto text-sm sm:text-base">Track live scores, see upcoming fixtures, and review past match results.</p>
+           <p className="text-slate-900 font-bold max-w-md mx-auto text-sm sm:text-base">Track live scores, see upcoming fixtures, and review past match results.</p>
         </div>
 
         {/* Custom Tabs - Scrollable on mobile, Centered on desktop */}
@@ -69,8 +69,8 @@ export default function MatchesHub() {
                  <button
                    key={tab.id}
                    onClick={() => setActiveTab(tab.id)}
-                   className={`relative px-4 sm:px-6 py-2.5 rounded-full flex items-center gap-2 text-xs sm:text-sm font-bold transition-all ${
-                     activeTab === tab.id ? 'text-white' : 'text-slate-500 hover:text-slate-900'
+                   className={`relative px-4 sm:px-6 py-2.5 rounded-full flex items-center gap-2 text-xs sm:text-sm font-black transition-all ${
+                     activeTab === tab.id ? 'text-white' : 'text-slate-900 hover:text-black'
                    }`}
                  >
                    {activeTab === tab.id && (
@@ -82,10 +82,10 @@ export default function MatchesHub() {
                    )}
                    <tab.icon size={14} className="flex-shrink-0" />
                    <span>{tab.label}</span>
-                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
                      activeTab === tab.id 
                        ? 'bg-white/20 text-white' 
-                       : 'bg-slate-200 text-slate-500'
+                       : 'bg-slate-200 text-slate-900'
                    }`}>
                      {tab.count}
                    </span>
@@ -115,16 +115,16 @@ export default function MatchesHub() {
                           <MatchCard key={match.id} match={match} teams={teams} />
                        ))}
                     </div>
-                 ) : (
-                    <div className="glass-card rounded-3xl p-10 sm:p-16 text-center max-w-md mx-auto border-dashed border border-slate-200 shadow-sm bg-white/90">
+                  ) : (
+                    <div className="glass-card rounded-3xl p-10 sm:p-16 text-center max-w-md mx-auto border-dashed border border-slate-250 shadow-sm bg-white/90">
                        <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4 border border-slate-200">
-                         {activeTab === 'live' && <Activity size={24} className="text-slate-400" />}
-                         {activeTab === 'upcoming' && <Calendar size={24} className="text-slate-400" />}
-                         {activeTab === 'completed' && <CheckCircle2 size={24} className="text-slate-400" />}
+                         {activeTab === 'live' && <Activity size={24} className="text-slate-500" />}
+                         {activeTab === 'upcoming' && <Calendar size={24} className="text-slate-500" />}
+                         {activeTab === 'completed' && <CheckCircle2 size={24} className="text-slate-500" />}
                        </div>
                        
-                       <h3 className="text-xl font-bold text-slate-800 mb-1.5">No {activeTab} matches found</h3>
-                       <p className="text-sm text-slate-450 font-medium">
+                       <h3 className="text-xl font-black text-slate-950 mb-1.5">No {activeTab} matches found</h3>
+                       <p className="text-sm text-slate-800 font-bold">
                           {activeTab === 'live' && "There are currently no live matches playing. Check the upcoming tab!"}
                           {activeTab === 'upcoming' && "No upcoming matches have been scheduled yet."}
                           {activeTab === 'completed' && "No match results are available yet."}

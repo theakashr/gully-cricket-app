@@ -23,11 +23,11 @@ export default function MatchCard({ match, teams }) {
         }`}></div>
         
         <div className="flex justify-between items-center mb-8">
-          <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Match Center</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-900 bg-slate-100 px-3 py-1 rounded-full">Match Center</span>
           <span className={`px-3 py-1 rounded-full text-xs font-black flex items-center gap-2 uppercase tracking-wider ${
-            isLive ? 'bg-red-50 text-red-600 border border-red-200 shadow-sm' : 
+            isLive ? 'bg-red-50 text-red-650 border border-red-200 shadow-sm' : 
             isFinished ? 'bg-green-50 text-green-600 border border-green-200' :
-            'bg-gray-50 text-gray-500 border border-gray-200'
+            'bg-slate-100 text-slate-805 border border-slate-250'
           }`}>
             {isLive && <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>}
             {match.status}
@@ -37,34 +37,34 @@ export default function MatchCard({ match, teams }) {
         <div className="flex justify-between items-center mb-4">
           <div className="text-center w-[40%]">
             <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 shadow-md mx-auto border bg-white ${
-              isLive ? 'border-red-300 shadow-red-500/10' : 'border-gray-200'
+              isLive ? 'border-red-350 shadow-red-500/10' : 'border-slate-250'
             }`}>
-              <span className={`text-xl font-black ${isLive ? 'text-gray-900' : 'text-gray-400'}`}>{getTeamCode(match.teamA)}</span>
+              <span className="text-xl font-black text-slate-900">{getTeamCode(match.teamA)}</span>
             </div>
             {(isLive || isFinished) && (
                <>
-                 <h3 className="text-3xl font-black text-gray-900">{runs}<span className="text-gray-400 text-xl font-bold">/{wickets}</span></h3>
-                 <p className="text-gray-500 font-bold text-xs mt-1 bg-gray-50 inline-block px-2 py-0.5 rounded-md border border-gray-100">Ovs: {overs}</p>
+                 <h3 className="text-3xl font-black text-slate-950">{runs}<span className="text-slate-400 text-xl font-bold">/{wickets}</span></h3>
+                 <p className="text-slate-900 font-extrabold text-xs mt-1 bg-slate-50 inline-block px-2 py-0.5 rounded-md border border-slate-200">Ovs: {overs}</p>
                </>
             )}
-            {isUpcoming && <h3 className="text-xl font-bold text-gray-500 mt-2">Team A</h3>}
+            {isUpcoming && <h3 className="text-xl font-black text-slate-800 mt-2">Team A</h3>}
           </div>
           
           <div className="text-center w-[20%] px-2">
-            <span className={`text-2xl font-black italic bg-gray-100 px-3 py-1 rounded-full text-gray-400 shadow-inner`}>VS</span>
+            <span className="text-2xl font-black italic bg-slate-100 px-3 py-1 rounded-full text-slate-800 shadow-inner">VS</span>
           </div>
           
           <div className="text-center w-[40%]">
             <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 shadow-md mx-auto border bg-white ${
-               (isLive && match.currentInnings === 2) ? 'border-red-300 shadow-red-500/10' : 'border-gray-200'
+               (isLive && match.currentInnings === 2) ? 'border-red-350 shadow-red-500/10' : 'border-slate-250'
             }`}>
-              <span className={`text-xl font-black ${isLive && match.currentInnings === 2 ? 'text-gray-900' : 'text-gray-400'}`}>{getTeamCode(match.teamB)}</span>
+              <span className="text-xl font-black text-slate-900">{getTeamCode(match.teamB)}</span>
             </div>
             
-            {isUpcoming && <h3 className="text-xl font-bold text-gray-400 mt-2">Team B</h3>}
-            {isLive && match.currentInnings === 1 && <h3 className="text-xs font-bold text-gray-400 mt-4 bg-gray-50 inline-block px-2 py-1 rounded-md">Yet to bat</h3>}
+            {isUpcoming && <h3 className="text-xl font-black text-slate-805 mt-2">Team B</h3>}
+            {isLive && match.currentInnings === 1 && <h3 className="text-xs font-black text-slate-850 mt-4 bg-slate-50 inline-block px-2 py-1 rounded-md border border-slate-200">Yet to bat</h3>}
             {isFinished && match.result && (
-               <p className="text-[10px] font-black text-white bg-green-500 uppercase tracking-widest mt-4 inline-block px-2 py-1 rounded-md shadow-sm">Winner: {teams[match.result.winner]?.shortName}</p>
+               <p className="text-[10px] font-black text-white bg-green-600 uppercase tracking-widest mt-4 inline-block px-2.5 py-1 rounded-md shadow-sm">Winner: {teams[match.result.winner]?.shortName}</p>
             )}
           </div>
         </div>
