@@ -150,7 +150,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[var(--color-cricket-accent)] focus:border-transparent transition-all"
-                placeholder="scorer@gully.com"
+                placeholder="scorer@skcc.com"
                 required
               />
             </div>

@@ -3,7 +3,7 @@ import { adminAuth, adminDb } from '@/lib/firebase-admin';
 
 export async function GET() {
   try {
-    const email = "admin@gully.com";
+    const email = "admin@skcc.com";
     const password = "admin123";
 
     // 1. Check if admin exists

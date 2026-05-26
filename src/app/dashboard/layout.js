@@ -32,7 +32,7 @@ export default function DashboardLayout({ children }) {
         <aside className="w-64 glass border-r border-white/10 flex flex-col">
           <div className="p-6">
             <h2 className="text-2xl font-black text-white italic tracking-tighter">
-              GULLY<span className="text-[var(--color-cricket-accent)]">CRICKET</span>
+              SKCC <span className="text-[var(--color-cricket-accent)]">CRICKETRS</span>
             </h2>
             <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Admin Panel</p>
           </div>
