@@ -307,18 +307,18 @@ export default function TournamentPage({ params: paramsPromise }) {
                 </div>
              </div>
 
-             <div className="glass rounded-3xl overflow-hidden shadow-2xl">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse min-w-[600px]">
+              <div className="glass rounded-3xl overflow-hidden shadow-2xl">
+                <div className="overflow-x-auto w-full">
+                  <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="border-b border-white/5 bg-black/40">
-                        <th className="p-3 md:p-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Team</th>
-                        <th className="p-3 md:p-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">P</th>
-                        <th className="p-3 md:p-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">W</th>
-                        <th className="p-3 md:p-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">L</th>
-                        <th className="p-3 md:p-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">T</th>
-                        <th className="p-3 md:p-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">NRR</th>
-                        <th className="p-3 md:p-4 text-sm font-black text-blue-400 uppercase tracking-widest text-center bg-blue-500/5">PTS</th>
+                        <th className="p-2 md:p-4 text-[9px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">Team</th>
+                        <th className="p-1 md:p-4 text-[9px] md:text-xs font-bold text-gray-400 uppercase tracking-widest text-center">P</th>
+                        <th className="p-1 md:p-4 text-[9px] md:text-xs font-bold text-gray-400 uppercase tracking-widest text-center">W</th>
+                        <th className="p-1 md:p-4 text-[9px] md:text-xs font-bold text-gray-400 uppercase tracking-widest text-center">L</th>
+                        <th className="p-1 md:p-4 text-[9px] md:text-xs font-bold text-gray-400 uppercase tracking-widest text-center hidden sm:table-cell">T</th>
+                        <th className="p-1 md:p-4 text-[9px] md:text-xs font-bold text-gray-400 uppercase tracking-widest text-center">NRR</th>
+                        <th className="p-2 md:p-4 text-[11px] md:text-sm font-black text-blue-400 uppercase tracking-widest text-center bg-blue-500/5">PTS</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -331,25 +331,25 @@ export default function TournamentPage({ params: paramsPromise }) {
                           const team = getTeamDetails(row.id);
                           return (
                             <tr key={row.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                              <td className="p-3 md:p-4 flex items-center gap-2 md:gap-3">
-                                 <div className="w-5 md:w-6 text-gray-500 font-bold text-xs md:text-sm">{index + 1}</div>
-                                 <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center overflow-hidden flex-shrink-0">
+                              <td className="p-2 md:p-4 flex items-center gap-1.5 md:gap-3">
+                                 <div className="w-3 md:w-6 text-gray-500 font-bold text-[10px] md:text-sm text-center">{index + 1}</div>
+                                 <div className="w-5 h-5 md:w-8 md:h-8 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center overflow-hidden flex-shrink-0">
                                    {team.logoUrl ? (
                                       <img src={team.logoUrl} alt={team.name} className="w-full h-full object-cover" />
                                    ) : (
-                                      <Shield size={12} className="text-blue-400" />
+                                      <Shield size={10} className="text-blue-400" />
                                    )}
                                  </div>
-                                 <span className="font-bold text-white whitespace-nowrap text-sm md:text-base">{team.shortName} <span className="hidden md:inline text-gray-500 ml-1 font-normal">({team.name})</span></span>
+                                 <span className="font-bold text-white whitespace-nowrap text-[11px] md:text-base">{team.shortName} <span className="hidden lg:inline text-gray-500 ml-1 font-normal">({team.name})</span></span>
                               </td>
-                              <td className="p-3 md:p-4 text-center font-bold text-gray-300 text-sm md:text-base">{row.played}</td>
-                              <td className="p-3 md:p-4 text-center font-bold text-green-400 text-sm md:text-base">{row.won}</td>
-                              <td className="p-3 md:p-4 text-center font-bold text-red-400 text-sm md:text-base">{row.lost}</td>
-                              <td className="p-3 md:p-4 text-center font-bold text-gray-400 text-sm md:text-base">{row.tied}</td>
-                              <td className="p-3 md:p-4 text-center font-bold text-gray-300 text-xs md:text-sm">
+                              <td className="p-1 md:p-4 text-center font-bold text-gray-300 text-[11px] md:text-base">{row.played}</td>
+                              <td className="p-1 md:p-4 text-center font-bold text-green-400 text-[11px] md:text-base">{row.won}</td>
+                              <td className="p-1 md:p-4 text-center font-bold text-red-400 text-[11px] md:text-base">{row.lost}</td>
+                              <td className="p-1 md:p-4 text-center font-bold text-gray-400 text-[11px] md:text-base hidden sm:table-cell">{row.tied}</td>
+                              <td className="p-1 md:p-4 text-center font-bold text-gray-300 text-[10px] md:text-sm whitespace-nowrap">
                                 {row.nrr > 0 ? '+' : ''}{row.nrr.toFixed(3)}
                               </td>
-                              <td className="p-3 md:p-4 text-center font-black text-blue-400 text-base md:text-lg bg-blue-500/5">{row.points}</td>
+                              <td className="p-2 md:p-4 text-center font-black text-blue-400 text-sm md:text-lg bg-blue-500/5">{row.points}</td>
                             </tr>
                           );
                         })
