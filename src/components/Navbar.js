@@ -2,12 +2,23 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Trophy, Home, Activity, LogIn, Menu, X, User } from 'lucide-react';
+import { Trophy, Home, Activity, LogIn, Menu, X, User, Settings, LogOut } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { auth } from '@/lib/firebase';
+import { signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, role } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push('/');
+  };
 
   const navLinks = [
     { name: 'Home', icon: Home, href: '/' },
@@ -64,15 +75,26 @@ export default function Navbar() {
             ))}
           </div>
           
-          {/* Desktop Login Button */}
+          {/* Desktop Auth Buttons */}
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="hidden md:block"
+            className="hidden md:flex items-center gap-3"
           >
-            <Link href="/login" className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-sm font-semibold text-white transition-all hover:border-[var(--color-cricket-accent)]/50 hover:shadow-[0_0_15px_rgba(0,255,65,0.2)]">
-              <LogIn size={16} /> Login
-            </Link>
+            {user ? (
+              <>
+                <Link href="/dashboard/settings" className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-sm font-semibold text-white transition-all">
+                  <Settings size={16} /> Settings
+                </Link>
+                <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-full text-sm font-semibold text-red-500 transition-all hover:shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+                  <LogOut size={16} /> Logout
+                </button>
+              </>
+            ) : (
+              <Link href="/login" className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-sm font-semibold text-white transition-all hover:border-[var(--color-cricket-accent)]/50 hover:shadow-[0_0_15px_rgba(0,255,65,0.2)]">
+                <LogIn size={16} /> Login
+              </Link>
+            )}
           </motion.div>
 
           {/* Mobile Hamburger */}
@@ -107,13 +129,31 @@ export default function Navbar() {
                   <item.icon size={18} /> {item.name}
                 </Link>
               ))}
-              <Link
-                href="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-gray-300 hover:bg-white/5"
-              >
-                <LogIn size={18} /> Login
-              </Link>
+              {user ? (
+                <>
+                  <Link
+                    href="/dashboard/settings"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-gray-300 hover:bg-white/5"
+                  >
+                    <Settings size={18} /> Settings
+                  </Link>
+                  <button
+                    onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-red-500 hover:bg-red-500/10"
+                  >
+                    <LogOut size={18} /> Logout
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-gray-300 hover:bg-white/5"
+                >
+                  <LogIn size={18} /> Login
+                </Link>
+              )}
             </div>
           </motion.div>
         )}

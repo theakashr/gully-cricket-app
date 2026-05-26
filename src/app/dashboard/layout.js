@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { Trophy, Shield, Users, Activity, LogOut, Home, User, Menu, X } from 'lucide-react';
+import { Trophy, Shield, Users, Activity, LogOut, Home, User, Menu, X, Settings } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
@@ -22,6 +22,7 @@ export default function DashboardLayout({ children }) {
     { name: 'Teams', href: '/dashboard/teams', icon: Shield },
     { name: 'Players', href: '/dashboard/players', icon: User },
     { name: 'Matches', href: '/dashboard/matches', icon: Activity },
+    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
     { name: 'Users & Access', href: '/dashboard/users', icon: Users, reqAdmin: true },
   ];
 
