@@ -7,20 +7,25 @@ import { Trophy, Shield, Users, Activity, LogOut, Home, User, Menu, X } from 'lu
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const navItems = [
+  const { role } = useAuth();
+
+  const allNavItems = [
     { name: 'Overview', href: '/dashboard', icon: Home },
     { name: 'Tournaments', href: '/dashboard/tournaments', icon: Trophy },
     { name: 'Teams', href: '/dashboard/teams', icon: Shield },
     { name: 'Players', href: '/dashboard/players', icon: User },
     { name: 'Matches', href: '/dashboard/matches', icon: Activity },
-    { name: 'Users & Access', href: '/dashboard/users', icon: Users },
+    { name: 'Users & Access', href: '/dashboard/users', icon: Users, reqAdmin: true },
   ];
+
+  const navItems = allNavItems.filter(item => !item.reqAdmin || role === 'admin');
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -28,7 +33,7 @@ export default function DashboardLayout({ children }) {
   };
 
   return (
-    <ProtectedRoute allowedRoles={['admin']}>
+    <ProtectedRoute allowedRoles={['admin', 'manager']}>
       <div className="flex min-h-screen bg-black">
         
         {/* Mobile Top Bar */}

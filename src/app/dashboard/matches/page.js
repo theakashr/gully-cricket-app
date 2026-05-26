@@ -45,7 +45,7 @@ export default function MatchesPage() {
     onValue(ref(db, 'users'), (snapshot) => {
       if (snapshot.exists()) {
         const uList = Object.entries(snapshot.val()).map(([id, val]) => ({ id, ...val }));
-        setScorers(uList.filter(u => u.role === 'scorer' || u.role === 'admin'));
+        setScorers(uList.filter(u => u.role === 'scorer' || u.role === 'admin' || u.role === 'manager'));
       }
     });
 
@@ -284,7 +284,7 @@ export default function MatchesPage() {
             </div>
           ) : (
             matches.map((m) => {
-              const isAssigned = m.scorerId === currentUser?.uid || currentUser?.role === 'admin';
+              const isAssigned = m.scorerId === currentUser?.uid || currentUser?.role === 'admin' || currentUser?.role === 'manager';
               
               return (
                 <div key={m.id} className="glass rounded-2xl p-6 border-l-4 border-l-[var(--color-cricket-accent)] group">

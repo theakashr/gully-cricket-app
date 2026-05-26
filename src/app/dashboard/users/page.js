@@ -5,6 +5,7 @@ import { Users, Shield, Edit2, Check, X } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { ref, onValue, update } from 'firebase/database';
 import { useAuth } from '@/context/AuthContext';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 export default function UsersPage() {
   const { user: currentUser } = useAuth();
@@ -51,13 +52,15 @@ export default function UsersPage() {
   const getRoleBadge = (role) => {
     switch(role) {
       case 'admin': return <span className="bg-red-500/20 text-red-500 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Admin</span>;
+      case 'manager': return <span className="bg-blue-500/20 text-blue-500 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Manager</span>;
       case 'scorer': return <span className="bg-[var(--color-cricket-accent)]/20 text-[var(--color-cricket-accent)] px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Scorer</span>;
       default: return <span className="bg-gray-500/20 text-gray-400 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Viewer</span>;
     }
   };
 
   return (
-    <div className="p-8">
+    <ProtectedRoute allowedRoles={['admin']}>
+      <div className="p-8">
       <div className="flex items-center gap-3 mb-8">
         <Users className="text-[var(--color-cricket-blue)]" size={32} />
         <div>
@@ -103,8 +106,9 @@ export default function UsersPage() {
                           className="bg-black border border-white/20 rounded px-2 py-1 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                         >
                           <option value="viewer">Viewer</option>
-                          <option value="scorer">Scorer</option>
-                          <option value="admin">Admin</option>
+                          <option value="scorer">Scorer (Score assigned matches)</option>
+                          <option value="manager">Manager (Add/Edit Matches & Teams)</option>
+                          <option value="admin">Admin (Full Access)</option>
                         </select>
                       ) : (
                         getRoleBadge(u.role)
@@ -140,6 +144,7 @@ export default function UsersPage() {
           </table>
         </div>
       </div>
-    </div>
+      </div>
+    </ProtectedRoute>
   );
 }

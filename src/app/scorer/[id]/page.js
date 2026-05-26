@@ -388,7 +388,7 @@ export default function ScorerPage({ params: paramsPromise }) {
   }
 
   return (
-    <ProtectedRoute allowedRoles={['admin', 'scorer']}>
+    <ProtectedRoute allowedRoles={['admin', 'scorer', 'manager']}>
       <div className="container mx-auto px-4 py-8 max-w-lg">
         <div className="flex justify-between items-center mb-6">
            <button onClick={() => router.push('/dashboard/matches')} className="text-gray-400 hover:text-white flex items-center gap-2 text-sm font-bold transition-colors">
