@@ -251,7 +251,8 @@ export default function ScorerPage({ params: paramsPromise }) {
         over: newOvers,
         innings: match.currentInnings,
         commentary,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        previousPlayers: match.score[currInningsKey].currentPlayers || { striker, nonStriker, bowler }
       });
 
       const updates = {
@@ -327,6 +328,14 @@ export default function ScorerPage({ params: paramsPromise }) {
         [`score/${currInningsKey}/overs`]: revertedOvers,
         [`score/${currInningsKey}/extras`]: extras
       };
+      
+      if (lastBall.previousPlayers) {
+        updates[`score/${currInningsKey}/currentPlayers`] = lastBall.previousPlayers;
+        setStriker(lastBall.previousPlayers.striker || { name: '', runs: 0, balls: 0 });
+        setNonStriker(lastBall.previousPlayers.nonStriker || { name: '', runs: 0, balls: 0 });
+        setBowler(lastBall.previousPlayers.bowler || { name: '', overs: 0, runs: 0, wickets: 0 });
+      }
+
       await update(ref(db, `matches/${matchId}`), updates);
     } catch (error) {
       console.error("Error undoing:", error);
@@ -386,6 +395,12 @@ export default function ScorerPage({ params: paramsPromise }) {
     const bowledBalls = (Math.floor(overs) * 6) + Math.round((overs % 1) * 10);
     ballsRemaining = maxBalls - bowledBalls;
   }
+
+  const bOversNum = typeof bowler.overs === 'number' ? bowler.overs : parseFloat(bowler.overs || 0);
+  const bComplete = Math.floor(bOversNum);
+  const bBalls = Math.round((bOversNum - bComplete) * 10);
+  const totalBowlerBalls = (bComplete * 6) + bBalls;
+  const econ = totalBowlerBalls > 0 ? ((bowler.runs || 0) / (totalBowlerBalls / 6)).toFixed(2) : '0.00';
 
   return (
     <ProtectedRoute allowedRoles={['admin', 'scorer', 'manager']}>
@@ -553,8 +568,9 @@ export default function ScorerPage({ params: paramsPromise }) {
                   placeholder="Bowler Name" 
                   className="w-full bg-[var(--color-cricket-accent)]/10 border border-[var(--color-cricket-accent)]/30 rounded-xl px-3 py-2 text-[var(--color-cricket-accent)] font-bold text-sm focus:outline-none focus:border-[var(--color-cricket-accent)]"
                 />
-                <div className="text-[10px] text-[var(--color-cricket-accent)] ml-1 mt-1 font-semibold">
-                  {bowler.overs} O - {bowler.runs} R - {bowler.wickets} W
+                <div className="text-[10px] text-[var(--color-cricket-accent)] ml-1 mt-1 font-semibold flex justify-between">
+                  <span>{bowler.overs} O - {bowler.runs} R - {bowler.wickets} W</span>
+                  <span className="opacity-80">ECON: {econ}</span>
                 </div>
               </div>
             </div>

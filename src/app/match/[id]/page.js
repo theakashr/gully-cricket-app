@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { ref, onValue, get } from 'firebase/database';
 import toast from 'react-hot-toast';
+import { toPng } from 'html-to-image';
+import { Share2, Download } from 'lucide-react';
 
 export default function MatchCenterPage({ params: paramsPromise }) {
   const params = use(paramsPromise);
@@ -16,7 +18,9 @@ export default function MatchCenterPage({ params: paramsPromise }) {
   const [teamB, setTeamB] = useState(null);
   const [balls, setBalls] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSharing, setIsSharing] = useState(false);
   const prevBallsLength = useRef(0);
+  const summaryRef = useRef(null);
 
   useEffect(() => {
     const matchRef = ref(db, `matches/${matchId}`);
@@ -113,11 +117,55 @@ export default function MatchCenterPage({ params: paramsPromise }) {
     ballsRemaining = maxBalls - bowledBalls;
   }
 
+  const handleShare = async () => {
+    if (!summaryRef.current) return;
+    try {
+      setIsSharing(true);
+      toast.loading("Generating graphic...", { id: "share-toast" });
+      
+      const dataUrl = await toPng(summaryRef.current, { cacheBust: true, pixelRatio: 2 });
+      
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], `match-summary-${matchId}.png`, { type: 'image/png' });
+
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+         toast.dismiss("share-toast");
+         await navigator.share({
+            title: `${teamA.shortName} vs ${teamB.shortName}`,
+            text: `Check out the live scorecard for ${teamA.shortName} vs ${teamB.shortName}!`,
+            files: [file],
+         });
+      } else {
+         // Fallback to download
+         const link = document.createElement('a');
+         link.download = `match-summary-${matchId}.png`;
+         link.href = dataUrl;
+         link.click();
+         toast.success("Image saved!", { id: "share-toast" });
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate image.", { id: "share-toast" });
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl pb-20">
-      <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white font-bold text-sm mb-6 transition-colors">
-        <ArrowLeft size={16} /> Back to Matches
-      </Link>
+      <div className="flex justify-between items-center mb-6">
+        <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white font-bold text-sm transition-colors">
+          <ArrowLeft size={16} /> Back to Matches
+        </Link>
+        <button 
+          onClick={handleShare}
+          disabled={isSharing}
+          className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white px-4 py-2 rounded-xl text-sm font-bold transition-colors disabled:opacity-50"
+        >
+          {isSharing ? <Activity size={16} className="animate-spin" /> : <Share2 size={16} />}
+          Share Score
+        </button>
+      </div>
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -132,9 +180,11 @@ export default function MatchCenterPage({ params: paramsPromise }) {
            </div>
         )}
 
-        {/* Scorecard Header */}
-        <div className="glass-card rounded-3xl p-8 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--color-cricket-blue)] to-[var(--color-cricket-accent)]"></div>
+        {/* Scorecard Header Wrapper for Capture */}
+        <div ref={summaryRef} className="rounded-3xl bg-black">
+          {/* Scorecard Header */}
+          <div className="glass-card rounded-3xl p-8 relative overflow-hidden shadow-2xl">
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--color-cricket-blue)] to-[var(--color-cricket-accent)]"></div>
           
           <div className="flex justify-between items-center mb-6">
             <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Innings {match.currentInnings}</span>
@@ -233,6 +283,7 @@ export default function MatchCenterPage({ params: paramsPromise }) {
                </div>
             </div>
           )}
+          </div>
         </div>
 
         {/* Live Commentary Feed */}

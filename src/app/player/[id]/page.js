@@ -11,11 +11,7 @@ export default function PlayerProfilePage({ params: paramsPromise }) {
   const playerId = params.id;
   
   const [player, setPlayer] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  // In a future phase, these stats will be aggregated dynamically from all matches.
-  // For now, we will display placeholders or 0s until the aggregation engine is built.
-  const careerStats = {
+  const [careerStats, setCareerStats] = useState({
     matches: 0,
     runs: 0,
     highestScore: 0,
@@ -26,19 +22,125 @@ export default function PlayerProfilePage({ params: paramsPromise }) {
     wickets: 0,
     bestBowling: '0/0',
     economy: '0.00'
-  };
+  });
+  const [loading, setLoading] = useState(true);
+
+  // (State initialized above)
 
   useEffect(() => {
     const playerRef = ref(db, `players/${playerId}`);
-    const unsubscribe = onValue(playerRef, (snapshot) => {
+    const matchesRef = ref(db, 'matches');
+
+    let playerUnsub;
+    let matchesUnsub;
+
+    playerUnsub = onValue(playerRef, (snapshot) => {
       if (snapshot.exists()) {
         setPlayer(snapshot.val());
       }
-      setLoading(false);
+      
+      matchesUnsub = onValue(matchesRef, (matchesSnap) => {
+         if (matchesSnap.exists()) {
+            const allMatches = Object.values(matchesSnap.val()).filter(m => m.status === 'completed');
+            calculateStats(allMatches);
+         }
+         setLoading(false);
+      });
     });
 
-    return () => unsubscribe();
+    return () => {
+      if (playerUnsub) playerUnsub();
+      if (matchesUnsub) matchesUnsub();
+    };
   }, [playerId]);
+
+  const calculateStats = (allMatches) => {
+     let tMatches = 0;
+     let tRuns = 0;
+     let tBalls = 0;
+     let tOuts = 0;
+     let hScore = 0;
+     let fifties = 0;
+     let hundreds = 0;
+
+     let bMatches = 0;
+     let tWickets = 0;
+     let bRuns = 0;
+     let bOvers = 0; // standard balls
+     let bestW = 0;
+     let bestR = 999;
+
+     allMatches.forEach(m => {
+        let playedBatting = false;
+        let playedBowling = false;
+
+        [1, 2].forEach(inn => {
+           const innings = m.score?.[`innings${inn}`];
+           if (!innings) return;
+
+           // Batting
+           if (innings.batting && innings.batting[playerId]) {
+              const b = innings.batting[playerId];
+              if (b.status !== 'did not bat') {
+                 playedBatting = true;
+                 const runs = b.runs || 0;
+                 const balls = b.balls || 0;
+                 tRuns += runs;
+                 tBalls += balls;
+                 if (b.status === 'out') tOuts += 1;
+                 
+                 if (runs > hScore) hScore = runs;
+                 if (runs >= 100) hundreds += 1;
+                 else if (runs >= 50) fifties += 1;
+              }
+           }
+
+           // Bowling
+           if (innings.bowling && innings.bowling[playerId]) {
+              playedBowling = true;
+              const bo = innings.bowling[playerId];
+              const w = bo.wickets || 0;
+              const r = bo.runs || 0;
+              const oStr = (bo.overs || 0).toString();
+              
+              tWickets += w;
+              bRuns += r;
+              
+              // Calculate balls bowled correctly
+              const oParts = oStr.split('.');
+              const completeOvers = parseInt(oParts[0]) || 0;
+              const partialBalls = parseInt(oParts[1]) || 0;
+              bOvers += (completeOvers * 6) + partialBalls;
+
+              // Best bowling logic
+              if (w > bestW || (w === bestW && r < bestR)) {
+                 bestW = w;
+                 bestR = r;
+              }
+           }
+        });
+
+        if (playedBatting || playedBowling) tMatches += 1;
+     });
+
+     const avg = tOuts > 0 ? (tRuns / tOuts).toFixed(2) : (tRuns > 0 ? tRuns.toFixed(2) : '0.00');
+     const sr = tBalls > 0 ? ((tRuns / tBalls) * 100).toFixed(2) : '0.00';
+     const totalOvers = Math.floor(bOvers / 6) + (bOvers % 6) / 10;
+     const econ = bOvers > 0 ? ((bRuns / bOvers) * 6).toFixed(2) : '0.00';
+
+     setCareerStats({
+        matches: tMatches,
+        runs: tRuns,
+        highestScore: hScore,
+        average: avg,
+        strikeRate: sr,
+        fifties,
+        hundreds,
+        wickets: tWickets,
+        bestBowling: bestW > 0 ? `${bestW}/${bestR}` : '0/0',
+        economy: econ
+     });
+  };
 
   if (loading || !player) {
     return (
