@@ -17,7 +17,7 @@ export default function MatchesPage() {
   // Form State
   const [newMatch, setNewMatch] = useState({
     tournamentId: '',
-    stage: 'League',
+    stage: 'Match 1',
     teamA: '',
     teamB: '',
     scorerId: '',
@@ -107,7 +107,7 @@ export default function MatchesPage() {
         }
       });
       
-      setNewMatch({ tournamentId: '', stage: 'League', teamA: '', teamB: '', scorerId: '', overs: 20, tossWinner: '', tossDecision: 'bat' });
+      setNewMatch({ tournamentId: '', stage: 'Match 1', teamA: '', teamB: '', scorerId: '', overs: 20, tossWinner: '', tossDecision: 'bat' });
     } catch (error) {
       console.error("Error creating match:", error);
     }
@@ -153,17 +153,26 @@ export default function MatchesPage() {
                 </div>
                 <div>
                   <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Match Stage</label>
-                  <select 
+                  <input 
+                    type="text"
+                    list="stage-options"
                     value={newMatch.stage}
                     onChange={e => setNewMatch({...newMatch, stage: e.target.value})}
+                    placeholder="e.g. Match 1, Semi-Final"
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--color-cricket-accent)]"
                     required
-                  >
-                    <option value="League" className="text-black">League</option>
-                    <option value="Quarter-Final" className="text-black">Quarter-Final</option>
-                    <option value="Semi-Final" className="text-black">Semi-Final</option>
-                    <option value="Final" className="text-black">Final</option>
-                  </select>
+                  />
+                  <datalist id="stage-options">
+                    <option value="Match 1" />
+                    <option value="Match 2" />
+                    <option value="Match 3" />
+                    <option value="Match 4" />
+                    <option value="Match 5" />
+                    <option value="League Match" />
+                    <option value="Quarter-Final" />
+                    <option value="Semi-Final" />
+                    <option value="Final" />
+                  </datalist>
                 </div>
               </div>
 
@@ -287,7 +296,7 @@ export default function MatchesPage() {
                         {m.status}
                       </span>
                       <p className="text-xs text-gray-500 mt-2">
-                        {tournaments.find(t => t.id === m.tournamentId)?.name || 'Unknown Tournament'} • {m.stage || 'League'} • {m.overs} Overs
+                        {tournaments.find(t => t.id === m.tournamentId)?.name || 'Unknown Tournament'} • {m.stage || 'Match 1'} • {m.overs} Overs
                       </p>
                     </div>
                     <button 

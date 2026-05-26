@@ -62,8 +62,13 @@ export default function TournamentPage({ params: paramsPromise }) {
   const calculatePointsTable = (tMatches, allTeams) => {
     const table = {};
 
-    // Only include League matches for points table if stages exist
-    const leagueMatches = tMatches.filter(m => !m.stage || m.stage === 'League');
+    // Exclude knockout matches from points table calculations
+    const knockoutKeywords = ['final', 'quarter', 'semi', 'eliminator', 'qualifier'];
+    const leagueMatches = tMatches.filter(m => {
+      if (!m.stage) return true;
+      const stageLower = m.stage.toLowerCase();
+      return !knockoutKeywords.some(keyword => stageLower.includes(keyword));
+    });
 
     // Initialize all teams that have played at least one match in this tournament
     tMatches.forEach(m => {
@@ -293,7 +298,7 @@ export default function TournamentPage({ params: paramsPromise }) {
                               {m.status === 'live' && <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse mr-1.5 align-middle"></span>}
                               {m.status}
                             </span>
-                            {m.stage && m.stage !== 'League' && (
+                            {m.stage && (
                                <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest ${stageColor}`}>
                                  {m.stage}
                                </span>
