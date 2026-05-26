@@ -12,7 +12,7 @@ import {
   GoogleAuthProvider, 
   signInWithPopup 
 } from 'firebase/auth';
-import { ref, get, set } from 'firebase/database';
+import { ref, get, set, remove } from 'firebase/database';
 
 export default function LoginPage() {
   const [mounted, setMounted] = useState(false);
@@ -28,6 +28,37 @@ export default function LoginPage() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const resolveUserRole = async (email, uid) => {
+    const usersRef = ref(db, 'users');
+    const snapshot = await get(usersRef);
+    let role = 'viewer';
+    let inviteId = null;
+
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      for (const [id, val] of Object.entries(data)) {
+        if (val.email && val.email.toLowerCase() === email.toLowerCase()) {
+          if (id.startsWith('invite_') || val.role !== 'viewer') {
+            role = val.role;
+            if (id.startsWith('invite_')) {
+              inviteId = id;
+            }
+          }
+        }
+      }
+    }
+
+    await set(ref(db, `users/${uid}`), {
+      email: email.toLowerCase(),
+      role: role,
+      createdAt: new Date().toISOString()
+    });
+
+    if (inviteId) {
+      await remove(ref(db, `users/${inviteId}`));
+    }
+  };
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -45,13 +76,7 @@ export default function LoginPage() {
         if (!email || !password) throw new Error('Please enter both email and password.');
         const result = await createUserWithEmailAndPassword(auth, email, password);
         
-        // Save new user in Realtime DB as 'viewer'
-        const userRef = ref(db, `users/${result.user.uid}`);
-        await set(userRef, {
-          email: result.user.email,
-          role: 'viewer',
-          createdAt: new Date().toISOString()
-        });
+        await resolveUserRole(result.user.email, result.user.uid);
         
         router.push('/dashboard');
       } else {
@@ -80,11 +105,7 @@ export default function LoginPage() {
       const snapshot = await get(userRef);
       
       if (!snapshot.exists()) {
-        await set(userRef, {
-          email: result.user.email,
-          role: 'viewer',
-          createdAt: new Date().toISOString()
-        });
+        await resolveUserRole(result.user.email, result.user.uid);
       }
       
       router.push('/dashboard');
