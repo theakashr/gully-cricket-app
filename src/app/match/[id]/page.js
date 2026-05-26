@@ -181,6 +181,31 @@ export default function MatchCenterPage({ params: paramsPromise }) {
                 </p>
              )}
           </div>
+          
+          {/* Current Players Display */}
+          {match.score[currInningsKey]?.currentPlayers && (
+            <div className="mt-6 glass rounded-2xl p-4 flex flex-col gap-3 bg-black/20">
+               <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                 <span className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2"><span className="text-lg">🏏</span> Batsmen</span>
+               </div>
+               <div className="flex justify-between items-center">
+                 <div className="text-white font-bold text-lg">
+                   {match.score[currInningsKey].currentPlayers.striker || 'Striker'} 
+                   <span className="text-[var(--color-cricket-accent)] ml-2 text-sm">*</span>
+                 </div>
+                 <div className="text-gray-400 font-medium">
+                   {match.score[currInningsKey].currentPlayers.nonStriker || 'Non-Striker'}
+                 </div>
+               </div>
+               
+               <div className="mt-2 pt-3 border-t border-white/5 flex justify-between items-center">
+                 <span className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2"><span className="text-lg">🥎</span> Bowler</span>
+                 <span className="text-[var(--color-cricket-accent)] font-bold text-lg">
+                   {match.score[currInningsKey].currentPlayers.bowler || 'TBD'}
+                 </span>
+               </div>
+            </div>
+          )}
         </div>
 
         {/* Live Commentary Feed */}

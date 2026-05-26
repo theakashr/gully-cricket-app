@@ -17,6 +17,9 @@ export default function ScorerPage({ params: paramsPromise }) {
   const [teamB, setTeamB] = useState(null);
   const [currentOver, setCurrentOver] = useState([]);
   const [lastBallId, setLastBallId] = useState(null);
+  const [striker, setStriker] = useState('');
+  const [nonStriker, setNonStriker] = useState('');
+  const [bowler, setBowler] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -51,6 +54,15 @@ export default function ScorerPage({ params: paramsPromise }) {
            }
         }
 
+        if (data.currentInnings) {
+          const cp = data.score[`innings${data.currentInnings}`]?.currentPlayers;
+          if (cp) {
+            setStriker(prev => cp.striker || prev);
+            setNonStriker(prev => cp.nonStriker || prev);
+            setBowler(prev => cp.bowler || prev);
+          }
+        }
+
         if (data.balls) {
            const ballsEntries = Object.entries(data.balls).sort((a, b) => new Date(a[1].timestamp) - new Date(b[1].timestamp));
            
@@ -80,8 +92,22 @@ export default function ScorerPage({ params: paramsPromise }) {
       setLoading(false);
     });
 
-    return () => unsubscribeMatch();
+    return () => unsubscribe();
   }, [matchId, router, teamA, teamB]);
+
+  const updatePlayers = async () => {
+    if (!match) return;
+    const currInningsKey = match.currentInnings === 1 ? 'innings1' : 'innings2';
+    try {
+      await update(ref(db, `matches/${matchId}/score/${currInningsKey}/currentPlayers`), {
+        striker,
+        nonStriker,
+        bowler
+      });
+    } catch (error) {
+      console.error("Error updating players:", error);
+    }
+  };
 
   const recordBall = async (runs, type) => {
     if (!match) return;
@@ -383,6 +409,48 @@ export default function ScorerPage({ params: paramsPromise }) {
             </div>
           )}
 
+          {/* Current Players Inputs */}
+          <div className="glass rounded-2xl p-5 mb-4 border border-white/5">
+            <h3 className="text-gray-400 font-bold text-xs uppercase tracking-widest mb-3">Current Players</h3>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] text-gray-500 uppercase tracking-wider font-bold ml-1">Striker</label>
+                  <input 
+                    type="text" 
+                    value={striker} 
+                    onChange={(e) => setStriker(e.target.value)}
+                    onBlur={updatePlayers}
+                    placeholder="Striker Name" 
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[var(--color-cricket-accent)]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-gray-500 uppercase tracking-wider font-bold ml-1">Non-Striker</label>
+                  <input 
+                    type="text" 
+                    value={nonStriker} 
+                    onChange={(e) => setNonStriker(e.target.value)}
+                    onBlur={updatePlayers}
+                    placeholder="Non-Striker Name" 
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[var(--color-cricket-accent)]"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-[10px] text-[var(--color-cricket-accent)] uppercase tracking-wider font-bold ml-1">Bowler</label>
+                <input 
+                  type="text" 
+                  value={bowler} 
+                  onChange={(e) => setBowler(e.target.value)}
+                  onBlur={updatePlayers}
+                  placeholder="Bowler Name" 
+                  className="w-full bg-[var(--color-cricket-accent)]/10 border border-[var(--color-cricket-accent)]/30 rounded-xl px-3 py-2 text-[var(--color-cricket-accent)] font-bold text-sm focus:outline-none focus:border-[var(--color-cricket-accent)]"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Scoring Controls */}
           {(!isAllOut && !isOversDone && (match.currentInnings === 1 || runsNeeded > 0)) && (
             <>
@@ -404,7 +472,7 @@ export default function ScorerPage({ params: paramsPromise }) {
                 ))}
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 mt-4">
                 <motion.button 
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -426,7 +494,7 @@ export default function ScorerPage({ params: paramsPromise }) {
                 </motion.button>
               </div>
               
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-4 gap-3 mt-4">
                 <button onClick={() => recordBall(0, 'wd')} className="h-14 rounded-xl glass hover:bg-white/5 text-orange-400 text-xs font-bold uppercase tracking-wider transition-colors">
                   Wide
                 </button>
