@@ -42,4 +42,42 @@
   .neon-text-blue {
     text-shadow: 0 0 10px rgba(0, 136, 255, 0.5), 0 0 20px rgba(0, 136, 255, 0.3);
   }
+  /* Safe area for phones with notches / gesture bars */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 8px);
+  }
 }
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  /* Add bottom padding on mobile to account for the fixed bottom nav */
+  main {
+    padding-bottom: 80px !important;
+  }
+  
+  /* Improve touch targets on mobile */
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent text size adjustment on orientation change */
+  body {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+}
+
+/* PWA standalone mode specific styles */
+@media (display-mode: standalone) {
+  /* When running as installed PWA, remove any extra browser chrome spacing */
+  body {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
