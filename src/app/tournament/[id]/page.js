@@ -197,18 +197,18 @@ export default function TournamentPage({ params: paramsPromise }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="w-10 h-10 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-[var(--color-cricket-blue)]/30 border-t-[var(--color-cricket-blue)] rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (!tournament) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-black p-4 text-center">
-        <Trophy size={64} className="text-gray-600 mb-4" />
-        <h1 className="text-2xl font-bold text-white">Tournament Not Found</h1>
-        <Link href="/" className="text-blue-500 mt-4 hover:underline font-bold">Go Home</Link>
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center">
+        <Trophy size={64} className="text-gray-300 mb-4" />
+        <h1 className="text-2xl font-bold text-gray-900">Tournament Not Found</h1>
+        <Link href="/" className="text-[var(--color-cricket-blue)] mt-4 hover:underline font-bold">Go Home</Link>
       </div>
     );
   }
@@ -220,48 +220,48 @@ export default function TournamentPage({ params: paramsPromise }) {
 
   return (
     <div className="container mx-auto px-2 md:px-4 py-6 md:py-8 max-w-4xl pb-24 md:pb-8">
-      <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white font-bold text-sm mb-6 transition-colors px-2">
+      <Link href="/" className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 font-bold text-sm mb-6 transition-colors px-2">
         <ArrowLeft size={16} /> Back to Matches
       </Link>
 
       {/* Tournament Header */}
-      <div className="glass-card rounded-3xl p-6 md:p-8 relative overflow-hidden mb-6 md:mb-8 mx-2 md:mx-0">
-        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 to-blue-400"></div>
+      <div className="glass-card rounded-3xl p-6 md:p-8 relative overflow-hidden mb-6 md:mb-8 mx-2 md:mx-0 shadow-lg border border-gray-100 bg-white">
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--color-cricket-blue)] to-cyan-400"></div>
         <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 relative z-10 text-center md:text-left">
-          <div className="w-20 h-20 bg-blue-500/10 rounded-2xl flex items-center justify-center border border-blue-500/20 shadow-[0_0_30px_rgba(59,130,246,0.15)] flex-shrink-0">
-            <Trophy size={40} className="text-blue-400" />
+          <div className="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center border border-blue-100 shadow-[0_0_30px_rgba(59,130,246,0.15)] flex-shrink-0">
+            <Trophy size={40} className="text-[var(--color-cricket-blue)]" />
           </div>
           <div>
-            <span className={`inline-block text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full mb-2 ${tournament.status === 'active' ? 'bg-green-500/20 text-green-500 border border-green-500/30' : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'}`}>
+            <span className={`inline-block text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full mb-2 shadow-sm ${tournament.status === 'active' ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-gray-100 text-gray-500 border border-gray-200'}`}>
               {tournament.status}
             </span>
-            <h1 className="text-3xl md:text-5xl font-black text-white tracking-tighter leading-tight">
+            <h1 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tighter leading-tight">
               {tournament.name}
             </h1>
           </div>
         </div>
-        <div className="absolute -right-10 -bottom-10 opacity-5 pointer-events-none">
+        <div className="absolute -right-10 -bottom-10 opacity-[0.03] pointer-events-none">
            <Trophy size={200} />
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex bg-white/5 p-1 rounded-2xl mb-6 mx-2 md:mx-0 overflow-x-auto scrollbar-hide">
+      <div className="flex bg-gray-100 p-1.5 rounded-2xl mb-6 mx-2 md:mx-0 overflow-x-auto scrollbar-hide shadow-inner border border-gray-200">
         <button 
           onClick={() => setActiveTab('standings')}
-          className={`flex-1 min-w-[100px] py-3 px-2 md:px-4 rounded-xl font-bold text-xs md:text-sm transition-all flex items-center justify-center gap-1 md:gap-2 ${activeTab === 'standings' ? 'bg-blue-500 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+          className={`flex-1 min-w-[100px] py-3 px-2 md:px-4 rounded-xl font-bold text-xs md:text-sm transition-all flex items-center justify-center gap-1 md:gap-2 ${activeTab === 'standings' ? 'bg-white text-[var(--color-cricket-blue)] shadow-md' : 'text-gray-500 hover:text-gray-700'}`}
         >
           <List size={16} className="hidden md:block" /> Points
         </button>
         <button 
           onClick={() => setActiveTab('fixtures')}
-          className={`flex-1 min-w-[100px] py-3 px-2 md:px-4 rounded-xl font-bold text-xs md:text-sm transition-all flex items-center justify-center gap-1 md:gap-2 ${activeTab === 'fixtures' ? 'bg-blue-500 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+          className={`flex-1 min-w-[100px] py-3 px-2 md:px-4 rounded-xl font-bold text-xs md:text-sm transition-all flex items-center justify-center gap-1 md:gap-2 ${activeTab === 'fixtures' ? 'bg-white text-[var(--color-cricket-blue)] shadow-md' : 'text-gray-500 hover:text-gray-700'}`}
         >
           <Calendar size={16} className="hidden md:block" /> Fixtures
         </button>
         <button 
           onClick={() => setActiveTab('stats')}
-          className={`flex-1 min-w-[100px] py-3 px-2 md:px-4 rounded-xl font-bold text-xs md:text-sm transition-all flex items-center justify-center gap-1 md:gap-2 ${activeTab === 'stats' ? 'bg-blue-500 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+          className={`flex-1 min-w-[100px] py-3 px-2 md:px-4 rounded-xl font-bold text-xs md:text-sm transition-all flex items-center justify-center gap-1 md:gap-2 ${activeTab === 'stats' ? 'bg-white text-[var(--color-cricket-blue)] shadow-md' : 'text-gray-500 hover:text-gray-700'}`}
         >
           <BarChart3 size={16} className="hidden md:block" /> Stats
         </button>
@@ -281,43 +281,43 @@ export default function TournamentPage({ params: paramsPromise }) {
              {(liveMatch || recentMatch) && (
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                   {liveMatch && (
-                     <Link href={`/match/${liveMatch.id}`} className="block relative group overflow-hidden rounded-3xl p-6 border border-red-500/30 bg-black/40 hover:bg-black/60 transition-all shadow-[0_0_30px_rgba(239,68,68,0.15)]">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 to-red-400"></div>
+                     <Link href={`/match/${liveMatch.id}`} className="block relative group overflow-hidden rounded-3xl p-6 border border-red-100 bg-white hover:shadow-2xl hover:-translate-y-1 transition-all shadow-md">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-orange-400"></div>
                         <div className="flex justify-between items-center mb-4">
-                           <span className="bg-red-500/20 text-red-500 border border-red-500/30 px-3 py-1 rounded-full text-[10px] font-black tracking-widest flex items-center gap-2 uppercase shadow-lg shadow-red-500/20">
+                           <span className="bg-red-50 text-red-600 border border-red-200 px-3 py-1 rounded-full text-[10px] font-black tracking-widest flex items-center gap-2 uppercase shadow-sm">
                              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> LIVE
                            </span>
-                           {liveMatch.stage && <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{liveMatch.stage}</span>}
+                           {liveMatch.stage && <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{liveMatch.stage}</span>}
                         </div>
                         
                         <div className="flex justify-between items-center mb-4">
                            <div className="flex items-center gap-3 w-5/12">
-                             <div className="w-12 h-12 rounded-full bg-white/5 flex flex-shrink-0 items-center justify-center overflow-hidden border border-white/10">
+                             <div className="w-12 h-12 rounded-full bg-white shadow-sm flex flex-shrink-0 items-center justify-center overflow-hidden border border-gray-100">
                                {getTeamDetails(liveMatch.teamA).logoUrl ? <img src={getTeamDetails(liveMatch.teamA).logoUrl} alt="Logo" className="w-full h-full object-cover" /> : <span className="text-xs font-bold text-gray-400">{getTeamDetails(liveMatch.teamA).shortName}</span>}
                              </div>
-                             <span className="font-bold text-white text-lg md:text-xl truncate">{getTeamDetails(liveMatch.teamA).shortName}</span>
+                             <span className="font-black text-gray-900 text-lg md:text-xl truncate">{getTeamDetails(liveMatch.teamA).shortName}</span>
                            </div>
-                           <div className="w-2/12 text-center text-xs font-black text-gray-600 italic">VS</div>
+                           <div className="w-2/12 text-center text-xs font-black text-gray-400 italic bg-gray-50 rounded-full py-1">VS</div>
                            <div className="flex flex-row-reverse items-center gap-3 w-5/12">
-                             <div className="w-12 h-12 rounded-full bg-white/5 flex flex-shrink-0 items-center justify-center overflow-hidden border border-white/10">
+                             <div className="w-12 h-12 rounded-full bg-white shadow-sm flex flex-shrink-0 items-center justify-center overflow-hidden border border-gray-100">
                                {getTeamDetails(liveMatch.teamB).logoUrl ? <img src={getTeamDetails(liveMatch.teamB).logoUrl} alt="Logo" className="w-full h-full object-cover" /> : <span className="text-xs font-bold text-gray-400">{getTeamDetails(liveMatch.teamB).shortName}</span>}
                              </div>
-                             <span className="font-bold text-white text-lg md:text-xl truncate">{getTeamDetails(liveMatch.teamB).shortName}</span>
+                             <span className="font-black text-gray-900 text-lg md:text-xl truncate">{getTeamDetails(liveMatch.teamB).shortName}</span>
                            </div>
                         </div>
 
                         {/* Live Score Block */}
-                        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex justify-between items-center relative overflow-hidden backdrop-blur-sm">
-                           <div className="absolute right-0 bottom-0 opacity-5 -mr-4 -mb-4">
+                        <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 flex justify-between items-center relative overflow-hidden">
+                           <div className="absolute right-0 bottom-0 opacity-[0.03] -mr-4 -mb-4">
                               <BarChart3 size={100} />
                            </div>
                            <div>
-                              <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest mb-1">{getTeamDetails(liveMatch.score[`innings${liveMatch.currentInnings}`]?.team).name} Batting</p>
+                              <p className="text-[10px] uppercase font-bold text-gray-500 tracking-widest mb-1">{getTeamDetails(liveMatch.score[`innings${liveMatch.currentInnings}`]?.team).name} Batting</p>
                               <div className="flex items-end gap-2">
-                                <h3 className="text-4xl font-black text-white leading-none tracking-tighter">
-                                  {liveMatch.score[`innings${liveMatch.currentInnings}`]?.runs}<span className="text-2xl text-gray-500">/{liveMatch.score[`innings${liveMatch.currentInnings}`]?.wickets}</span>
+                                <h3 className="text-4xl font-black text-gray-900 leading-none tracking-tighter">
+                                  {liveMatch.score[`innings${liveMatch.currentInnings}`]?.runs}<span className="text-2xl text-gray-400 font-bold">/{liveMatch.score[`innings${liveMatch.currentInnings}`]?.wickets}</span>
                                 </h3>
-                                <p className="text-sm font-bold text-gray-400 mb-1">({(liveMatch.score[`innings${liveMatch.currentInnings}`]?.overs || 0).toFixed(1)})</p>
+                                <p className="text-sm font-bold text-gray-500 mb-1">({(liveMatch.score[`innings${liveMatch.currentInnings}`]?.overs || 0).toFixed(1)})</p>
                               </div>
                            </div>
                            <div className="text-right flex flex-col justify-end">
@@ -331,42 +331,42 @@ export default function TournamentPage({ params: paramsPromise }) {
                   )}
 
                   {recentMatch && (
-                     <Link href={`/match/${recentMatch.id}`} className="block relative group overflow-hidden rounded-3xl p-6 border border-white/10 bg-black/40 hover:bg-black/60 transition-all shadow-xl">
+                     <Link href={`/match/${recentMatch.id}`} className="block relative group overflow-hidden rounded-3xl p-6 border border-gray-100 bg-white hover:shadow-2xl hover:-translate-y-1 transition-all shadow-md">
                         <div className="flex justify-between items-center mb-4">
-                           <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/10">Recent Match</span>
-                           <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{new Date(recentMatch.createdAt).toLocaleDateString()}</span>
+                           <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-gray-100 px-3 py-1 rounded-full border border-gray-200">Recent Match</span>
+                           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{new Date(recentMatch.createdAt).toLocaleDateString()}</span>
                         </div>
                         
                         <div className="space-y-4">
-                           <div className="flex justify-between items-center bg-white/5 rounded-xl p-3">
+                           <div className="flex justify-between items-center bg-gray-50 border border-gray-100 rounded-xl p-3">
                               <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
+                                <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center overflow-hidden border border-gray-200">
                                   {getTeamDetails(recentMatch.teamA).logoUrl ? <img src={getTeamDetails(recentMatch.teamA).logoUrl} alt="Logo" className="w-full h-full object-cover" /> : <Shield size={14} className="text-gray-400"/>}
                                 </div>
-                                <span className="font-bold text-white">{getTeamDetails(recentMatch.teamA).shortName}</span>
+                                <span className="font-bold text-gray-900">{getTeamDetails(recentMatch.teamA).shortName}</span>
                               </div>
-                              <div className="font-black text-lg text-white">
+                              <div className="font-black text-lg text-gray-900">
                                 {recentMatch.score?.innings1?.team === recentMatch.teamA ? `${recentMatch.score?.innings1?.runs}/${recentMatch.score?.innings1?.wickets}` : `${recentMatch.score?.innings2?.runs}/${recentMatch.score?.innings2?.wickets}`}
                               </div>
                            </div>
                            
-                           <div className="flex justify-between items-center bg-white/5 rounded-xl p-3">
+                           <div className="flex justify-between items-center bg-gray-50 border border-gray-100 rounded-xl p-3">
                               <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
+                                <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center overflow-hidden border border-gray-200">
                                   {getTeamDetails(recentMatch.teamB).logoUrl ? <img src={getTeamDetails(recentMatch.teamB).logoUrl} alt="Logo" className="w-full h-full object-cover" /> : <Shield size={14} className="text-gray-400"/>}
                                 </div>
-                                <span className="font-bold text-white">{getTeamDetails(recentMatch.teamB).shortName}</span>
+                                <span className="font-bold text-gray-900">{getTeamDetails(recentMatch.teamB).shortName}</span>
                               </div>
-                              <div className="font-black text-lg text-white">
+                              <div className="font-black text-lg text-gray-900">
                                 {recentMatch.score?.innings1?.team === recentMatch.teamB ? `${recentMatch.score?.innings1?.runs}/${recentMatch.score?.innings1?.wickets}` : `${recentMatch.score?.innings2?.runs}/${recentMatch.score?.innings2?.wickets}`}
                               </div>
                            </div>
                         </div>
 
                         <div className="mt-4 text-center">
-                           <p className="text-xs font-bold text-[var(--color-cricket-accent)] uppercase tracking-wider">{recentMatch.result?.margin}</p>
+                           <p className="text-[11px] font-black text-green-600 bg-green-50 inline-block px-3 py-1 rounded-full border border-green-100 uppercase tracking-wider">{recentMatch.result?.margin}</p>
                            {getMatchMVP(recentMatch) && (
-                              <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-widest">MVP: <span className="text-yellow-500 font-bold">{getMatchMVP(recentMatch).name}</span></p>
+                              <p className="text-[10px] text-gray-500 mt-2 uppercase tracking-widest">MVP: <span className="text-yellow-600 font-bold">{getMatchMVP(recentMatch).name}</span></p>
                            )}
                         </div>
                      </Link>
@@ -376,79 +376,79 @@ export default function TournamentPage({ params: paramsPromise }) {
 
              {/* Tournament Leaders Widgets (IPL Style) */}
              <div className="grid grid-cols-2 gap-3 md:gap-6">
-                <div className="glass rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden border border-orange-500/20">
+                <div className="glass bg-white rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden border border-orange-200 shadow-md hover:-translate-y-1 transition-transform">
                    <div className="absolute top-0 right-0 p-2 opacity-10">
                      <Medal size={64} className="text-orange-500" />
                    </div>
                    <div className="relative z-10">
-                     <p className="text-[10px] md:text-xs font-black text-orange-500 uppercase tracking-widest mb-1">Orange Cap</p>
-                     <p className="text-sm md:text-xl font-bold text-white truncate">{orangeLeader ? orangeLeader.name : 'N/A'}</p>
-                     <p className="text-[10px] md:text-xs text-gray-400">{orangeLeader ? getTeamDetails(orangeLeader.teamId).shortName : '-'}</p>
+                     <p className="text-[10px] md:text-xs font-black text-orange-500 bg-orange-50 inline-block px-2 py-0.5 rounded uppercase tracking-widest mb-1 border border-orange-100">Orange Cap</p>
+                     <p className="text-sm md:text-xl font-bold text-gray-900 truncate mt-1">{orangeLeader ? orangeLeader.name : 'N/A'}</p>
+                     <p className="text-[10px] md:text-xs text-gray-500">{orangeLeader ? getTeamDetails(orangeLeader.teamId).shortName : '-'}</p>
                    </div>
                    <div className="relative z-10 mt-3 flex items-end justify-between">
-                     <span className="text-xs text-gray-500 font-bold uppercase">Runs</span>
-                     <span className="text-xl md:text-2xl font-black text-white">{orangeLeader ? orangeLeader.runs : 0}</span>
+                     <span className="text-xs text-gray-400 font-bold uppercase">Runs</span>
+                     <span className="text-xl md:text-3xl font-black text-gray-900">{orangeLeader ? orangeLeader.runs : 0}</span>
                    </div>
                 </div>
-                <div className="glass rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden border border-purple-500/20">
+                <div className="glass bg-white rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden border border-purple-200 shadow-md hover:-translate-y-1 transition-transform">
                    <div className="absolute top-0 right-0 p-2 opacity-10">
                      <Medal size={64} className="text-purple-500" />
                    </div>
                    <div className="relative z-10">
-                     <p className="text-[10px] md:text-xs font-black text-purple-500 uppercase tracking-widest mb-1">Purple Cap</p>
-                     <p className="text-sm md:text-xl font-bold text-white truncate">{purpleLeader ? purpleLeader.name : 'N/A'}</p>
-                     <p className="text-[10px] md:text-xs text-gray-400">{purpleLeader ? getTeamDetails(purpleLeader.teamId).shortName : '-'}</p>
+                     <p className="text-[10px] md:text-xs font-black text-purple-600 bg-purple-50 inline-block px-2 py-0.5 rounded uppercase tracking-widest mb-1 border border-purple-100">Purple Cap</p>
+                     <p className="text-sm md:text-xl font-bold text-gray-900 truncate mt-1">{purpleLeader ? purpleLeader.name : 'N/A'}</p>
+                     <p className="text-[10px] md:text-xs text-gray-500">{purpleLeader ? getTeamDetails(purpleLeader.teamId).shortName : '-'}</p>
                    </div>
                    <div className="relative z-10 mt-3 flex items-end justify-between">
-                     <span className="text-xs text-gray-500 font-bold uppercase">Wickets</span>
-                     <span className="text-xl md:text-2xl font-black text-white">{purpleLeader ? purpleLeader.wickets : 0}</span>
+                     <span className="text-xs text-gray-400 font-bold uppercase">Wickets</span>
+                     <span className="text-xl md:text-3xl font-black text-gray-900">{purpleLeader ? purpleLeader.wickets : 0}</span>
                    </div>
                 </div>
              </div>
 
-              <div className="glass rounded-3xl overflow-hidden shadow-2xl">
+              <div className="glass bg-white rounded-3xl overflow-hidden shadow-xl border border-gray-100">
                 <div className="overflow-x-auto w-full">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-white/5 bg-black/40">
-                        <th className="p-2 md:p-4 text-[9px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">Team</th>
-                        <th className="p-1 md:p-4 text-[9px] md:text-xs font-bold text-gray-400 uppercase tracking-widest text-center">P</th>
-                        <th className="p-1 md:p-4 text-[9px] md:text-xs font-bold text-gray-400 uppercase tracking-widest text-center">W</th>
-                        <th className="p-1 md:p-4 text-[9px] md:text-xs font-bold text-gray-400 uppercase tracking-widest text-center">L</th>
-                        <th className="p-1 md:p-4 text-[9px] md:text-xs font-bold text-gray-400 uppercase tracking-widest text-center hidden sm:table-cell">T</th>
-                        <th className="p-1 md:p-4 text-[9px] md:text-xs font-bold text-gray-400 uppercase tracking-widest text-center">NRR</th>
-                        <th className="p-2 md:p-4 text-[11px] md:text-sm font-black text-blue-400 uppercase tracking-widest text-center bg-blue-500/5">PTS</th>
+                      <tr className="border-b border-gray-100 bg-gray-50">
+                        <th className="p-3 md:p-4 text-[9px] md:text-xs font-black text-gray-500 uppercase tracking-widest">Team</th>
+                        <th className="p-2 md:p-4 text-[9px] md:text-xs font-black text-gray-500 uppercase tracking-widest text-center">P</th>
+                        <th className="p-2 md:p-4 text-[9px] md:text-xs font-black text-gray-500 uppercase tracking-widest text-center">W</th>
+                        <th className="p-2 md:p-4 text-[9px] md:text-xs font-black text-gray-500 uppercase tracking-widest text-center">L</th>
+                        <th className="p-2 md:p-4 text-[9px] md:text-xs font-black text-gray-500 uppercase tracking-widest text-center hidden sm:table-cell">T</th>
+                        <th className="p-2 md:p-4 text-[9px] md:text-xs font-black text-gray-500 uppercase tracking-widest text-center">NRR</th>
+                        <th className="p-3 md:p-4 text-[11px] md:text-sm font-black text-[var(--color-cricket-blue)] uppercase tracking-widest text-center bg-blue-50/50">PTS</th>
                       </tr>
                     </thead>
                     <tbody>
                       {pointsTable.length === 0 ? (
                         <tr>
-                          <td colSpan="7" className="p-8 text-center text-gray-500 font-bold">No matches played yet.</td>
+                          <td colSpan="7" className="p-8 text-center text-gray-400 font-bold">No matches played yet.</td>
                         </tr>
                       ) : (
                         pointsTable.map((row, index) => {
                           const team = getTeamDetails(row.id);
                           return (
-                            <tr key={row.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                              <td className="p-2 md:p-4 flex items-center gap-1.5 md:gap-3">
-                                 <div className="w-3 md:w-6 text-gray-500 font-bold text-[10px] md:text-sm text-center">{index + 1}</div>
-                                 <div className="w-5 h-5 md:w-8 md:h-8 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center overflow-hidden flex-shrink-0">
+                            <tr key={row.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                              <td className="p-3 md:p-4 flex items-center gap-2 md:gap-3">
+                                 <div className="w-3 md:w-6 text-gray-400 font-bold text-[10px] md:text-sm text-center">{index + 1}</div>
+                                 <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
                                    {team.logoUrl ? (
                                       <img src={team.logoUrl} alt={team.name} className="w-full h-full object-cover" />
                                    ) : (
-                                      <Shield size={10} className="text-blue-400" />
+                                      <Shield size={10} className="text-gray-400" />
                                    )}
                                  </div>
-                                 <span className="font-bold text-white whitespace-nowrap text-[11px] md:text-base">{team.shortName} <span className="hidden lg:inline text-gray-500 ml-1 font-normal">({team.name})</span></span>
+                                 <span className="font-bold text-gray-900 whitespace-nowrap text-xs md:text-base">{team.shortName} <span className="hidden lg:inline text-gray-400 ml-1 font-normal">({team.name})</span></span>
                               </td>
-                              <td className="p-1 md:p-4 text-center font-bold text-gray-300 text-[11px] md:text-base">{row.played}</td>
-                              <td className="p-1 md:p-4 text-center font-bold text-green-400 text-[11px] md:text-base">{row.won}</td>
-                              <td className="p-1 md:p-4 text-center font-bold text-red-400 text-[11px] md:text-base">{row.lost}</td>
-                              <td className="p-1 md:p-4 text-center font-bold text-gray-400 text-[11px] md:text-base hidden sm:table-cell">{row.tied}</td>
-                              <td className="p-1 md:p-4 text-center font-bold text-gray-300 text-[10px] md:text-sm whitespace-nowrap">
+                              <td className="p-2 md:p-4 text-center font-bold text-gray-600 text-xs md:text-base">{row.played}</td>
+                              <td className="p-2 md:p-4 text-center font-bold text-green-600 text-xs md:text-base">{row.won}</td>
+                              <td className="p-2 md:p-4 text-center font-bold text-red-500 text-xs md:text-base">{row.lost}</td>
+                              <td className="p-2 md:p-4 text-center font-bold text-gray-400 text-xs md:text-base hidden sm:table-cell">{row.tied}</td>
+                              <td className="p-2 md:p-4 text-center font-bold text-gray-600 text-[10px] md:text-sm whitespace-nowrap">
                                 {row.nrr > 0 ? '+' : ''}{row.nrr.toFixed(3)}
                               </td>
-                              <td className="p-2 md:p-4 text-center font-black text-blue-400 text-sm md:text-lg bg-blue-500/5">{row.points}</td>
+                              <td className="p-3 md:p-4 text-center font-black text-[var(--color-cricket-blue)] text-sm md:text-lg bg-blue-50/50">{row.points}</td>
                             </tr>
                           );
                         })
@@ -463,67 +463,67 @@ export default function TournamentPage({ params: paramsPromise }) {
         {activeTab === 'fixtures' && (
           <div className="space-y-4">
              {matches.length === 0 ? (
-               <div className="glass p-8 md:p-12 rounded-2xl text-center">
-                 <Calendar size={40} className="mx-auto text-gray-600 mb-4" />
-                 <h3 className="text-lg md:text-xl font-bold text-gray-400">No Fixtures</h3>
+               <div className="glass bg-white p-8 md:p-12 rounded-2xl text-center border border-gray-100">
+                 <Calendar size={40} className="mx-auto text-gray-300 mb-4" />
+                 <h3 className="text-lg md:text-xl font-bold text-gray-500">No Fixtures</h3>
                </div>
              ) : (
                matches.map(m => {
                  const tA = getTeamDetails(m.teamA);
                  const tB = getTeamDetails(m.teamB);
-                 const stageColor = m.stage === 'Final' ? 'text-yellow-500' : m.stage?.includes('Final') ? 'text-purple-400' : 'text-blue-400';
+                 const stageColor = m.stage === 'Final' ? 'text-yellow-600 bg-yellow-50 border-yellow-200' : m.stage?.includes('Final') ? 'text-purple-600 bg-purple-50 border-purple-200' : 'text-[var(--color-cricket-blue)] bg-blue-50 border-blue-200';
                  const mvp = getMatchMVP(m);
                  
                  return (
                    <Link href={`/match/${m.id}`} key={m.id} className="block">
-                     <div className="glass rounded-2xl p-4 md:p-6 hover:bg-white/5 transition-colors relative overflow-hidden group">
-                        <div className="flex justify-between items-center mb-4">
+                     <div className="glass bg-white rounded-2xl p-4 md:p-6 hover:shadow-xl hover:-translate-y-1 transition-all relative overflow-hidden group border border-gray-100">
+                        <div className="flex justify-between items-center mb-6">
                           <div className="flex items-center gap-2">
-                            <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
-                              m.status === 'live' ? 'bg-red-500/20 text-red-500' :
-                              m.status === 'completed' ? 'bg-green-500/20 text-green-500' :
-                              'bg-gray-500/20 text-gray-400'
+                            <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${
+                              m.status === 'live' ? 'bg-red-50 text-red-600 border-red-200 shadow-sm' :
+                              m.status === 'completed' ? 'bg-green-50 text-green-600 border-green-200' :
+                              'bg-gray-100 text-gray-500 border-gray-200'
                             }`}>
                               {m.status === 'live' && <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse mr-1.5 align-middle"></span>}
                               {m.status}
                             </span>
                             {m.stage && (
-                               <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest ${stageColor}`}>
+                               <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${stageColor}`}>
                                  {m.stage}
                                </span>
                             )}
                           </div>
-                          <span className="text-[10px] md:text-xs text-gray-500 font-bold">{new Date(m.createdAt).toLocaleDateString()}</span>
+                          <span className="text-[10px] md:text-xs text-gray-400 font-bold bg-gray-50 px-2 py-1 rounded-lg border border-gray-100">{new Date(m.createdAt).toLocaleDateString()}</span>
                         </div>
                         
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100">
                            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 w-1/3 md:w-auto">
-                             <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/5 flex flex-shrink-0 items-center justify-center overflow-hidden border border-white/10">
+                             <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white shadow-sm flex flex-shrink-0 items-center justify-center overflow-hidden border border-gray-200">
                                {tA.logoUrl ? <img src={tA.logoUrl} alt={tA.name} className="w-full h-full object-cover" /> : <span className="text-xs font-bold text-gray-400">{tA.shortName}</span>}
                              </div>
-                             <span className="font-bold text-white text-sm md:text-lg text-center">{tA.shortName}</span>
+                             <span className="font-black text-gray-900 text-sm md:text-xl text-center">{tA.shortName}</span>
                            </div>
                            
                            <div className="text-center px-2 md:px-4 w-1/3 md:w-auto">
-                             <div className="text-[10px] md:text-xs font-black text-gray-500 italic uppercase">VS</div>
+                             <div className="text-[10px] md:text-xs font-black text-gray-400 italic uppercase bg-white px-2 py-1 rounded-full shadow-sm border border-gray-100">VS</div>
                            </div>
                            
                            <div className="flex flex-col-reverse md:flex-row items-center gap-2 md:gap-3 w-1/3 md:w-auto">
-                             <span className="font-bold text-white text-sm md:text-lg text-center">{tB.shortName}</span>
-                             <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/5 flex flex-shrink-0 items-center justify-center overflow-hidden border border-white/10">
+                             <span className="font-black text-gray-900 text-sm md:text-xl text-center">{tB.shortName}</span>
+                             <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white shadow-sm flex flex-shrink-0 items-center justify-center overflow-hidden border border-gray-200">
                                {tB.logoUrl ? <img src={tB.logoUrl} alt={tB.name} className="w-full h-full object-cover" /> : <span className="text-xs font-bold text-gray-400">{tB.shortName}</span>}
                              </div>
                            </div>
                         </div>
 
                         {m.status === 'completed' && m.result && (
-                          <div className="mt-4 pt-3 border-t border-white/5 text-center flex flex-col items-center gap-2">
-                             <p className="text-[10px] md:text-xs font-bold text-[var(--color-cricket-accent)] uppercase tracking-wider">{m.result.margin}</p>
+                          <div className="mt-4 pt-3 border-t border-gray-100 text-center flex flex-col items-center gap-2">
+                             <p className="text-[10px] md:text-xs font-bold text-green-600 uppercase tracking-wider">{m.result.margin}</p>
                              {mvp && (
-                                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-500/10 border border-yellow-500/20 rounded-full">
+                                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-50 border border-yellow-200 rounded-full shadow-sm">
                                    <Star size={12} className="text-yellow-500 fill-yellow-500" />
-                                   <span className="text-[10px] font-bold text-yellow-500 uppercase tracking-widest">Player of the Match:</span>
-                                   <span className="text-[10px] font-black text-white">{mvp.name}</span>
+                                   <span className="text-[10px] font-bold text-yellow-600 uppercase tracking-widest">Player of the Match:</span>
+                                   <span className="text-[10px] font-black text-gray-900">{mvp.name}</span>
                                 </div>
                              )}
                           </div>
@@ -539,76 +539,76 @@ export default function TournamentPage({ params: paramsPromise }) {
         {activeTab === 'stats' && (
           <div className="space-y-4">
              {/* Sub-tabs for stats */}
-             <div className="flex bg-black/40 p-1 rounded-xl mb-4 text-sm">
+             <div className="flex bg-gray-100 border border-gray-200 p-1.5 rounded-xl mb-4 text-sm shadow-inner">
                 <button 
                   onClick={() => setStatsTab('orange')}
-                  className={`flex-1 py-2 font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 ${statsTab === 'orange' ? 'bg-orange-500 text-white' : 'text-gray-400'}`}
+                  className={`flex-1 py-2 font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${statsTab === 'orange' ? 'bg-orange-500 text-white shadow-md' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'}`}
                 >
                   <Medal size={16} className={statsTab === 'orange' ? 'text-yellow-200' : ''} /> <span className="hidden md:inline">Orange Cap</span><span className="md:hidden">Runs</span>
                 </button>
                 <button 
                   onClick={() => setStatsTab('purple')}
-                  className={`flex-1 py-2 font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 ${statsTab === 'purple' ? 'bg-purple-500 text-white' : 'text-gray-400'}`}
+                  className={`flex-1 py-2 font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${statsTab === 'purple' ? 'bg-purple-500 text-white shadow-md' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'}`}
                 >
                   <Medal size={16} className={statsTab === 'purple' ? 'text-purple-200' : ''} /> <span className="hidden md:inline">Purple Cap</span><span className="md:hidden">Wickets</span>
                 </button>
                 <button 
                   onClick={() => setStatsTab('mvp')}
-                  className={`flex-1 py-2 font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 ${statsTab === 'mvp' ? 'bg-yellow-500 text-black' : 'text-gray-400'}`}
+                  className={`flex-1 py-2 font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${statsTab === 'mvp' ? 'bg-yellow-500 text-gray-900 shadow-md' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'}`}
                 >
                   <Star size={16} /> MVP
                 </button>
              </div>
 
              {/* Stat List */}
-             <div className="glass rounded-2xl overflow-hidden">
+             <div className="glass bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-lg">
                 {statsTab === 'orange' && (
-                  playerStats.orangeCap.length === 0 ? <p className="p-8 text-center text-gray-500 font-bold">No data available.</p> :
-                  <ul className="divide-y divide-white/5">
+                  playerStats.orangeCap.length === 0 ? <p className="p-8 text-center text-gray-400 font-bold">No data available.</p> :
+                  <ul className="divide-y divide-gray-100">
                     {playerStats.orangeCap.map((p, i) => (
-                      <li key={p.id} className="p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+                      <li key={p.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
                         <div className="flex items-center gap-4">
-                          <span className={`font-black text-lg w-6 text-center ${i === 0 ? 'text-orange-500' : 'text-gray-600'}`}>{i + 1}</span>
+                          <span className={`font-black text-lg w-6 text-center ${i === 0 ? 'text-orange-500 text-2xl drop-shadow-sm' : 'text-gray-400'}`}>{i + 1}</span>
                           <div>
-                            <p className="font-bold text-white text-sm md:text-base">{p.name}</p>
-                            <p className="text-xs text-gray-500 font-medium uppercase tracking-widest">{getTeamDetails(p.teamId).shortName}</p>
+                            <p className="font-bold text-gray-900 text-sm md:text-base">{p.name}</p>
+                            <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">{getTeamDetails(p.teamId).shortName}</p>
                           </div>
                         </div>
-                        <div className="text-lg md:text-xl font-black text-orange-400 bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-lg">{p.runs}</div>
+                        <div className="text-lg md:text-xl font-black text-orange-600 bg-orange-50 border border-orange-100 px-3 py-1 rounded-lg shadow-sm">{p.runs}</div>
                       </li>
                     ))}
                   </ul>
                 )}
                 {statsTab === 'purple' && (
-                  playerStats.purpleCap.length === 0 ? <p className="p-8 text-center text-gray-500 font-bold">No data available.</p> :
-                  <ul className="divide-y divide-white/5">
+                  playerStats.purpleCap.length === 0 ? <p className="p-8 text-center text-gray-400 font-bold">No data available.</p> :
+                  <ul className="divide-y divide-gray-100">
                     {playerStats.purpleCap.map((p, i) => (
-                      <li key={p.id} className="p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+                      <li key={p.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
                         <div className="flex items-center gap-4">
-                          <span className={`font-black text-lg w-6 text-center ${i === 0 ? 'text-purple-500' : 'text-gray-600'}`}>{i + 1}</span>
+                          <span className={`font-black text-lg w-6 text-center ${i === 0 ? 'text-purple-500 text-2xl drop-shadow-sm' : 'text-gray-400'}`}>{i + 1}</span>
                           <div>
-                            <p className="font-bold text-white text-sm md:text-base">{p.name}</p>
-                            <p className="text-xs text-gray-500 font-medium uppercase tracking-widest">{getTeamDetails(p.teamId).shortName}</p>
+                            <p className="font-bold text-gray-900 text-sm md:text-base">{p.name}</p>
+                            <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">{getTeamDetails(p.teamId).shortName}</p>
                           </div>
                         </div>
-                        <div className="text-lg md:text-xl font-black text-purple-400 bg-purple-500/10 border border-purple-500/20 px-3 py-1 rounded-lg">{p.wickets}</div>
+                        <div className="text-lg md:text-xl font-black text-purple-600 bg-purple-50 border border-purple-100 px-3 py-1 rounded-lg shadow-sm">{p.wickets}</div>
                       </li>
                     ))}
                   </ul>
                 )}
                 {statsTab === 'mvp' && (
-                  playerStats.mvp.length === 0 ? <p className="p-8 text-center text-gray-500 font-bold">No data available.</p> :
-                  <ul className="divide-y divide-white/5">
+                  playerStats.mvp.length === 0 ? <p className="p-8 text-center text-gray-400 font-bold">No data available.</p> :
+                  <ul className="divide-y divide-gray-100">
                     {playerStats.mvp.map((p, i) => (
-                      <li key={p.id} className="p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+                      <li key={p.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
                         <div className="flex items-center gap-4">
-                          <span className={`font-black text-lg w-6 text-center ${i === 0 ? 'text-yellow-500' : 'text-gray-600'}`}>{i + 1}</span>
+                          <span className={`font-black text-lg w-6 text-center ${i === 0 ? 'text-yellow-500 text-2xl drop-shadow-sm' : 'text-gray-400'}`}>{i + 1}</span>
                           <div>
-                            <p className="font-bold text-white text-sm md:text-base">{p.name}</p>
-                            <p className="text-xs text-gray-500 font-medium uppercase tracking-widest">{getTeamDetails(p.teamId).shortName}</p>
+                            <p className="font-bold text-gray-900 text-sm md:text-base">{p.name}</p>
+                            <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">{getTeamDetails(p.teamId).shortName}</p>
                           </div>
                         </div>
-                        <div className="text-lg md:text-xl font-black text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-3 py-1 rounded-lg">{p.mvpPoints} <span className="text-[10px] text-yellow-500/50 uppercase tracking-widest">pts</span></div>
+                        <div className="text-lg md:text-xl font-black text-yellow-600 bg-yellow-50 border border-yellow-100 px-3 py-1 rounded-lg shadow-sm">{p.mvpPoints} <span className="text-[10px] text-yellow-500 uppercase tracking-widest">pts</span></div>
                       </li>
                     ))}
                   </ul>

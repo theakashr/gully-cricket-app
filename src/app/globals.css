@@ -1,24 +1,26 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cricket-dark: #0a0e17;
-  --color-cricket-light: #162032;
-  --color-cricket-accent: #00ff41;
-  --color-cricket-blue: #0088ff;
-  --color-cricket-border: #1f2d47;
+  --color-cricket-dark: #0f172a;
+  --color-cricket-light: #f8fafc;
+  --color-cricket-accent: #10b981; /* Vibrant Emerald Green instead of neon green */
+  --color-cricket-blue: #3b82f6; /* Modern Blue */
+  --color-cricket-border: #e2e8f0;
 }
 
 @layer base {
   :root {
-    --background: #0a0e17;
-    --foreground: #ffffff;
+    --background: #f8fafc; /* Very light cool gray/blue */
+    --foreground: #0f172a; /* Slate 900 */
   }
   
   body {
     background-color: var(--background);
     color: var(--foreground);
-    background-image: radial-gradient(circle at 50% -50%, rgba(0, 136, 255, 0.1), transparent 50%),
-                      radial-gradient(circle at 100% 100%, rgba(0, 255, 65, 0.05), transparent 50%);
+    /* Very subtle, premium abstract gradient in the background */
+    background-image: 
+      radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.05), transparent 50%),
+      radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.05), transparent 50%);
     background-attachment: fixed;
     font-family: var(--font-sans), sans-serif;
   }
@@ -26,58 +28,68 @@
 
 @layer utilities {
   .glass {
-    background-color: rgba(22, 32, 50, 0.6);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(31, 45, 71, 0.5);
+    background-color: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   }
   .glass-card {
-    background-color: rgba(22, 32, 50, 0.8);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(31, 45, 71, 0.5);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 1);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
   }
+  
+  /* Retain neon classes but adapt them to be more elegant for light mode */
   .neon-text-green {
-    text-shadow: 0 0 10px rgba(0, 255, 65, 0.5), 0 0 20px rgba(0, 255, 65, 0.3);
+    color: var(--color-cricket-accent);
+    text-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
   }
   .neon-text-blue {
-    text-shadow: 0 0 10px rgba(0, 136, 255, 0.5), 0 0 20px rgba(0, 136, 255, 0.3);
+    color: var(--color-cricket-blue);
+    text-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
   }
+  
   /* Safe area for phones with notches / gesture bars */
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom, 8px);
+  }
+
+  /* Hide scrollbar utility */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 
 /* Mobile-specific optimizations */
 @media (max-width: 768px) {
-  /* Add bottom padding on mobile to account for the fixed bottom nav */
   main {
     padding-bottom: 80px !important;
   }
   
-  /* Improve touch targets on mobile */
   button, a {
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Prevent text size adjustment on orientation change */
   body {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
 }
 
-/* PWA standalone mode specific styles */
 @media (display-mode: standalone) {
-  /* When running as installed PWA, remove any extra browser chrome spacing */
   body {
     padding-top: env(safe-area-inset-top, 0px);
   }
 }
-
