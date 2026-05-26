@@ -17,9 +17,9 @@ export default function ScorerPage({ params: paramsPromise }) {
   const [teamB, setTeamB] = useState(null);
   const [currentOver, setCurrentOver] = useState([]);
   const [lastBallId, setLastBallId] = useState(null);
-  const [striker, setStriker] = useState('');
-  const [nonStriker, setNonStriker] = useState('');
-  const [bowler, setBowler] = useState('');
+  const [striker, setStriker] = useState({ name: '', runs: 0, balls: 0 });
+  const [nonStriker, setNonStriker] = useState({ name: '', runs: 0, balls: 0 });
+  const [bowler, setBowler] = useState({ name: '', overs: 0, runs: 0, wickets: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -57,9 +57,9 @@ export default function ScorerPage({ params: paramsPromise }) {
         if (data.currentInnings) {
           const cp = data.score[`innings${data.currentInnings}`]?.currentPlayers;
           if (cp) {
-            setStriker(prev => cp.striker || prev);
-            setNonStriker(prev => cp.nonStriker || prev);
-            setBowler(prev => cp.bowler || prev);
+            setStriker(prev => typeof cp.striker === 'string' ? { ...prev, name: cp.striker } : (cp.striker || prev));
+            setNonStriker(prev => typeof cp.nonStriker === 'string' ? { ...prev, name: cp.nonStriker } : (cp.nonStriker || prev));
+            setBowler(prev => typeof cp.bowler === 'string' ? { ...prev, name: cp.bowler } : (cp.bowler || prev));
           }
         }
 
@@ -109,6 +109,24 @@ export default function ScorerPage({ params: paramsPromise }) {
     }
   };
 
+  const manualSwapStrike = async () => {
+    const temp = striker;
+    setStriker(nonStriker);
+    setNonStriker(temp);
+    
+    if (!match) return;
+    const currInningsKey = match.currentInnings === 1 ? 'innings1' : 'innings2';
+    try {
+      await update(ref(db, `matches/${matchId}/score/${currInningsKey}/currentPlayers`), {
+        striker: nonStriker,
+        nonStriker: temp,
+        bowler
+      });
+    } catch (error) {
+      console.error("Error swapping players:", error);
+    }
+  };
+
   const recordBall = async (runs, type) => {
     if (!match) return;
     
@@ -152,6 +170,77 @@ export default function ScorerPage({ params: paramsPromise }) {
       newOvers = parseFloat(`${newOversInt}.${newBallsInt}`);
     }
 
+    // Individual Stats Logic
+    let newStriker = { ...striker };
+    let newNonStriker = { ...nonStriker };
+    let newBowler = { ...bowler };
+    
+    if (type === 'normal' || type === 'boundary') {
+       newStriker.runs += runs;
+       newStriker.balls += 1;
+       newBowler.runs += runs;
+    } else if (type === 'wicket') {
+       newStriker.balls += 1;
+       newBowler.wickets += 1;
+    } else if (type === 'wd' || type === 'nb') {
+       newBowler.runs += (runs + 1);
+       if (type === 'nb') newStriker.balls += 1; // NB counts as ball faced usually
+    } else if (type === 'b' || type === 'lb') {
+       newStriker.balls += 1;
+    }
+
+    if (isLegalBall) {
+       let currentOversInt = Math.floor(newBowler.overs);
+       let currentBallsInt = Math.round((newBowler.overs - currentOversInt) * 10);
+       let newBallsInt = currentBallsInt + 1;
+       let newOversInt = currentOversInt;
+       if (newBallsInt === 6) {
+         newOversInt += 1;
+         newBallsInt = 0;
+       }
+       newBowler.overs = parseFloat(`${newOversInt}.${newBallsInt}`);
+    }
+
+    // Commentary Generation
+    let commentary = `${newBowler.name || 'Bowler'} to ${newStriker.name || 'Batsman'}, `;
+    if (type === 'wicket') commentary += `OUT!`;
+    else if (type === 'boundary') commentary += `FOUR!`;
+    else if (runs === 6) commentary += `SIX!`;
+    else if (type === 'wd') commentary += `${runs+1} Wide`;
+    else if (type === 'nb') commentary += `${runs+1} No Ball`;
+    else if (type === 'b') commentary += `${runs} Bye`;
+    else if (type === 'lb') commentary += `${runs} Leg Bye`;
+    else if (runs === 0) commentary += `no run.`;
+    else commentary += `${runs} run${runs > 1 ? 's' : ''}.`;
+
+    // Strike Rotation Logic
+    let shouldSwap = false;
+    if (type === 'normal' || type === 'boundary' || type === 'b' || type === 'lb') {
+       if (runs % 2 !== 0) shouldSwap = !shouldSwap;
+    }
+    
+    if (isLegalBall) {
+       let currentBallsInt = Math.round((newOvers - Math.floor(newOvers)) * 10);
+       if (currentBallsInt === 0) {
+         shouldSwap = !shouldSwap; // Swap at end of over
+       }
+    }
+
+    if (shouldSwap) {
+       const temp = newStriker;
+       newStriker = newNonStriker;
+       newNonStriker = temp;
+    }
+
+    if (type === 'wicket') {
+       // Reset striker for new batsman
+       newStriker = { name: '', runs: 0, balls: 0 };
+    }
+
+    setStriker(newStriker);
+    setNonStriker(newNonStriker);
+    setBowler(newBowler);
+
     try {
       const ballsRef = ref(db, `matches/${matchId}/balls`);
       const newBallRef = push(ballsRef);
@@ -161,6 +250,7 @@ export default function ScorerPage({ params: paramsPromise }) {
         isLegalBall,
         over: newOvers,
         innings: match.currentInnings,
+        commentary,
         timestamp: new Date().toISOString()
       });
 
@@ -169,7 +259,12 @@ export default function ScorerPage({ params: paramsPromise }) {
         [`score/${currInningsKey}/runs`]: newRuns,
         [`score/${currInningsKey}/wickets`]: newWickets,
         [`score/${currInningsKey}/overs`]: newOvers,
-        [`score/${currInningsKey}/extras`]: extras
+        [`score/${currInningsKey}/extras`]: extras,
+        [`score/${currInningsKey}/currentPlayers`]: {
+           striker: newStriker,
+           nonStriker: newNonStriker,
+           bowler: newBowler
+        }
       };
 
       await update(ref(db, `matches/${matchId}`), updates);
@@ -410,43 +505,57 @@ export default function ScorerPage({ params: paramsPromise }) {
           )}
 
           {/* Current Players Inputs */}
-          <div className="glass rounded-2xl p-5 mb-4 border border-white/5">
-            <h3 className="text-gray-400 font-bold text-xs uppercase tracking-widest mb-3">Current Players</h3>
+          <div className="glass rounded-2xl p-5 mb-4 border border-white/5 relative">
+            <div className="flex justify-between items-center mb-3">
+               <h3 className="text-gray-400 font-bold text-xs uppercase tracking-widest">Current Players</h3>
+               <button onClick={manualSwapStrike} className="flex items-center gap-1 text-[10px] uppercase font-bold tracking-widest text-[var(--color-cricket-accent)] hover:text-white transition-colors bg-[var(--color-cricket-accent)]/10 px-2 py-1 rounded">
+                  <RotateCcw size={12} /> Swap Strike
+               </button>
+            </div>
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[10px] text-gray-500 uppercase tracking-wider font-bold ml-1">Striker</label>
                   <input 
                     type="text" 
-                    value={striker} 
-                    onChange={(e) => setStriker(e.target.value)}
+                    value={striker.name} 
+                    onChange={(e) => setStriker({...striker, name: e.target.value})}
                     onBlur={updatePlayers}
                     placeholder="Striker Name" 
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[var(--color-cricket-accent)]"
                   />
+                  <div className="text-[10px] text-gray-400 ml-1 mt-1">
+                    {striker.runs} ({striker.balls})
+                  </div>
                 </div>
                 <div>
                   <label className="text-[10px] text-gray-500 uppercase tracking-wider font-bold ml-1">Non-Striker</label>
                   <input 
                     type="text" 
-                    value={nonStriker} 
-                    onChange={(e) => setNonStriker(e.target.value)}
+                    value={nonStriker.name} 
+                    onChange={(e) => setNonStriker({...nonStriker, name: e.target.value})}
                     onBlur={updatePlayers}
                     placeholder="Non-Striker Name" 
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[var(--color-cricket-accent)]"
                   />
+                  <div className="text-[10px] text-gray-400 ml-1 mt-1">
+                    {nonStriker.runs} ({nonStriker.balls})
+                  </div>
                 </div>
               </div>
               <div>
                 <label className="text-[10px] text-[var(--color-cricket-accent)] uppercase tracking-wider font-bold ml-1">Bowler</label>
                 <input 
                   type="text" 
-                  value={bowler} 
-                  onChange={(e) => setBowler(e.target.value)}
+                  value={bowler.name} 
+                  onChange={(e) => setBowler({...bowler, name: e.target.value})}
                   onBlur={updatePlayers}
                   placeholder="Bowler Name" 
                   className="w-full bg-[var(--color-cricket-accent)]/10 border border-[var(--color-cricket-accent)]/30 rounded-xl px-3 py-2 text-[var(--color-cricket-accent)] font-bold text-sm focus:outline-none focus:border-[var(--color-cricket-accent)]"
                 />
+                <div className="text-[10px] text-[var(--color-cricket-accent)] ml-1 mt-1 font-semibold">
+                  {bowler.overs} O - {bowler.runs} R - {bowler.wickets} W
+                </div>
               </div>
             </div>
           </div>

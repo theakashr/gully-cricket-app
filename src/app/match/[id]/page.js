@@ -189,20 +189,33 @@ export default function MatchCenterPage({ params: paramsPromise }) {
                  <span className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2"><span className="text-lg">🏏</span> Batsmen</span>
                </div>
                <div className="flex justify-between items-center">
-                 <div className="text-white font-bold text-lg">
-                   {match.score[currInningsKey].currentPlayers.striker || 'Striker'} 
+                 <div className="text-white font-bold text-lg flex items-center">
+                   {match.score[currInningsKey].currentPlayers.striker?.name || 'Striker'} 
                    <span className="text-[var(--color-cricket-accent)] ml-2 text-sm">*</span>
                  </div>
-                 <div className="text-gray-400 font-medium">
-                   {match.score[currInningsKey].currentPlayers.nonStriker || 'Non-Striker'}
+                 <div className="text-gray-400 font-medium tabular-nums">
+                   <span className="text-white font-bold">{match.score[currInningsKey].currentPlayers.striker?.runs || 0}</span> ({match.score[currInningsKey].currentPlayers.striker?.balls || 0})
+                 </div>
+               </div>
+               <div className="flex justify-between items-center mt-1">
+                 <div className="text-gray-400 font-medium text-sm">
+                   {match.score[currInningsKey].currentPlayers.nonStriker?.name || 'Non-Striker'}
+                 </div>
+                 <div className="text-gray-500 font-medium text-sm tabular-nums">
+                   <span className="text-gray-300 font-bold">{match.score[currInningsKey].currentPlayers.nonStriker?.runs || 0}</span> ({match.score[currInningsKey].currentPlayers.nonStriker?.balls || 0})
                  </div>
                </div>
                
                <div className="mt-2 pt-3 border-t border-white/5 flex justify-between items-center">
                  <span className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2"><span className="text-lg">🥎</span> Bowler</span>
-                 <span className="text-[var(--color-cricket-accent)] font-bold text-lg">
-                   {match.score[currInningsKey].currentPlayers.bowler || 'TBD'}
-                 </span>
+                 <div className="text-right">
+                   <span className="text-[var(--color-cricket-accent)] font-bold text-lg block">
+                     {match.score[currInningsKey].currentPlayers.bowler?.name || 'TBD'}
+                   </span>
+                   <span className="text-xs text-gray-400 font-mono tracking-widest block">
+                     {match.score[currInningsKey].currentPlayers.bowler?.overs || 0} O - {match.score[currInningsKey].currentPlayers.bowler?.runs || 0} R - {match.score[currInningsKey].currentPlayers.bowler?.wickets || 0} W
+                   </span>
+                 </div>
                </div>
             </div>
           )}
@@ -254,14 +267,16 @@ export default function MatchCenterPage({ params: paramsPromise }) {
                     </div>
                     <div className="flex flex-col justify-center">
                       <p className="text-white font-medium">
-                        {ball.type === 'wicket' ? 'OUT! Massive breakthrough for the bowling team.' : 
-                         ball.type === 'wd' ? `Wide ball down the leg side.` :
-                         ball.type === 'nb' ? `No ball! Free hit coming up.` :
-                         ball.type === 'b' ? `Byes! Keeper missed it completely.` :
-                         ball.type === 'lb' ? `Leg byes! Deflected off the pads.` :
-                         ball.runs === 6 ? 'SIX! Clean strike over the ropes!' : 
-                         ball.runs === 4 ? 'FOUR! Pierces the gap perfectly.' : 
-                         `${ball.runs} run${ball.runs !== 1 ? 's' : ''}. Good rotation of strike.`}
+                        {ball.commentary ? ball.commentary : (
+                          ball.type === 'wicket' ? 'OUT! Massive breakthrough for the bowling team.' : 
+                          ball.type === 'wd' ? `Wide ball down the leg side.` :
+                          ball.type === 'nb' ? `No ball! Free hit coming up.` :
+                          ball.type === 'b' ? `Byes! Keeper missed it completely.` :
+                          ball.type === 'lb' ? `Leg byes! Deflected off the pads.` :
+                          ball.runs === 6 ? 'SIX! Clean strike over the ropes!' : 
+                          ball.runs === 4 ? 'FOUR! Pierces the gap perfectly.' : 
+                          `${ball.runs} run${ball.runs !== 1 ? 's' : ''}. Good rotation of strike.`
+                        )}
                       </p>
                       <p className="text-xs text-gray-500 mt-1">{new Date(ball.timestamp).toLocaleTimeString()}</p>
                     </div>
