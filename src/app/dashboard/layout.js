@@ -30,11 +30,16 @@ export default function DashboardLayout({ children }) {
       <div className="flex min-h-screen bg-black">
         {/* Sidebar */}
         <aside className="w-64 glass border-r border-white/10 flex flex-col">
-          <div className="p-6">
-            <h2 className="text-2xl font-black text-white italic tracking-tighter">
-              SKCC <span className="text-[var(--color-cricket-accent)]">CRICKETRS</span>
-            </h2>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Admin Panel</p>
+          <div className="p-6 flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-[var(--color-cricket-accent)]/30 flex-shrink-0 shadow-[0_0_15px_rgba(0,255,65,0.15)]">
+              <img src="/skcc-logo.jpg" alt="SKCC Logo" className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <h2 className="text-lg font-black text-white tracking-tighter">
+                SKCC <span className="text-[var(--color-cricket-accent)]">CRICKETRS</span>
+              </h2>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Admin Panel</p>
+            </div>
           </div>
 
           <nav className="flex-1 px-4 space-y-2 mt-4">

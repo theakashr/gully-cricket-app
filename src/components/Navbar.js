@@ -32,8 +32,8 @@ export default function Navbar() {
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center gap-2 md:gap-3 cursor-pointer"
             >
-              <div className="p-1.5 md:p-2 bg-[var(--color-cricket-accent)]/10 rounded-lg md:rounded-xl border border-[var(--color-cricket-accent)]/30">
-                <Trophy size={20} className="text-[var(--color-cricket-accent)] md:w-6 md:h-6" />
+              <div className="w-9 h-9 md:w-11 md:h-11 rounded-full overflow-hidden border-2 border-[var(--color-cricket-accent)]/30 flex-shrink-0 shadow-[0_0_15px_rgba(0,255,65,0.15)]">
+                <img src="/skcc-logo.jpg" alt="SKCC Logo" className="w-full h-full object-cover" />
               </div>
               <span className="text-lg md:text-2xl font-black tracking-tight text-white">
                 SKCC CRICKETRS <span className="text-[var(--color-cricket-accent)] neon-text-green">Live</span>

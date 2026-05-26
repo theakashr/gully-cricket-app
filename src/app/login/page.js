@@ -118,10 +118,8 @@ export default function LoginPage() {
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--color-cricket-accent)] to-transparent"></div>
 
           <div className="text-center mb-10">
-            <div className="w-16 h-16 rounded-full glass flex items-center justify-center mx-auto mb-4 border border-[var(--color-cricket-accent)]/30 shadow-[0_0_20px_rgba(0,255,65,0.2)]">
-              {mode === 'login' && <LogIn size={28} className="text-[var(--color-cricket-accent)]" />}
-              {mode === 'signup' && <UserPlus size={28} className="text-[var(--color-cricket-accent)]" />}
-              {mode === 'forgot' && <KeyRound size={28} className="text-[var(--color-cricket-accent)]" />}
+            <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4 border-2 border-[var(--color-cricket-accent)]/30 shadow-[0_0_25px_rgba(0,255,65,0.2)]">
+              <img src="/skcc-logo.jpg" alt="SKCC Logo" className="w-full h-full object-cover" />
             </div>
             <h1 className="text-3xl font-black text-white">
               {mode === 'login' ? 'Welcome Back' : mode === 'signup' ? 'Create Account' : 'Reset Password'}

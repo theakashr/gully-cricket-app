@@ -53,6 +53,10 @@ export default function Home() {
           transition={{ duration: 0.6 }}
           className="max-w-4xl mx-auto space-y-8"
         >
+          <div className="w-28 h-28 md:w-36 md:h-36 mx-auto rounded-full overflow-hidden border-4 border-[var(--color-cricket-accent)]/30 shadow-[0_0_40px_rgba(0,255,65,0.25)] mb-6">
+            <img src="/skcc-logo.jpg" alt="Shree Krishna Cricket Club" className="w-full h-full object-cover" />
+          </div>
+          
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-[var(--color-cricket-accent)]/50 text-[var(--color-cricket-accent)] text-sm font-semibold mx-auto">
             <span className="relative flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-cricket-accent)] opacity-75"></span>
