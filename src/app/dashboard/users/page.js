@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Users, Shield, Edit2, Check, X } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { ref, onValue, update } from 'firebase/database';
