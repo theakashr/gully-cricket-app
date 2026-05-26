@@ -6,14 +6,14 @@ import { AuthProvider } from '@/context/AuthContext';
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata = {
-  title: "Gully Cricket Live",
+  title: "SKCC CRICKETRS Live",
   description: "Premium Local Cricket Scoring Engine",
   manifest: "/manifest.json",
   themeColor: "#00ff41",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Gully Cricket",
+    title: "SKCC CRICKETRS",
   },
 };
 

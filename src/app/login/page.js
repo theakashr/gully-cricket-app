@@ -127,7 +127,7 @@ export default function LoginPage() {
               {mode === 'login' ? 'Welcome Back' : mode === 'signup' ? 'Create Account' : 'Reset Password'}
             </h1>
             <p className="text-gray-400 text-sm mt-2">
-              {mode === 'login' ? 'Sign in to access your dashboard' : mode === 'signup' ? 'Join Gully Cricket Live today' : 'Enter your email to receive a reset link'}
+              {mode === 'login' ? 'Sign in to access your dashboard' : mode === 'signup' ? 'Join SKCC CRICKETRS Live today' : 'Enter your email to receive a reset link'}
             </p>
           </div>
 

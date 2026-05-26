@@ -17,7 +17,7 @@ export default function Navbar() {
               <Trophy size={24} className="text-[var(--color-cricket-accent)]" />
             </div>
             <span className="text-2xl font-black tracking-tight text-white">
-              Gully Cricket <span className="text-[var(--color-cricket-accent)] neon-text-green">Live</span>
+              SKCC CRICKETRS <span className="text-[var(--color-cricket-accent)] neon-text-green">Live</span>
             </span>
           </motion.div>
         </Link>
