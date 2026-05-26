@@ -2,8 +2,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Plus, Trash2, Users, ChevronDown, ChevronUp } from 'lucide-react';
-import { db } from '@/lib/firebase';
+import { db, storage } from '@/lib/firebase';
 import { ref, push, set, onValue, remove } from 'firebase/database';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export default function TeamsPage() {
   const [teams, setTeams] = useState([]);
@@ -13,6 +14,8 @@ export default function TeamsPage() {
   const [newTeamName, setNewTeamName] = useState('');
   const [newTeamShortName, setNewTeamShortName] = useState('');
   const [newTeamLogoUrl, setNewTeamLogoUrl] = useState('');
+  const [logoFile, setLogoFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
   
   // Player Form (attached to a specific team)
   const [expandedTeamId, setExpandedTeamId] = useState(null);
@@ -57,20 +60,34 @@ export default function TeamsPage() {
     e.preventDefault();
     if (!newTeamName.trim() || !newTeamShortName.trim()) return;
 
+    setIsUploading(true);
     try {
+      let finalLogoUrl = newTeamLogoUrl;
+
+      // If a file was selected, upload it to Firebase Storage
+      if (logoFile) {
+        const fileRef = storageRef(storage, `teams/${Date.now()}_${logoFile.name}`);
+        const snapshot = await uploadBytes(fileRef, logoFile);
+        finalLogoUrl = await getDownloadURL(snapshot.ref);
+      }
+
       const teamsRef = ref(db, 'teams');
       const newRef = push(teamsRef);
       await set(newRef, {
         name: newTeamName,
         shortName: newTeamShortName.toUpperCase(),
-        logoUrl: newTeamLogoUrl,
+        logoUrl: finalLogoUrl,
         createdAt: new Date().toISOString()
       });
       setNewTeamName('');
       setNewTeamShortName('');
       setNewTeamLogoUrl('');
+      setLogoFile(null);
     } catch (error) {
       console.error("Error creating team:", error);
+      alert("Failed to create team or upload logo.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -150,21 +167,62 @@ export default function TeamsPage() {
                 />
               </div>
               <div>
-                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Logo URL (Optional)</label>
-                <input 
-                  type="url" 
-                  value={newTeamLogoUrl}
-                  onChange={(e) => setNewTeamLogoUrl(e.target.value)}
-                  placeholder="https://..."
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                />
+                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Team Logo (Optional)</label>
+                <div className="space-y-3">
+                   {/* File Upload Option */}
+                   <div className="relative overflow-hidden bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex items-center justify-between group hover:bg-white/10 transition-colors cursor-pointer">
+                     <div className="flex items-center gap-3">
+                        <span className="text-purple-500 font-black">📷</span>
+                        <span className="text-sm text-gray-300 font-medium truncate max-w-[150px] md:max-w-[200px]">
+                          {logoFile ? logoFile.name : 'Choose from Gallery...'}
+                        </span>
+                     </div>
+                     <span className="text-xs font-bold text-gray-500 uppercase tracking-widest group-hover:text-white transition-colors">Browse</span>
+                     <input 
+                       type="file" 
+                       accept="image/*"
+                       onChange={(e) => {
+                         if (e.target.files[0]) {
+                           setLogoFile(e.target.files[0]);
+                           setNewTeamLogoUrl('');
+                         }
+                       }}
+                       className="absolute inset-0 opacity-0 cursor-pointer"
+                     />
+                   </div>
+
+                   <div className="flex items-center gap-4">
+                     <div className="h-[1px] flex-1 bg-white/10"></div>
+                     <span className="text-xs font-black text-gray-600 uppercase tracking-widest">OR</span>
+                     <div className="h-[1px] flex-1 bg-white/10"></div>
+                   </div>
+
+                   {/* URL Option */}
+                   <input 
+                     type="url" 
+                     value={newTeamLogoUrl}
+                     onChange={(e) => {
+                       setNewTeamLogoUrl(e.target.value);
+                       if (e.target.value) setLogoFile(null);
+                     }}
+                     placeholder="Paste image link..."
+                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-purple-500 transition-all"
+                   />
+                </div>
               </div>
               <button 
                 type="submit"
-                className="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors"
+                disabled={isUploading}
+                className="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50 mt-6"
               >
-                <Plus size={18} />
-                Create Team
+                {isUploading ? (
+                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                ) : (
+                  <>
+                    <Plus size={18} />
+                    Create Team
+                  </>
+                )}
               </button>
             </form>
           </div>

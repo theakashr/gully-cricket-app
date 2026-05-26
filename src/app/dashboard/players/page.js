@@ -2,8 +2,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Plus, Trash2, Camera, Link as LinkIcon } from 'lucide-react';
-import { db } from '@/lib/firebase';
+import { db, storage } from '@/lib/firebase';
 import { ref, push, set, onValue, remove } from 'firebase/database';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import Link from 'next/link';
 
 export default function PlayersPage() {
@@ -16,6 +17,8 @@ export default function PlayersPage() {
   const [battingStyle, setBattingStyle] = useState('Right-Handed');
   const [bowlingStyle, setBowlingStyle] = useState('None');
   const [photoUrl, setPhotoUrl] = useState('');
+  const [photoFile, setPhotoFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     const playersRef = ref(db, 'players');
@@ -37,7 +40,17 @@ export default function PlayersPage() {
     e.preventDefault();
     if (!name.trim()) return;
 
+    setIsUploading(true);
     try {
+      let finalPhotoUrl = photoUrl;
+
+      // If a file was selected, upload it to Firebase Storage
+      if (photoFile) {
+        const fileRef = storageRef(storage, `players/${Date.now()}_${photoFile.name}`);
+        const snapshot = await uploadBytes(fileRef, photoFile);
+        finalPhotoUrl = await getDownloadURL(snapshot.ref);
+      }
+
       const playersRef = ref(db, 'players');
       const newRef = push(playersRef);
       await set(newRef, {
@@ -45,14 +58,18 @@ export default function PlayersPage() {
         role,
         battingStyle,
         bowlingStyle,
-        photoUrl,
+        photoUrl: finalPhotoUrl,
         createdAt: new Date().toISOString()
       });
       setName('');
       setPhotoUrl('');
+      setPhotoFile(null);
       // Keep previous roles selected for ease of bulk entry
     } catch (error) {
       console.error("Error creating player:", error);
+      alert("Failed to upload image or create player.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -133,25 +150,67 @@ export default function PlayersPage() {
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Photo URL (Optional)</label>
-                <div className="relative">
-                  <LinkIcon className="absolute left-3 top-3.5 text-gray-500" size={16} />
-                  <input 
-                    type="url" 
-                    value={photoUrl}
-                    onChange={(e) => setPhotoUrl(e.target.value)}
-                    placeholder="https://..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white focus:ring-2 focus:ring-[var(--color-cricket-accent)] transition-all"
-                  />
+                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Profile Picture (Optional)</label>
+                
+                <div className="space-y-3">
+                   {/* File Upload Option */}
+                   <div className="relative overflow-hidden bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex items-center justify-between group hover:bg-white/10 transition-colors cursor-pointer">
+                     <div className="flex items-center gap-3">
+                        <Camera size={18} className="text-[var(--color-cricket-accent)]" />
+                        <span className="text-sm text-gray-300 font-medium truncate max-w-[150px] md:max-w-[200px]">
+                          {photoFile ? photoFile.name : 'Choose from Gallery...'}
+                        </span>
+                     </div>
+                     <span className="text-xs font-bold text-gray-500 uppercase tracking-widest group-hover:text-white transition-colors">Browse</span>
+                     <input 
+                       type="file" 
+                       accept="image/*"
+                       onChange={(e) => {
+                         if (e.target.files[0]) {
+                           setPhotoFile(e.target.files[0]);
+                           setPhotoUrl(''); // Clear URL if file is selected
+                         }
+                       }}
+                       className="absolute inset-0 opacity-0 cursor-pointer"
+                     />
+                   </div>
+
+                   <div className="flex items-center gap-4">
+                     <div className="h-[1px] flex-1 bg-white/10"></div>
+                     <span className="text-xs font-black text-gray-600 uppercase tracking-widest">OR</span>
+                     <div className="h-[1px] flex-1 bg-white/10"></div>
+                   </div>
+
+                   {/* URL Option */}
+                   <div className="relative">
+                     <LinkIcon className="absolute left-3 top-3.5 text-gray-500" size={16} />
+                     <input 
+                       type="url" 
+                       value={photoUrl}
+                       onChange={(e) => {
+                         setPhotoUrl(e.target.value);
+                         if (e.target.value) setPhotoFile(null); // Clear file if URL is typed
+                       }}
+                       placeholder="Paste image link..."
+                       className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:ring-2 focus:ring-[var(--color-cricket-accent)] transition-all"
+                     />
+                   </div>
                 </div>
               </div>
 
               <button 
                 type="submit"
-                className="w-full bg-[var(--color-cricket-accent)] text-black font-black py-3 rounded-xl flex items-center justify-center gap-2 transition-colors hover:scale-[1.02] active:scale-[0.98]"
+                disabled={isUploading}
+                className="w-full bg-[var(--color-cricket-accent)] text-black font-black py-3 rounded-xl flex items-center justify-center gap-2 transition-colors hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 mt-6"
               >
-                <Plus size={18} />
-                Register Player
+                {isUploading ? (
+                  <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
+                ) : (
+                  <>
+                    <Plus size={18} />
+                    Register Player
+                  </>
+                )}
               </button>
             </form>
           </div>
