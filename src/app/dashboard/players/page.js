@@ -82,37 +82,39 @@ export default function PlayersPage() {
   return (
     <div className="p-8 pb-20">
       <div className="flex items-center gap-3 mb-8">
-        <User className="text-[var(--color-cricket-accent)]" size={32} />
+        <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+          <User className="text-emerald-600" size={24} />
+        </div>
         <div>
-          <h1 className="text-3xl font-black text-white">Global Players</h1>
-          <p className="text-gray-400">Manage all registered players in the system</p>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Global Players</h1>
+          <p className="text-slate-500 font-medium text-sm">Manage all registered players in the system</p>
         </div>
       </div>
 
       <div className="grid md:grid-cols-3 gap-8">
         {/* Create Player Form */}
         <div className="md:col-span-1">
-          <div className="glass rounded-2xl p-6 sticky top-8">
-            <h2 className="text-xl font-bold text-white mb-4">Register Player</h2>
+          <div className="glass rounded-2xl p-6 border border-slate-200/80 shadow-sm sticky top-8">
+            <h2 className="text-xl font-bold text-slate-900 mb-4">Register Player</h2>
             <form onSubmit={handleCreatePlayer} className="space-y-4">
               <div>
-                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Full Name</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Full Name</label>
                 <input 
                   type="text" 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Virat Kohli"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--color-cricket-accent)] focus:border-transparent transition-all"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
                   required
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Role</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Role</label>
                 <select 
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--color-cricket-accent)] transition-all"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
                 >
                   <option value="Batsman">Batsman</option>
                   <option value="Bowler">Bowler</option>
@@ -123,22 +125,22 @@ export default function PlayersPage() {
 
               <div className="grid grid-cols-2 gap-3">
                  <div>
-                   <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Batting</label>
+                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Batting</label>
                    <select 
                      value={battingStyle}
                      onChange={(e) => setBattingStyle(e.target.value)}
-                     className="w-full bg-white/5 border border-white/10 rounded-xl px-2 py-3 text-white text-sm focus:ring-2 focus:ring-[var(--color-cricket-accent)]"
+                     className="w-full bg-white border border-slate-200 rounded-xl px-3 py-3 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
                    >
                      <option value="Right-Handed">RHB</option>
                      <option value="Left-Handed">LHB</option>
                    </select>
                  </div>
                  <div>
-                   <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Bowling</label>
+                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Bowling</label>
                    <select 
                      value={bowlingStyle}
                      onChange={(e) => setBowlingStyle(e.target.value)}
-                     className="w-full bg-white/5 border border-white/10 rounded-xl px-2 py-3 text-white text-sm focus:ring-2 focus:ring-[var(--color-cricket-accent)]"
+                     className="w-full bg-white border border-slate-200 rounded-xl px-3 py-3 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
                    >
                      <option value="None">None</option>
                      <option value="Right-arm Fast">Right Fast</option>
@@ -150,18 +152,18 @@ export default function PlayersPage() {
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Profile Picture (Optional)</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Profile Picture (Optional)</label>
                 
                 <div className="space-y-3">
                    {/* File Upload Option */}
-                   <div className="relative overflow-hidden bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex items-center justify-between group hover:bg-white/10 transition-colors cursor-pointer">
+                   <div className="relative overflow-hidden bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between group hover:bg-slate-100 transition-all cursor-pointer">
                      <div className="flex items-center gap-3">
-                        <Camera size={18} className="text-[var(--color-cricket-accent)]" />
-                        <span className="text-sm text-gray-300 font-medium truncate max-w-[150px] md:max-w-[200px]">
+                        <Camera size={18} className="text-emerald-600" />
+                        <span className="text-sm text-slate-700 font-bold truncate max-w-[150px] md:max-w-[200px]">
                           {photoFile ? photoFile.name : 'Choose from Gallery...'}
                         </span>
                      </div>
-                     <span className="text-xs font-bold text-gray-500 uppercase tracking-widest group-hover:text-white transition-colors">Browse</span>
+                     <span className="text-xs font-bold text-slate-400 uppercase tracking-widest group-hover:text-slate-700 transition-colors">Browse</span>
                      <input 
                        type="file" 
                        accept="image/*"
@@ -176,14 +178,14 @@ export default function PlayersPage() {
                    </div>
 
                    <div className="flex items-center gap-4">
-                     <div className="h-[1px] flex-1 bg-white/10"></div>
-                     <span className="text-xs font-black text-gray-600 uppercase tracking-widest">OR</span>
-                     <div className="h-[1px] flex-1 bg-white/10"></div>
+                     <div className="h-[1px] flex-1 bg-slate-200"></div>
+                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">OR</span>
+                     <div className="h-[1px] flex-1 bg-slate-200"></div>
                    </div>
 
                    {/* URL Option */}
-                   <div className="relative">
-                     <LinkIcon className="absolute left-3 top-3.5 text-gray-500" size={16} />
+                   <div className="relative flex items-center">
+                     <LinkIcon className="absolute left-3.5 text-slate-400" size={16} />
                      <input 
                        type="url" 
                        value={photoUrl}
@@ -192,7 +194,7 @@ export default function PlayersPage() {
                          if (e.target.value) setPhotoFile(null); // Clear file if URL is typed
                        }}
                        placeholder="Paste image link..."
-                       className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:ring-2 focus:ring-[var(--color-cricket-accent)] transition-all"
+                       className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
                      />
                    </div>
                 </div>
@@ -201,10 +203,10 @@ export default function PlayersPage() {
               <button 
                 type="submit"
                 disabled={isUploading}
-                className="w-full bg-[var(--color-cricket-accent)] text-black font-black py-3 rounded-xl flex items-center justify-center gap-2 transition-colors hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 mt-6"
+                className="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow disabled:opacity-50 mt-6 shadow-emerald-100"
               >
                 {isUploading ? (
-                  <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
+                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
                 ) : (
                   <>
                     <Plus size={18} />
@@ -219,40 +221,40 @@ export default function PlayersPage() {
         {/* Players List */}
         <div className="md:col-span-2 space-y-4">
           {loading ? (
-            <div className="glass p-8 rounded-2xl flex justify-center">
+            <div className="glass p-8 rounded-2xl border border-slate-200/80 shadow-sm flex justify-center">
               <div className="w-8 h-8 border-4 border-[var(--color-cricket-accent)]/30 border-t-[var(--color-cricket-accent)] rounded-full animate-spin"></div>
             </div>
           ) : players.length === 0 ? (
-            <div className="glass p-12 rounded-2xl text-center">
-              <User size={48} className="mx-auto text-gray-600 mb-4" />
-              <h3 className="text-xl font-bold text-gray-400">No Players Registered</h3>
-              <p className="text-sm text-gray-500 mt-2">Create players to assign them to teams.</p>
+            <div className="glass p-12 rounded-2xl border border-slate-200/80 shadow-sm text-center">
+              <User size={48} className="mx-auto text-slate-300 mb-4" />
+              <h3 className="text-xl font-bold text-slate-400">No Players Registered</h3>
+              <p className="text-sm text-slate-500 mt-2">Create players to assign them to teams.</p>
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 gap-4">
                {players.map((p, i) => (
                  <motion.div 
-                   initial={{ opacity: 0, scale: 0.95 }}
-                   animate={{ opacity: 1, scale: 1 }}
+                   initial={{ opacity: 0, y: 10 }}
+                   animate={{ opacity: 1, y: 0 }}
                    transition={{ delay: i * 0.05 }}
                    key={p.id} 
-                   className="glass rounded-2xl p-4 flex gap-4 items-center group relative overflow-hidden"
+                   className="glass-card rounded-2xl p-4 border border-white shadow-sm flex gap-4 items-center group relative overflow-hidden hover:shadow transition-all"
                  >
-                   <div className="w-16 h-16 rounded-full bg-white/10 flex-shrink-0 flex items-center justify-center overflow-hidden border border-white/20">
+                   <div className="w-16 h-16 rounded-full bg-slate-100 flex-shrink-0 flex items-center justify-center overflow-hidden border border-slate-200">
                       {p.photoUrl ? (
                          <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
                       ) : (
-                         <User className="text-gray-500" size={24} />
+                         <User className="text-slate-400" size={24} />
                       )}
                    </div>
                    <div className="flex-1">
-                      <Link href={`/player/${p.id}`} className="hover:underline decoration-[var(--color-cricket-accent)] underline-offset-4">
-                         <h3 className="text-lg font-bold text-white leading-tight mb-1">{p.name}</h3>
+                      <Link href={`/player/${p.id}`} className="hover:underline decoration-emerald-500 underline-offset-4 decoration-2">
+                         <h3 className="text-lg font-bold text-slate-800 leading-tight mb-1.5">{p.name}</h3>
                       </Link>
-                      <span className="inline-block bg-[var(--color-cricket-accent)]/20 text-[var(--color-cricket-accent)] text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full mb-1">
+                      <span className="inline-block bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full mb-1">
                         {p.role}
                       </span>
-                      <p className="text-[10px] text-gray-400 uppercase tracking-widest flex flex-col gap-0.5 mt-1">
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest flex flex-col gap-0.5 mt-1.5">
                         <span>🏏 {p.battingStyle}</span>
                         {p.bowlingStyle !== 'None' && <span>🥎 {p.bowlingStyle}</span>}
                       </p>
@@ -260,7 +262,7 @@ export default function PlayersPage() {
                    
                    <button 
                      onClick={() => handleDeletePlayer(p.id)}
-                     className="absolute top-2 right-2 w-8 h-8 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                     className="absolute top-3 right-3 w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all opacity-100 md:opacity-0 group-hover:opacity-100 shadow-sm"
                    >
                      <Trash2 size={14} />
                    </button>

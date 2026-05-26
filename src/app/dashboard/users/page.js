@@ -55,10 +55,10 @@ export default function UsersPage() {
 
   const getRoleBadge = (role) => {
     switch(role) {
-      case 'admin': return <span className="bg-red-500/20 text-red-500 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Admin</span>;
-      case 'manager': return <span className="bg-blue-500/20 text-blue-500 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Manager</span>;
-      case 'scorer': return <span className="bg-[var(--color-cricket-accent)]/20 text-[var(--color-cricket-accent)] px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Scorer</span>;
-      default: return <span className="bg-gray-500/20 text-gray-400 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Viewer</span>;
+      case 'admin': return <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Admin</span>;
+      case 'manager': return <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Manager</span>;
+      case 'scorer': return <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Scorer</span>;
+      default: return <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Viewer</span>;
     }
   };
 
@@ -93,15 +93,21 @@ export default function UsersPage() {
       <div className="p-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-3">
-          <Users className="text-[var(--color-cricket-blue)]" size={32} />
+          <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+            <Users className="text-blue-600" size={24} />
+          </div>
           <div>
-            <h1 className="text-3xl font-black text-white">Access Control</h1>
-            <p className="text-gray-400">Manage user roles and scorer permissions</p>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Access Control</h1>
+            <p className="text-slate-500 font-medium text-sm">Manage user roles and scorer permissions</p>
           </div>
         </div>
         <button 
           onClick={() => setIsAdding(!isAdding)}
-          className="bg-[var(--color-cricket-accent)] text-black px-4 py-2 rounded-xl font-bold uppercase tracking-wider text-sm hover:shadow-[0_0_15px_rgba(0,255,65,0.4)] transition-all"
+          className={`px-5 py-2.5 rounded-xl font-bold uppercase tracking-wider text-xs transition-all shadow-sm flex items-center justify-center ${
+            isAdding 
+              ? 'bg-slate-200 text-slate-700 hover:bg-slate-350' 
+              : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-100 hover:shadow'
+          }`}
         >
           {isAdding ? 'Cancel' : '+ Add User'}
         </button>
@@ -114,27 +120,27 @@ export default function UsersPage() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             onSubmit={handleAddUser}
-            className="glass p-6 rounded-2xl mb-8 border border-[var(--color-cricket-accent)]/30"
+            className="glass p-6 rounded-2xl mb-8 border border-emerald-500/20 bg-emerald-50/10 shadow-sm"
           >
-            <h2 className="text-lg font-bold text-white mb-4">Pre-authorize New User</h2>
+            <h2 className="text-lg font-bold text-slate-800 mb-4">Pre-authorize New User</h2>
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
-                <label className="text-xs text-gray-400 font-bold uppercase tracking-widest block mb-1">Email Address</label>
+                <label className="text-[10px] text-slate-400 font-black uppercase tracking-widest block mb-1.5">Email Address</label>
                 <input 
                   type="email" 
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
                   placeholder="user@example.com"
-                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-1 focus:ring-[var(--color-cricket-accent)]"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
                   required
                 />
               </div>
               <div className="md:w-48">
-                <label className="text-xs text-gray-400 font-bold uppercase tracking-widest block mb-1">Role</label>
+                <label className="text-[10px] text-slate-400 font-black uppercase tracking-widest block mb-1.5">Role</label>
                 <select 
                   value={newRole}
                   onChange={(e) => setNewRole(e.target.value)}
-                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-1 focus:ring-[var(--color-cricket-accent)]"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
                 >
                   <option value="viewer">Viewer</option>
                   <option value="scorer">Scorer</option>
@@ -143,28 +149,28 @@ export default function UsersPage() {
                 </select>
               </div>
               <div className="flex items-end">
-                <button type="submit" className="w-full md:w-auto bg-[var(--color-cricket-accent)] text-black px-8 py-3 rounded-xl font-black uppercase tracking-wider hover:bg-[var(--color-cricket-accent)]/90 transition-colors h-[50px]">
-                  Add
+                <button type="submit" className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-black uppercase tracking-wider transition-all h-[50px] shadow-sm shadow-emerald-100">
+                  Add User
                 </button>
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-3 italic">
-              When this user logs in with Google for the first time, they will automatically receive this role.
+            <p className="text-[11px] text-slate-400 mt-3 font-semibold italic">
+              * When this user logs in with Google for the first time, they will automatically receive this role.
             </p>
           </motion.form>
         )}
       </AnimatePresence>
 
-      <div className="glass rounded-2xl overflow-hidden">
+      <div className="glass-card border border-white shadow-sm rounded-2xl overflow-hidden">
         {/* Desktop Table View */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-white/10 bg-white/5">
-                <th className="p-4 text-xs font-bold uppercase tracking-widest text-gray-500">Email</th>
-                <th className="p-4 text-xs font-bold uppercase tracking-widest text-gray-500">Role</th>
-                <th className="p-4 text-xs font-bold uppercase tracking-widest text-gray-500">Joined</th>
-                <th className="p-4 text-xs font-bold uppercase tracking-widest text-gray-500 text-right">Actions</th>
+              <tr className="border-b border-slate-200 bg-slate-50/70">
+                <th className="p-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Email</th>
+                <th className="p-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Role</th>
+                <th className="p-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Joined</th>
+                <th className="p-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -176,21 +182,21 @@ export default function UsersPage() {
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="p-8 text-center text-gray-500">No users found</td>
+                  <td colSpan="4" className="p-8 text-center text-slate-400 font-medium">No users found</td>
                 </tr>
               ) : (
                 users.map((u) => (
-                  <tr key={u.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                    <td className="p-4 font-medium text-white">
+                  <tr key={u.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
+                    <td className="p-4 font-bold text-slate-800">
                       {u.email}
-                      {currentUser?.uid === u.id && <span className="ml-2 text-[10px] text-gray-500 bg-gray-800 px-2 py-0.5 rounded uppercase font-bold">You</span>}
+                      {currentUser?.uid === u.id && <span className="ml-2.5 text-[9px] text-slate-500 bg-slate-100 border border-slate-200/50 px-2 py-0.5 rounded font-black tracking-wider uppercase">You</span>}
                     </td>
                     <td className="p-4">
                       {editingId === u.id ? (
                         <select 
                           value={selectedRole}
                           onChange={(e) => setSelectedRole(e.target.value)}
-                          className="bg-black border border-white/20 rounded px-2 py-1 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          className="bg-white border border-slate-200 rounded px-2.5 py-1.5 text-sm text-slate-805 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold"
                         >
                           <option value="viewer">Viewer</option>
                           <option value="scorer">Scorer (Score assigned matches)</option>
@@ -201,16 +207,16 @@ export default function UsersPage() {
                         getRoleBadge(u.role)
                       )}
                     </td>
-                    <td className="p-4 text-sm text-gray-400">
+                    <td className="p-4 text-xs font-semibold text-slate-400">
                       {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'Unknown'}
                     </td>
                     <td className="p-4 text-right">
                       {editingId === u.id ? (
                         <div className="flex items-center justify-end gap-2">
-                          <button onClick={() => handleSave(u.id)} className="p-2 bg-green-500/20 text-green-500 rounded-lg hover:bg-green-500 hover:text-white transition-colors">
+                          <button onClick={() => handleSave(u.id)} className="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
                             <Check size={16} />
                           </button>
-                          <button onClick={() => setEditingId(null)} className="p-2 bg-gray-500/20 text-gray-400 rounded-lg hover:bg-gray-500 hover:text-white transition-colors">
+                          <button onClick={() => setEditingId(null)} className="p-2 bg-slate-100 text-slate-550 rounded-lg hover:bg-slate-200 transition-all shadow-sm">
                             <X size={16} />
                           </button>
                         </div>
@@ -218,7 +224,7 @@ export default function UsersPage() {
                         <button 
                           onClick={() => handleEdit(u)} 
                           disabled={currentUser?.uid === u.id}
-                          className="p-2 bg-blue-500/10 text-blue-500 rounded-lg hover:bg-blue-500 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
                         >
                           <Edit2 size={16} />
                         </button>
@@ -235,20 +241,20 @@ export default function UsersPage() {
         <div className="md:hidden space-y-4 p-4">
           {loading ? (
             <div className="p-8 text-center">
-              <div className="w-8 h-8 border-4 border-[var(--color-cricket-accent)]/30 border-t-[var(--color-cricket-accent)] rounded-full animate-spin mx-auto"></div>
+              <div className="w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto"></div>
             </div>
           ) : users.length === 0 ? (
-            <div className="p-8 text-center text-gray-500 glass rounded-xl">No users found</div>
+            <div className="p-8 text-center text-slate-400 font-medium bg-slate-50 border border-slate-100 rounded-xl">No users found</div>
           ) : (
             users.map((u) => (
-              <div key={u.id} className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-3">
+              <div key={u.id} className="bg-white/80 border border-slate-200/80 shadow-sm rounded-xl p-4 flex flex-col gap-3">
                 <div className="flex justify-between items-start">
-                  <div className="flex-1 break-all">
-                    <p className="font-bold text-white text-sm">
+                  <div className="flex-1 break-all pr-2">
+                    <p className="font-bold text-slate-800 text-sm">
                       {u.email}
-                      {currentUser?.uid === u.id && <span className="ml-2 text-[9px] text-gray-400 bg-black px-2 py-0.5 rounded uppercase font-black border border-white/10">You</span>}
+                      {currentUser?.uid === u.id && <span className="ml-2 text-[9px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-black tracking-wider border border-slate-200/40 uppercase">You</span>}
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">Joined: {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'Unknown'}</p>
+                    <p className="text-xs text-slate-450 font-medium mt-1">Joined: {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'Unknown'}</p>
                   </div>
                   <div>
                     {editingId !== u.id && getRoleBadge(u.role)}
@@ -256,13 +262,13 @@ export default function UsersPage() {
                 </div>
 
                 {editingId === u.id ? (
-                  <div className="bg-black/50 p-3 rounded-lg border border-white/5 space-y-3 mt-2">
+                  <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 space-y-3 mt-2">
                     <div>
-                      <label className="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-1 block">Change Role</label>
+                      <label className="text-[9px] uppercase font-black text-slate-400 tracking-wider mb-1 block">Change Role</label>
                       <select 
                         value={selectedRole}
                         onChange={(e) => setSelectedRole(e.target.value)}
-                        className="w-full bg-black border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[var(--color-cricket-accent)]"
+                        className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-semibold"
                       >
                         <option value="viewer">Viewer</option>
                         <option value="scorer">Scorer</option>
@@ -270,11 +276,11 @@ export default function UsersPage() {
                         <option value="admin">Admin</option>
                       </select>
                     </div>
-                    <div className="flex justify-end gap-2 pt-2 border-t border-white/5">
-                      <button onClick={() => setEditingId(null)} className="flex-1 py-2 bg-gray-500/20 text-gray-400 rounded-lg hover:bg-gray-500 hover:text-white transition-colors text-xs font-bold uppercase tracking-wider">
+                    <div className="flex justify-end gap-2 pt-2 border-t border-slate-200">
+                      <button onClick={() => setEditingId(null)} className="flex-1 py-2 bg-slate-150 text-slate-600 rounded-lg hover:bg-slate-200 transition-all text-xs font-bold uppercase tracking-wider">
                         Cancel
                       </button>
-                      <button onClick={() => handleSave(u.id)} className="flex-1 py-2 bg-[var(--color-cricket-accent)]/20 text-[var(--color-cricket-accent)] rounded-lg hover:bg-[var(--color-cricket-accent)] hover:text-black transition-colors text-xs font-bold uppercase tracking-wider">
+                      <button onClick={() => handleSave(u.id)} className="flex-1 py-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-650 hover:text-white transition-all text-xs font-bold uppercase tracking-wider">
                         Save
                       </button>
                     </div>
@@ -283,7 +289,7 @@ export default function UsersPage() {
                   <button 
                     onClick={() => handleEdit(u)} 
                     disabled={currentUser?.uid === u.id}
-                    className="w-full mt-2 py-2 bg-white/5 text-gray-300 rounded-lg flex items-center justify-center gap-2 hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-xs font-bold uppercase tracking-widest"
+                    className="w-full mt-2 py-2.5 bg-slate-50 border border-slate-200 text-slate-650 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-100 transition-all disabled:opacity-30 disabled:cursor-not-allowed text-xs font-bold uppercase tracking-widest shadow-sm"
                   >
                     <Edit2 size={14} /> Edit Role
                   </button>

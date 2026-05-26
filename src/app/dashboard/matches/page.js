@@ -126,42 +126,44 @@ export default function MatchesPage() {
   return (
     <div className="p-8 pb-20">
       <div className="flex items-center gap-3 mb-8">
-        <Activity className="text-[var(--color-cricket-accent)]" size={32} />
+        <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+          <Activity className="text-emerald-600" size={24} />
+        </div>
         <div>
-          <h1 className="text-3xl font-black text-white">Live Matches</h1>
-          <p className="text-gray-400">Initialize scoring sessions and assign scorers</p>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Live Matches</h1>
+          <p className="text-slate-500 font-medium text-sm">Initialize scoring sessions and assign scorers</p>
         </div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Create Match Form */}
         <div className="lg:col-span-1">
-          <div className="glass rounded-2xl p-6 sticky top-8">
-            <h2 className="text-xl font-bold text-white mb-6">Initialize Match</h2>
+          <div className="glass rounded-2xl p-6 border border-slate-200/80 shadow-sm sticky top-8">
+            <h2 className="text-xl font-bold text-slate-900 mb-6">Initialize Match</h2>
             <form onSubmit={handleCreateMatch} className="space-y-4">
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Tournament</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Tournament</label>
                   <select 
                     value={newMatch.tournamentId}
                     onChange={e => setNewMatch({...newMatch, tournamentId: e.target.value})}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--color-cricket-accent)]"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
                     required
                   >
-                    <option value="" className="text-black">Select Tournament</option>
-                    {tournaments.map(t => <option key={t.id} value={t.id} className="text-black">{t.name}</option>)}
+                    <option value="" className="text-slate-500">Select...</option>
+                    {tournaments.map(t => <option key={t.id} value={t.id} className="text-slate-800 font-medium">{t.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Match Stage</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Match Stage</label>
                   <input 
                     type="text"
                     list="stage-options"
                     value={newMatch.stage}
                     onChange={e => setNewMatch({...newMatch, stage: e.target.value})}
-                    placeholder="e.g. Match 1, Semi-Final"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--color-cricket-accent)]"
+                    placeholder="e.g. Match 1"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
                     required
                   />
                   <datalist id="stage-options">
@@ -180,53 +182,53 @@ export default function MatchesPage() {
 
               <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Scheduled Time (Optional)</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Scheduled Time (Optional)</label>
                   <input 
                     type="datetime-local"
                     value={newMatch.scheduledTime}
                     onChange={e => setNewMatch({...newMatch, scheduledTime: e.target.value})}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--color-cricket-accent)]"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Team A</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Team A</label>
                   <select 
                     value={newMatch.teamA}
                     onChange={e => setNewMatch({...newMatch, teamA: e.target.value, tossWinner: ''})}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--color-cricket-accent)]"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
                     required
                   >
-                    <option value="" className="text-black">Select</option>
-                    {teams.map(t => <option key={t.id} value={t.id} className="text-black">{t.shortName}</option>)}
+                    <option value="" className="text-slate-500">Select</option>
+                    {teams.map(t => <option key={t.id} value={t.id} className="text-slate-800 font-medium">{t.shortName}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Team B</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Team B</label>
                   <select 
                     value={newMatch.teamB}
                     onChange={e => setNewMatch({...newMatch, teamB: e.target.value, tossWinner: ''})}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--color-cricket-accent)]"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
                     required
                   >
-                    <option value="" className="text-black">Select</option>
-                    {teams.map(t => <option key={t.id} value={t.id} className="text-black">{t.shortName}</option>)}
+                    <option value="" className="text-slate-500">Select</option>
+                    {teams.map(t => <option key={t.id} value={t.id} className="text-slate-800 font-medium">{t.shortName}</option>)}
                   </select>
                 </div>
               </div>
 
               {/* Toss Section */}
               {(newMatch.teamA && newMatch.teamB) && (
-                <div className="bg-black/30 p-4 rounded-xl border border-white/5 space-y-4">
+                <div className="bg-slate-50 border border-slate-200/60 p-4 rounded-xl space-y-4">
                   <div>
-                     <label className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2 block">Toss Won By</label>
+                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 block">Toss Won By</label>
                      <div className="flex gap-2">
-                       <button type="button" onClick={() => setNewMatch({...newMatch, tossWinner: newMatch.teamA})} className={`flex-1 py-2 rounded-lg font-bold text-sm transition-colors ${newMatch.tossWinner === newMatch.teamA ? 'bg-[var(--color-cricket-accent)] text-black' : 'glass text-gray-400'}`}>
+                       <button type="button" onClick={() => setNewMatch({...newMatch, tossWinner: newMatch.teamA})} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all shadow-sm ${newMatch.tossWinner === newMatch.teamA ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}>
                          {getTeamName(newMatch.teamA)}
                        </button>
-                       <button type="button" onClick={() => setNewMatch({...newMatch, tossWinner: newMatch.teamB})} className={`flex-1 py-2 rounded-lg font-bold text-sm transition-colors ${newMatch.tossWinner === newMatch.teamB ? 'bg-[var(--color-cricket-accent)] text-black' : 'glass text-gray-400'}`}>
+                       <button type="button" onClick={() => setNewMatch({...newMatch, tossWinner: newMatch.teamB})} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all shadow-sm ${newMatch.tossWinner === newMatch.teamB ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}>
                          {getTeamName(newMatch.teamB)}
                        </button>
                      </div>
@@ -234,12 +236,12 @@ export default function MatchesPage() {
                   
                   {newMatch.tossWinner && (
                     <div>
-                      <label className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2 block">Decision</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 block">Decision</label>
                       <div className="flex gap-2">
-                         <button type="button" onClick={() => setNewMatch({...newMatch, tossDecision: 'bat'})} className={`flex-1 py-2 rounded-lg font-bold text-sm transition-colors ${newMatch.tossDecision === 'bat' ? 'bg-white text-black' : 'glass text-gray-400'}`}>
+                         <button type="button" onClick={() => setNewMatch({...newMatch, tossDecision: 'bat'})} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all shadow-sm ${newMatch.tossDecision === 'bat' ? 'bg-slate-800 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}>
                            Batting First
                          </button>
-                         <button type="button" onClick={() => setNewMatch({...newMatch, tossDecision: 'bowl'})} className={`flex-1 py-2 rounded-lg font-bold text-sm transition-colors ${newMatch.tossDecision === 'bowl' ? 'bg-white text-black' : 'glass text-gray-400'}`}>
+                         <button type="button" onClick={() => setNewMatch({...newMatch, tossDecision: 'bowl'})} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all shadow-sm ${newMatch.tossDecision === 'bowl' ? 'bg-slate-800 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}>
                            Bowling First
                          </button>
                       </div>
@@ -250,33 +252,33 @@ export default function MatchesPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Total Overs</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Total Overs</label>
                   <input 
                     type="number"
                     value={newMatch.overs}
                     onChange={e => setNewMatch({...newMatch, overs: parseInt(e.target.value) || 20})}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--color-cricket-accent)]"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
                     min="1" max="50"
                     required
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Scorer</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Scorer</label>
                   <select 
                     value={newMatch.scorerId}
                     onChange={e => setNewMatch({...newMatch, scorerId: e.target.value})}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--color-cricket-accent)]"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
                     required
                   >
-                    <option value="" className="text-black">Select...</option>
-                    {scorers.map(s => <option key={s.id} value={s.id} className="text-black">{s.email.split('@')[0]}</option>)}
+                    <option value="" className="text-slate-500">Select...</option>
+                    {scorers.map(s => <option key={s.id} value={s.id} className="text-slate-800 font-medium">{s.email.split('@')[0]}</option>)}
                   </select>
                 </div>
               </div>
 
               <button 
                 type="submit"
-                className="w-full bg-[var(--color-cricket-accent)] text-black font-black uppercase tracking-wider py-4 rounded-xl flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(0,255,65,0.4)] transition-all mt-4"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow shadow-emerald-100 mt-4"
               >
                 <Plus size={20} />
                 Initialize Match
@@ -288,64 +290,64 @@ export default function MatchesPage() {
         {/* Matches List */}
         <div className="lg:col-span-2 space-y-4">
           {loading ? (
-            <div className="glass p-8 rounded-2xl flex justify-center">
+            <div className="glass p-8 rounded-2xl border border-slate-200/80 shadow-sm flex justify-center">
               <div className="w-8 h-8 border-4 border-[var(--color-cricket-accent)]/30 border-t-[var(--color-cricket-accent)] rounded-full animate-spin"></div>
             </div>
           ) : matches.length === 0 ? (
-            <div className="glass p-12 rounded-2xl text-center">
-              <Activity size={48} className="mx-auto text-gray-600 mb-4" />
-              <h3 className="text-xl font-bold text-gray-400">No Matches Found</h3>
+            <div className="glass p-12 rounded-2xl border border-slate-200/80 shadow-sm text-center">
+              <Activity size={48} className="mx-auto text-slate-300 mb-4" />
+              <h3 className="text-xl font-bold text-slate-400">No Matches Found</h3>
             </div>
           ) : (
             matches.map((m) => {
               const isAssigned = m.scorerId === currentUser?.uid || currentUser?.role === 'admin' || currentUser?.role === 'manager';
               
               return (
-                <div key={m.id} className="glass rounded-2xl p-6 border-l-4 border-l-[var(--color-cricket-accent)] group">
+                <div key={m.id} className="glass-card rounded-2xl p-6 border-l-4 border-l-emerald-500 border border-white shadow-sm hover:shadow transition-all group relative">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <span className={`text-[10px] px-2 py-1 rounded font-black tracking-wider uppercase ${
-                        m.status === 'live' ? 'bg-red-500/20 text-red-500' : 'bg-gray-800 text-gray-400'
+                      <span className={`text-[9px] px-2.5 py-0.5 rounded font-black tracking-wider uppercase ${
+                        m.status === 'live' ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500'
                       }`}>
                         {m.status}
                       </span>
-                      <p className="text-xs text-gray-500 mt-2 font-bold">
+                      <p className="text-xs text-slate-400 mt-2.5 font-bold">
                         {tournaments.find(t => t.id === m.tournamentId)?.name || 'Unknown Tournament'} • {m.stage || 'Match 1'} • {m.overs} Overs
                       </p>
                       {m.scheduledTime && (
-                        <p className="text-xs text-[var(--color-cricket-accent)] mt-1 font-bold tracking-wider">
+                        <p className="text-xs text-emerald-600 mt-1.5 font-bold tracking-wider">
                           🗓 {new Date(m.scheduledTime).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
                         </p>
                       )}
                     </div>
                     <button 
                       onClick={() => handleDelete(m.id)}
-                      className="text-gray-500 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                      className="text-slate-300 hover:text-red-600 transition-colors opacity-100 md:opacity-0 group-hover:opacity-100 p-1"
                     >
                       <Trash2 size={18} />
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between bg-black/40 rounded-xl p-4 mb-4">
-                    <div className="text-2xl font-black text-white">{getTeamName(m.score?.innings1?.team)} <span className="text-xs text-gray-500 uppercase tracking-widest block font-bold">Batting</span></div>
-                    <div className="text-gray-600 font-black italic text-sm">VS</div>
-                    <div className="text-2xl font-black text-white">{getTeamName(m.score?.innings2?.team)} <span className="text-xs text-gray-500 uppercase tracking-widest block font-bold">Bowling</span></div>
+                  <div className="flex items-center justify-between bg-slate-50/80 border border-slate-150 rounded-xl p-4 mb-4">
+                    <div className="text-2xl font-black text-slate-800">{getTeamName(m.score?.innings1?.team)} <span className="text-[10px] text-slate-400 uppercase tracking-widest block font-bold mt-0.5">Batting First</span></div>
+                    <div className="text-slate-350 font-black italic text-sm">VS</div>
+                    <div className="text-2xl font-black text-slate-800">{getTeamName(m.score?.innings2?.team)} <span className="text-[10px] text-slate-400 uppercase tracking-widest block font-bold mt-0.5">Bowling First</span></div>
                   </div>
 
-                  <div className="flex justify-between items-center">
-                    <div className="text-xs text-gray-400 flex flex-col">
-                      <span className="font-bold uppercase tracking-widest">Toss</span>
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="text-xs text-slate-500 flex flex-col font-semibold">
+                      <span className="font-black uppercase tracking-widest text-[9px] text-slate-400 mb-0.5">Toss Info</span>
                       <span>{getTeamName(m.toss?.wonBy)} won & chose to {m.toss?.decision}</span>
                     </div>
 
-                    <div className="flex gap-2">
-                      <Link href={`/match/${m.id}`} className="bg-white/5 hover:bg-white/10 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors">
+                    <div className="flex gap-2 w-full sm:w-auto">
+                      <Link href={`/match/${m.id}`} className="flex-1 sm:flex-none bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm">
                         <ExternalLink size={16} /> Public View
                       </Link>
                       
                       {isAssigned && (
-                        <Link href={`/scorer/${m.id}`} className="bg-[var(--color-cricket-accent)]/20 hover:bg-[var(--color-cricket-accent)]/30 text-[var(--color-cricket-accent)] px-4 py-2 rounded-lg text-sm font-black flex items-center gap-2 transition-colors">
-                          <PlayCircle size={16} /> Open Scorer Panel
+                        <Link href={`/scorer/${m.id}`} className="flex-1 sm:flex-none bg-emerald-100 hover:bg-emerald-250 text-emerald-700 px-4 py-2 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all shadow-sm">
+                          <PlayCircle size={16} /> Score Panel
                         </Link>
                       )}
                     </div>

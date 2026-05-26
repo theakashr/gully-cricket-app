@@ -220,7 +220,7 @@ export default function ScorerPage({ params: paramsPromise }) {
     let shouldSwap = false;
     if (type === 'normal' || type === 'boundary' || type === 'b' || type === 'lb') {
        if (runs % 2 !== 0) shouldSwap = !shouldSwap;
-    }
+     }
     
     if (isLegalBall) {
        let currentBallsInt = Math.round((newOvers - Math.floor(newOvers)) * 10);
@@ -363,7 +363,7 @@ export default function ScorerPage({ params: paramsPromise }) {
 
   if (loading || !match || !teamA || !teamB) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
          <div className="w-10 h-10 border-4 border-[var(--color-cricket-accent)]/30 border-t-[var(--color-cricket-accent)] rounded-full animate-spin"></div>
       </div>
     );
@@ -409,7 +409,7 @@ export default function ScorerPage({ params: paramsPromise }) {
     <ProtectedRoute allowedRoles={['admin', 'scorer', 'manager']}>
       <div className="container mx-auto px-4 py-8 max-w-lg">
         <div className="flex justify-between items-center mb-6">
-           <button onClick={() => router.push('/dashboard/matches')} className="text-gray-400 hover:text-white flex items-center gap-2 text-sm font-bold transition-colors">
+           <button onClick={() => router.push('/dashboard/matches')} className="text-slate-500 hover:text-slate-900 flex items-center gap-2 text-sm font-bold transition-all p-1">
               <LogOut size={16} /> Exit Panel
            </button>
         </div>
@@ -420,45 +420,45 @@ export default function ScorerPage({ params: paramsPromise }) {
           className="space-y-6 pb-20"
         >
           {/* Main Score Board */}
-          <div className="glass-card rounded-3xl p-6 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--color-cricket-blue)] to-[var(--color-cricket-accent)]"></div>
+          <div className="glass-card rounded-3xl p-6 relative overflow-hidden border border-white shadow-sm">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-emerald-500"></div>
             
             <div className="flex justify-between items-center mb-6">
-              <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 bg-black/40 px-3 py-1.5 rounded-full border border-white/10">Innings {match.currentInnings}</span>
-              <span className="bg-red-500/10 text-red-500 border border-red-500/20 px-3 py-1.5 rounded-full text-[10px] font-black tracking-wider flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200/50">Innings {match.currentInnings}</span>
+              <span className="bg-red-50 text-red-650 border border-red-100 px-3 py-1.5 rounded-full text-[10px] font-black tracking-wider flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> {match.status === 'live' ? 'SCORING LIVE' : 'MATCH READY'}
               </span>
             </div>
 
             <div className="flex justify-between items-end">
               <div>
-                <h2 className="text-6xl font-black text-white tracking-tighter tabular-nums drop-shadow-lg leading-none">
-                  <span className="text-2xl text-[var(--color-cricket-accent)] block mb-2 tracking-normal">{battingTeam}</span>
-                  <span className="text-white">{runs}</span>
-                  <span className="text-4xl text-gray-500">/{wickets}</span>
+                <h2 className="text-6xl font-black text-slate-900 tracking-tighter tabular-nums leading-none">
+                  <span className="text-2xl text-emerald-700 block mb-2 font-black tracking-normal">{battingTeam}</span>
+                  <span>{runs}</span>
+                  <span className="text-4xl text-slate-450 font-extrabold">/{wickets}</span>
                 </h2>
-                <div className="mt-4 bg-black/30 inline-flex items-center gap-3 px-3 py-1.5 rounded-lg border border-white/5">
-                  <span className="text-gray-400 text-xs font-semibold">OVERS</span>
-                  <span className="text-xl font-bold text-white tabular-nums">{overs.toFixed(1)} <span className="text-sm text-gray-500 font-medium">({match.overs}.0)</span></span>
+                <div className="mt-4 bg-slate-50 border border-slate-150 inline-flex items-center gap-3 px-3.5 py-1.5 rounded-xl">
+                  <span className="text-slate-400 text-[10px] font-black uppercase tracking-wider">OVERS</span>
+                  <span className="text-lg font-black text-slate-800 tabular-nums">{overs.toFixed(1)} <span className="text-xs text-slate-400 font-medium">({match.overs}.0)</span></span>
                 </div>
               </div>
               
               <div className="flex flex-col items-end">
-                <p className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-1">CRR</p>
-                <div className="bg-[var(--color-cricket-blue)]/10 border border-[var(--color-cricket-blue)]/20 px-4 py-2 rounded-xl mb-2">
-                  <p className="text-2xl font-black text-[var(--color-cricket-blue)] tabular-nums drop-shadow-md">{crr}</p>
+                <p className="text-slate-400 text-[10px] font-black tracking-widest uppercase mb-1">CRR</p>
+                <div className="bg-blue-50 border border-blue-200/60 px-4 py-1.5 rounded-xl mb-2">
+                  <p className="text-2xl font-black text-blue-700 tabular-nums">{crr}</p>
                 </div>
                 {targetRuns && (
                   <div className="text-right">
-                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">REQ: <span className="text-white">{(runsNeeded / (ballsRemaining / 6)).toFixed(2) || 0}</span></p>
+                     <p className="text-[10px] font-bold text-slate-455 uppercase tracking-widest">REQ: <span className="text-slate-700">{(runsNeeded / (ballsRemaining / 6)).toFixed(2) || 0}</span></p>
                   </div>
                 )}
               </div>
             </div>
             
             {targetRuns && (
-               <div className="mt-4 pt-4 border-t border-white/10 text-center">
-                  <p className="text-sm font-bold text-[var(--color-cricket-accent)]">
+               <div className="mt-4 pt-4 border-t border-slate-150 text-center">
+                  <p className="text-sm font-bold text-emerald-750">
                     Need {runsNeeded} runs from {ballsRemaining} balls
                   </p>
                </div>
@@ -466,17 +466,17 @@ export default function ScorerPage({ params: paramsPromise }) {
           </div>
           
           {/* Current Over Timeline */}
-          <div className="glass rounded-2xl p-5">
+          <div className="glass rounded-2xl p-5 border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-gray-400 font-bold text-xs uppercase tracking-widest flex items-center gap-2">
-                <PlayCircle size={14} className="text-[var(--color-cricket-accent)]" /> Recent Balls
+              <span className="text-slate-500 font-bold text-xs uppercase tracking-widest flex items-center gap-2">
+                <PlayCircle size={14} className="text-emerald-600" /> Recent Balls
               </span>
             </div>
             
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
               <AnimatePresence>
                 {currentOver.length === 0 && (
-                  <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-gray-600 text-sm font-medium italic">
+                  <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-slate-400 text-sm font-medium italic">
                     Waiting for first ball...
                   </motion.span>
                 )}
@@ -485,11 +485,11 @@ export default function ScorerPage({ params: paramsPromise }) {
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     key={i} 
-                    className={`flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full text-lg font-black shadow-lg border ${
-                      ball === 'W' ? 'bg-red-500 text-white border-red-400 shadow-red-500/20' : 
-                      (ball === '6' || ball === '4') ? 'bg-[var(--color-cricket-accent)] text-[var(--color-cricket-dark)] border-[var(--color-cricket-accent)] shadow-[var(--color-cricket-accent)]/20' : 
-                      ball.includes('wd') || ball.includes('nb') ? 'bg-orange-500 text-white border-orange-400 text-sm' :
-                      'bg-gray-800 text-gray-200 border-gray-700'
+                    className={`flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full text-lg font-black shadow-sm border ${
+                      ball === 'W' ? 'bg-red-600 text-white border-red-500 shadow-red-100' : 
+                      (ball === '6' || ball === '4') ? 'bg-emerald-600 text-white border-emerald-500 shadow-emerald-100' : 
+                      ball.includes('wd') || ball.includes('nb') ? 'bg-amber-500 text-white border-amber-400 text-sm shadow-amber-50' :
+                      'bg-slate-100 text-slate-800 border-slate-200'
                     }`}
                   >
                     {ball}
@@ -501,81 +501,81 @@ export default function ScorerPage({ params: paramsPromise }) {
 
           {/* End Innings / Match Triggers */}
           {(isAllOut || isOversDone) && match.currentInnings === 1 && (
-            <div className="bg-orange-500/20 border border-orange-500 p-4 rounded-2xl text-center">
-               <h3 className="text-orange-500 font-black text-xl mb-2">Innings Complete!</h3>
-               <button onClick={startNextInnings} className="w-full bg-orange-500 text-black font-black uppercase tracking-widest py-3 rounded-xl flex justify-center items-center gap-2">
+            <div className="bg-amber-50 border border-amber-250 p-4 rounded-2xl text-center shadow-sm">
+               <h3 className="text-amber-700 font-black text-xl mb-2">Innings Complete!</h3>
+               <button onClick={startNextInnings} className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl flex justify-center items-center gap-2 transition-all shadow-sm shadow-amber-100">
                  Start 2nd Innings <ArrowRight size={18} />
                </button>
             </div>
           )}
           
           {(match.currentInnings === 2 && (isAllOut || isOversDone || runsNeeded <= 0)) && (
-            <div className="bg-green-500/20 border border-green-500 p-4 rounded-2xl text-center">
-               <h3 className="text-green-500 font-black text-xl mb-2">Match Complete!</h3>
+            <div className="bg-emerald-50 border border-emerald-250 p-4 rounded-2xl text-center shadow-sm">
+               <h3 className="text-emerald-700 font-black text-xl mb-2">Match Complete!</h3>
                <button onClick={() => {
                  if (runsNeeded <= 0) endMatch(match.score.innings2.team, `${getTeamName(match.score.innings2.team)} chased the target`);
                  else if (runsNeeded > 0) endMatch(match.score.innings1.team, `${getTeamName(match.score.innings1.team)} defended the target`);
                  else endMatch('Draw', 'Match Tied');
-               }} className="w-full bg-green-500 text-black font-black uppercase tracking-widest py-3 rounded-xl">
+               }} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-all shadow-sm shadow-emerald-100">
                  Declare Result & End Match
                </button>
             </div>
           )}
 
           {/* Current Players Inputs */}
-          <div className="glass rounded-2xl p-5 mb-4 border border-white/5 relative">
+          <div className="glass rounded-2xl p-5 mb-4 border border-slate-200 shadow-sm relative">
             <div className="flex justify-between items-center mb-3">
-               <h3 className="text-gray-400 font-bold text-xs uppercase tracking-widest">Current Players</h3>
-               <button onClick={manualSwapStrike} className="flex items-center gap-1 text-[10px] uppercase font-bold tracking-widest text-[var(--color-cricket-accent)] hover:text-white transition-colors bg-[var(--color-cricket-accent)]/10 px-2 py-1 rounded">
+               <h3 className="text-slate-500 font-bold text-xs uppercase tracking-widest">Current Players</h3>
+               <button onClick={manualSwapStrike} className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-widest text-emerald-750 hover:text-emerald-800 transition-colors bg-emerald-100/80 px-2 py-1 rounded-lg">
                   <RotateCcw size={12} /> Swap Strike
                </button>
             </div>
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] text-gray-500 uppercase tracking-wider font-bold ml-1">Striker</label>
+                  <label className="text-[10px] text-slate-400 uppercase tracking-wider font-black ml-1">Striker</label>
                   <input 
                     type="text" 
                     value={striker.name} 
                     onChange={(e) => setStriker({...striker, name: e.target.value})}
                     placeholder="Striker Name" 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[var(--color-cricket-accent)]"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
                   />
-                  <div className="text-[10px] text-gray-400 ml-1 mt-1">
-                    {striker.runs} ({striker.balls})
+                  <div className="text-[10px] text-slate-550 font-bold ml-1 mt-1">
+                    {striker.runs} R ({striker.balls} B)
                   </div>
                 </div>
                 <div>
-                  <label className="text-[10px] text-gray-500 uppercase tracking-wider font-bold ml-1">Non-Striker</label>
+                  <label className="text-[10px] text-slate-400 uppercase tracking-wider font-black ml-1">Non-Striker</label>
                   <input 
                     type="text" 
                     value={nonStriker.name} 
                     onChange={(e) => setNonStriker({...nonStriker, name: e.target.value})}
                     placeholder="Non-Striker Name" 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[var(--color-cricket-accent)]"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
                   />
-                  <div className="text-[10px] text-gray-400 ml-1 mt-1">
-                    {nonStriker.runs} ({nonStriker.balls})
+                  <div className="text-[10px] text-slate-550 font-bold ml-1 mt-1">
+                    {nonStriker.runs} R ({nonStriker.balls} B)
                   </div>
                 </div>
               </div>
               <div>
-                <label className="text-[10px] text-[var(--color-cricket-accent)] uppercase tracking-wider font-bold ml-1">Bowler</label>
+                <label className="text-[10px] text-emerald-700 uppercase tracking-wider font-black ml-1">Bowler</label>
                 <input 
                   type="text" 
                   value={bowler.name} 
                   onChange={(e) => setBowler({...bowler, name: e.target.value})}
                   placeholder="Bowler Name" 
-                  className="w-full bg-[var(--color-cricket-accent)]/10 border border-[var(--color-cricket-accent)]/30 rounded-xl px-3 py-2 text-[var(--color-cricket-accent)] font-bold text-sm focus:outline-none focus:border-[var(--color-cricket-accent)]"
+                  className="w-full bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 text-emerald-800 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                 />
-                <div className="text-[10px] text-[var(--color-cricket-accent)] ml-1 mt-1 font-semibold flex justify-between">
+                <div className="text-[10px] text-emerald-700 ml-1 mt-1 font-bold flex justify-between">
                   <span>{bowler.overs} O - {bowler.runs} R - {bowler.wickets} W</span>
                   <span className="opacity-80">ECON: {econ}</span>
                 </div>
               </div>
               <button 
                 onClick={updatePlayers} 
-                className="w-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-widest py-3 rounded-xl transition-all border border-white/10"
+                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold uppercase tracking-widest py-3 rounded-xl transition-all border border-slate-200 shadow-sm"
               >
                 Save Player Names
               </button>
@@ -591,10 +591,10 @@ export default function ScorerPage({ params: paramsPromise }) {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     key={run} 
-                    className={`h-20 rounded-2xl text-3xl font-black transition-all ${
+                    className={`h-20 rounded-2xl text-3xl font-black transition-all shadow-sm ${
                       run === 4 || run === 6 
-                      ? 'bg-gradient-to-br from-[var(--color-cricket-accent)] to-green-600 text-[var(--color-cricket-dark)] shadow-[0_0_20px_rgba(0,255,65,0.3)] border-none' 
-                      : 'glass hover:bg-white/10 text-white'
+                      ? 'bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-emerald-100 border-none' 
+                      : 'bg-white border border-slate-200 hover:bg-slate-50 text-slate-800'
                     }`}
                     onClick={() => recordBall(run, run >= 4 ? 'boundary' : 'normal')}
                   >
@@ -607,7 +607,7 @@ export default function ScorerPage({ params: paramsPromise }) {
                 <motion.button 
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="h-16 rounded-2xl bg-gradient-to-br from-red-500 to-red-700 text-white text-xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(239,68,68,0.3)] border-none flex justify-center items-center gap-2"
+                  className="h-16 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 text-white text-xl font-black uppercase tracking-widest shadow-sm shadow-red-100 border-none flex justify-center items-center gap-2"
                   onClick={() => recordBall(0, 'wicket')}
                 >
                   <AlertTriangle size={20} /> Wicket
@@ -616,8 +616,10 @@ export default function ScorerPage({ params: paramsPromise }) {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   disabled={!lastBallId}
-                  className={`h-16 rounded-2xl text-lg font-bold uppercase tracking-wider flex justify-center items-center gap-2 transition-all ${
-                    lastBallId ? 'glass text-yellow-500 border-yellow-500/30 hover:bg-yellow-500/10' : 'bg-white/5 text-gray-600 cursor-not-allowed'
+                  className={`h-16 rounded-2xl text-lg font-bold uppercase tracking-wider flex justify-center items-center gap-2 transition-all shadow-sm ${
+                    lastBallId 
+                      ? 'bg-white hover:bg-amber-50 text-amber-600 border border-slate-200 hover:border-amber-200' 
+                      : 'bg-slate-100 text-slate-300 border border-slate-200 cursor-not-allowed'
                   }`}
                   onClick={handleUndo}
                 >
@@ -626,16 +628,16 @@ export default function ScorerPage({ params: paramsPromise }) {
               </div>
               
               <div className="grid grid-cols-4 gap-3 mt-4">
-                <button onClick={() => recordBall(0, 'wd')} className="h-14 rounded-xl glass hover:bg-white/5 text-orange-400 text-xs font-bold uppercase tracking-wider transition-colors">
+                <button onClick={() => recordBall(0, 'wd')} className="h-14 rounded-xl bg-white hover:bg-amber-50 border border-slate-200 hover:border-amber-250 text-amber-600 text-xs font-bold uppercase tracking-wider transition-all shadow-sm">
                   Wide
                 </button>
-                <button onClick={() => recordBall(0, 'nb')} className="h-14 rounded-xl glass hover:bg-white/5 text-orange-400 text-xs font-bold uppercase tracking-wider transition-colors">
+                <button onClick={() => recordBall(0, 'nb')} className="h-14 rounded-xl bg-white hover:bg-amber-50 border border-slate-200 hover:border-amber-250 text-amber-600 text-xs font-bold uppercase tracking-wider transition-all shadow-sm">
                   No Ball
                 </button>
-                <button onClick={() => recordBall(1, 'b')} className="h-14 rounded-xl glass hover:bg-white/5 text-gray-300 text-xs font-bold uppercase tracking-wider transition-colors">
+                <button onClick={() => recordBall(1, 'b')} className="h-14 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-650 text-xs font-bold uppercase tracking-wider transition-all shadow-sm">
                   Bye (1)
                 </button>
-                <button onClick={() => recordBall(1, 'lb')} className="h-14 rounded-xl glass hover:bg-white/5 text-gray-300 text-xs font-bold uppercase tracking-wider transition-colors">
+                <button onClick={() => recordBall(1, 'lb')} className="h-14 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-650 text-xs font-bold uppercase tracking-wider transition-all shadow-sm">
                   L.Bye (1)
                 </button>
               </div>

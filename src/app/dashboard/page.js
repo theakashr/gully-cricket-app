@@ -69,15 +69,15 @@ export default function DashboardPage() {
   };
 
   const stats = [
-    { name: 'Active Tournaments', value: activeTournaments, icon: Trophy, color: 'text-yellow-500', bg: 'bg-yellow-500/10' },
-    { name: 'Live Matches', value: liveMatches, icon: Activity, color: 'text-[var(--color-cricket-accent)]', bg: 'bg-[var(--color-cricket-accent)]/10' },
-    { name: 'Total Teams', value: totalTeams, icon: Shield, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-    { name: 'Registered Players', value: totalPlayers, icon: Users, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+    { name: 'Active Tournaments', value: activeTournaments, icon: Trophy, color: 'text-amber-600', bg: 'bg-amber-100' },
+    { name: 'Live Matches', value: liveMatches, icon: Activity, color: 'text-emerald-600', bg: 'bg-emerald-100' },
+    { name: 'Total Teams', value: totalTeams, icon: Shield, color: 'text-blue-600', bg: 'bg-blue-100' },
+    { name: 'Registered Players', value: totalPlayers, icon: Users, color: 'text-violet-600', bg: 'bg-violet-100' },
   ];
 
   if (loading) {
      return (
-        <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
           <div className="w-10 h-10 border-4 border-[var(--color-cricket-accent)]/30 border-t-[var(--color-cricket-accent)] rounded-full animate-spin"></div>
         </div>
      );
@@ -87,11 +87,11 @@ export default function DashboardPage() {
     <div className="container mx-auto px-4 py-8 pb-20">
       <div className="flex justify-between items-center mb-10">
         <div>
-          <h1 className="text-3xl font-black text-white">Dashboard Overview</h1>
-          <p className="text-gray-400 mt-1">Manage tournaments, teams, and live scoring</p>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Dashboard Overview</h1>
+          <p className="text-slate-500 mt-1 text-sm font-medium">Manage tournaments, teams, and live scoring</p>
         </div>
-        <button className="glass p-3 rounded-xl hover:bg-white/10 transition-colors">
-          <Settings size={20} className="text-gray-400" />
+        <button className="glass p-3 rounded-xl hover:bg-slate-100/80 transition-colors shadow-sm">
+          <Settings size={20} className="text-slate-500" />
         </button>
       </div>
 
@@ -103,13 +103,15 @@ export default function DashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
             key={stat.name} 
-            className="glass-card p-6 rounded-2xl"
+            className="glass-card p-6 rounded-2xl border border-white shadow-sm flex flex-col justify-between"
           >
-            <div className={`${stat.bg} w-12 h-12 rounded-xl flex items-center justify-center mb-4`}>
-              <stat.icon size={24} className={stat.color} />
+            <div>
+              <div className={`${stat.bg} w-12 h-12 rounded-xl flex items-center justify-center mb-4`}>
+                <stat.icon size={24} className={stat.color} />
+              </div>
+              <h3 className="text-4xl font-black text-slate-900 mb-1 tracking-tight">{stat.value}</h3>
             </div>
-            <h3 className="text-4xl font-black text-white mb-1 tracking-tight">{stat.value}</h3>
-            <p className="text-xs font-bold uppercase tracking-widest text-gray-500">{stat.name}</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-2">{stat.name}</p>
           </motion.div>
         ))}
       </div>
@@ -120,46 +122,46 @@ export default function DashboardPage() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
-          className="glass rounded-3xl p-6"
+          className="glass rounded-3xl p-6 border border-slate-200/80 shadow-sm"
         >
-          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
             <Activity className="text-[var(--color-cricket-accent)]" /> Quick Actions
           </h2>
           <div className="space-y-4">
-            <Link href="/dashboard/matches" className="block w-full glass hover:bg-white/5 border border-white/10 p-4 rounded-xl flex items-center gap-4 transition-colors group">
+            <Link href="/dashboard/matches" className="block w-full glass hover:bg-slate-100/50 border border-slate-200/80 p-4 rounded-xl flex items-center gap-4 transition-all hover:shadow-sm group">
               <div className="bg-[var(--color-cricket-accent)]/20 p-3 rounded-lg group-hover:scale-110 transition-transform">
                 <Plus size={20} className="text-[var(--color-cricket-accent)]" />
               </div>
               <div className="text-left">
-                <h4 className="text-white font-bold text-lg">Start New Match</h4>
-                <p className="text-sm text-gray-400">Initialize a live scoring session</p>
+                <h4 className="text-slate-800 font-bold text-lg leading-tight">Start New Match</h4>
+                <p className="text-xs text-slate-500 font-medium">Initialize a live scoring session</p>
               </div>
             </Link>
-            <Link href="/dashboard/tournaments" className="block w-full glass hover:bg-white/5 border border-white/10 p-4 rounded-xl flex items-center gap-4 transition-colors group">
+            <Link href="/dashboard/tournaments" className="block w-full glass hover:bg-slate-100/50 border border-slate-200/80 p-4 rounded-xl flex items-center gap-4 transition-all hover:shadow-sm group">
               <div className="bg-blue-500/20 p-3 rounded-lg group-hover:scale-110 transition-transform">
                 <Trophy size={20} className="text-blue-500" />
               </div>
               <div className="text-left">
-                <h4 className="text-white font-bold text-lg">Create Tournament</h4>
-                <p className="text-sm text-gray-400">Set up a new league or cup</p>
+                <h4 className="text-slate-800 font-bold text-lg leading-tight">Create Tournament</h4>
+                <p className="text-xs text-slate-500 font-medium">Set up a new league or cup</p>
               </div>
             </Link>
-            <Link href="/dashboard/teams" className="block w-full glass hover:bg-white/5 border border-white/10 p-4 rounded-xl flex items-center gap-4 transition-colors group">
+            <Link href="/dashboard/teams" className="block w-full glass hover:bg-slate-100/50 border border-slate-200/80 p-4 rounded-xl flex items-center gap-4 transition-all hover:shadow-sm group">
               <div className="bg-purple-500/20 p-3 rounded-lg group-hover:scale-110 transition-transform">
                 <Shield size={20} className="text-purple-500" />
               </div>
               <div className="text-left">
-                <h4 className="text-white font-bold text-lg">Manage Teams</h4>
-                <p className="text-sm text-gray-400">Add franchises and squads</p>
+                <h4 className="text-slate-800 font-bold text-lg leading-tight">Manage Teams</h4>
+                <p className="text-xs text-slate-500 font-medium">Add franchises and squads</p>
               </div>
             </Link>
-            <Link href="/dashboard/players" className="block w-full glass hover:bg-white/5 border border-white/10 p-4 rounded-xl flex items-center gap-4 transition-colors group">
+            <Link href="/dashboard/players" className="block w-full glass hover:bg-slate-100/50 border border-slate-200/80 p-4 rounded-xl flex items-center gap-4 transition-all hover:shadow-sm group">
               <div className="bg-yellow-500/20 p-3 rounded-lg group-hover:scale-110 transition-transform">
                 <User size={20} className="text-yellow-500" />
               </div>
               <div className="text-left">
-                <h4 className="text-white font-bold text-lg">Manage Players</h4>
-                <p className="text-sm text-gray-400">Register players to global database</p>
+                <h4 className="text-slate-800 font-bold text-lg leading-tight">Manage Players</h4>
+                <p className="text-xs text-slate-500 font-medium">Register players to global database</p>
               </div>
             </Link>
           </div>
@@ -170,18 +172,18 @@ export default function DashboardPage() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
-          className="glass-card rounded-3xl p-6"
+          className="glass-card rounded-3xl p-6 border border-white shadow-sm"
         >
-          <h2 className="text-xl font-bold text-white mb-6 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center justify-between">
             <span>Recent Activity</span>
-            <Link href="/dashboard/matches" className="text-sm font-medium text-blue-500 hover:underline">View All</Link>
+            <Link href="/dashboard/matches" className="text-xs font-bold text-emerald-600 hover:text-emerald-700 tracking-wider uppercase hover:underline">View All</Link>
           </h2>
           
           <div className="space-y-4">
              {recentMatches.length === 0 ? (
-               <div className="text-center p-8 bg-white/5 rounded-2xl border border-white/10">
-                 <Calendar size={32} className="mx-auto text-gray-600 mb-2" />
-                 <p className="text-gray-400 font-medium">No matches found</p>
+               <div className="text-center p-8 bg-slate-50/50 rounded-2xl border border-slate-200/80">
+                 <Calendar size={32} className="mx-auto text-slate-300 mb-2" />
+                 <p className="text-slate-400 font-medium text-sm">No matches found</p>
                </div>
              ) : (
                recentMatches.map(m => {
@@ -204,51 +206,55 @@ export default function DashboardPage() {
 
                  return (
                    <Link href={m.status === 'completed' ? `/match/${m.id}` : `/scorer/${m.id}`} key={m.id} className="block">
-                     <div className={`border rounded-2xl p-4 transition-colors relative overflow-hidden group ${m.status === 'live' ? 'bg-black/40 border-[var(--color-cricket-accent)]/30 hover:bg-black/60' : 'bg-white/5 border-white/10 opacity-80 hover:opacity-100'}`}>
+                     <div className={`border rounded-2xl p-4 transition-all relative overflow-hidden group ${
+                       m.status === 'live' 
+                         ? 'bg-emerald-50/30 border-emerald-500/20 hover:bg-emerald-50/50' 
+                         : 'bg-white/80 border-slate-200 hover:border-slate-300 hover:shadow-sm'
+                     }`}>
                        {m.status === 'live' && (
-                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-[var(--color-cricket-accent)] group-hover:w-2 transition-all"></div>
+                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 group-hover:w-1.5 transition-all"></div>
                        )}
                        
                        <div className="flex justify-between items-center mb-3">
-                         <span className="text-xs font-bold text-gray-400 uppercase tracking-widest pl-2 truncate pr-2 max-w-[200px]">{tourney.name}</span>
-                         <span className={`px-2 py-1 rounded text-[10px] font-black tracking-wider flex items-center gap-1 ${
-                            m.status === 'live' ? 'bg-red-500/20 text-red-500' :
-                            m.status === 'completed' ? 'bg-green-500/20 text-green-500' :
-                            'bg-gray-500/20 text-gray-400'
-                         }`}>
-                           {m.status === 'live' && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>}
-                           {m.status}
-                         </span>
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 truncate pr-2 max-w-[200px]">{tourney.name}</span>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-black tracking-wider uppercase flex items-center gap-1 ${
+                             m.status === 'live' ? 'bg-red-100 text-red-600' :
+                             m.status === 'completed' ? 'bg-emerald-100 text-emerald-600' :
+                             'bg-slate-100 text-slate-500'
+                          }`}>
+                            {m.status === 'live' && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>}
+                            {m.status}
+                          </span>
                        </div>
                        
                        <div className="flex justify-between items-center pl-2">
-                         <div className="flex items-center gap-3">
-                           <div className="w-8 h-8 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center overflow-hidden flex-shrink-0">
-                             {tA.logoUrl ? <img src={tA.logoUrl} className="w-full h-full object-cover" /> : <span className="text-[10px] font-bold text-white">{tA.shortName}</span>}
-                           </div>
-                           <span className="font-bold text-white text-lg">{tA.shortName}</span>
-                         </div>
-                         
-                         <div className="flex flex-col items-center">
-                            <span className="text-gray-500 font-black italic text-xs">VS</span>
-                         </div>
-                         
-                         <div className="flex items-center gap-3">
-                           <span className="font-bold text-white text-lg">{tB.shortName}</span>
-                           <div className="w-8 h-8 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center overflow-hidden flex-shrink-0">
-                             {tB.logoUrl ? <img src={tB.logoUrl} className="w-full h-full object-cover" /> : <span className="text-[10px] font-bold text-white">{tB.shortName}</span>}
-                           </div>
-                         </div>
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+                              {tA.logoUrl ? <img src={tA.logoUrl} className="w-full h-full object-cover" /> : <span className="text-[10px] font-black text-blue-600">{tA.shortName}</span>}
+                            </div>
+                            <span className="font-bold text-slate-800 text-lg">{tA.shortName}</span>
+                          </div>
+                          
+                          <div className="flex flex-col items-center">
+                             <span className="text-slate-400 font-black italic text-xs">VS</span>
+                          </div>
+                          
+                          <div className="flex items-center gap-3">
+                            <span className="font-bold text-slate-800 text-lg">{tB.shortName}</span>
+                            <div className="w-8 h-8 rounded-full bg-violet-500/10 border border-violet-500/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+                              {tB.logoUrl ? <img src={tB.logoUrl} className="w-full h-full object-cover" /> : <span className="text-[10px] font-black text-violet-600">{tB.shortName}</span>}
+                            </div>
+                          </div>
                        </div>
                        
                        {displayScore && (
-                         <div className="mt-3 pt-2 border-t border-white/5 text-center">
-                            {m.status === 'live' ? (
-                               <p className="text-sm font-bold text-white">{currentTeamName} is <span className="text-[var(--color-cricket-accent)] text-lg">{displayScore}</span></p>
-                            ) : (
-                               <p className="text-xs font-bold text-green-400 uppercase tracking-widest">{displayScore}</p>
-                            )}
-                         </div>
+                          <div className="mt-3 pt-2 border-t border-slate-100 text-center">
+                             {m.status === 'live' ? (
+                                <p className="text-sm font-bold text-slate-700">{currentTeamName} is <span className="text-emerald-600 font-extrabold text-lg">{displayScore}</span></p>
+                             ) : (
+                                <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest">{displayScore}</p>
+                             )}
+                          </div>
                        )}
                      </div>
                    </Link>
