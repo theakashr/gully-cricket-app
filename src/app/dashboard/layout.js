@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { Trophy, Shield, Users, Activity, LogOut, Home } from 'lucide-react';
+import { Trophy, Shield, Users, Activity, LogOut, Home, User } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
@@ -14,7 +14,8 @@ export default function DashboardLayout({ children }) {
   const navItems = [
     { name: 'Overview', href: '/dashboard', icon: Home },
     { name: 'Tournaments', href: '/dashboard/tournaments', icon: Trophy },
-    { name: 'Teams & Players', href: '/dashboard/teams', icon: Shield },
+    { name: 'Teams', href: '/dashboard/teams', icon: Shield },
+    { name: 'Players', href: '/dashboard/players', icon: User },
     { name: 'Matches', href: '/dashboard/matches', icon: Activity },
     { name: 'Users & Access', href: '/dashboard/users', icon: Users },
   ];

@@ -12,15 +12,16 @@ export default function TeamsPage() {
   // Team Form
   const [newTeamName, setNewTeamName] = useState('');
   const [newTeamShortName, setNewTeamShortName] = useState('');
+  const [newTeamLogoUrl, setNewTeamLogoUrl] = useState('');
   
   // Player Form (attached to a specific team)
   const [expandedTeamId, setExpandedTeamId] = useState(null);
-  const [newPlayerName, setNewPlayerName] = useState('');
-  const [newPlayerRole, setNewPlayerRole] = useState('Batsman');
+  const [globalPlayers, setGlobalPlayers] = useState([]);
+  const [selectedPlayerId, setSelectedPlayerId] = useState('');
 
   useEffect(() => {
     const teamsRef = ref(db, 'teams');
-    const unsubscribe = onValue(teamsRef, (snapshot) => {
+    const unsubscribeTeams = onValue(teamsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         const tList = Object.entries(data).map(([id, val]) => ({
@@ -35,7 +36,21 @@ export default function TeamsPage() {
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    const playersRef = ref(db, 'players');
+    const unsubscribePlayers = onValue(playersRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const pList = Object.entries(data).map(([id, val]) => ({ id, ...val }));
+        setGlobalPlayers(pList.sort((a,b) => a.name.localeCompare(b.name)));
+      } else {
+        setGlobalPlayers([]);
+      }
+    });
+
+    return () => {
+       unsubscribeTeams();
+       unsubscribePlayers();
+    };
   }, []);
 
   const handleCreateTeam = async (e) => {
@@ -48,10 +63,12 @@ export default function TeamsPage() {
       await set(newRef, {
         name: newTeamName,
         shortName: newTeamShortName.toUpperCase(),
+        logoUrl: newTeamLogoUrl,
         createdAt: new Date().toISOString()
       });
       setNewTeamName('');
       setNewTeamShortName('');
+      setNewTeamLogoUrl('');
     } catch (error) {
       console.error("Error creating team:", error);
     }
@@ -65,16 +82,21 @@ export default function TeamsPage() {
 
   const handleAddPlayer = async (e, teamId) => {
     e.preventDefault();
-    if (!newPlayerName.trim()) return;
+    if (!selectedPlayerId) return;
+    
+    // Find player details to cache in the team for easy rendering
+    const player = globalPlayers.find(p => p.id === selectedPlayerId);
+    if (!player) return;
 
     try {
-      const playerRef = push(ref(db, `teams/${teamId}/players`));
+      // Use the global player ID as the key inside the team's players node
+      // This prevents the same player from being added twice and links it properly
+      const playerRef = ref(db, `teams/${teamId}/players/${selectedPlayerId}`);
       await set(playerRef, {
-        name: newPlayerName,
-        role: newPlayerRole,
+        name: player.name,
+        role: player.role,
       });
-      setNewPlayerName('');
-      setNewPlayerRole('Batsman');
+      setSelectedPlayerId('');
     } catch (error) {
       console.error("Error adding player:", error);
     }
@@ -127,6 +149,16 @@ export default function TeamsPage() {
                   required
                 />
               </div>
+              <div>
+                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Logo URL (Optional)</label>
+                <input 
+                  type="url" 
+                  value={newTeamLogoUrl}
+                  onChange={(e) => setNewTeamLogoUrl(e.target.value)}
+                  placeholder="https://..."
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                />
+              </div>
               <button 
                 type="submit"
                 className="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors"
@@ -163,8 +195,12 @@ export default function TeamsPage() {
                   onClick={() => toggleTeam(t.id)}
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center text-white font-black shadow-lg">
-                      {t.shortName}
+                    <div className="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center text-white font-black shadow-lg overflow-hidden border border-purple-500/30">
+                      {t.logoUrl ? (
+                         <img src={t.logoUrl} alt={t.name} className="w-full h-full object-cover" />
+                      ) : (
+                         t.shortName
+                      )}
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-white">{t.name}</h3>
@@ -218,26 +254,23 @@ export default function TeamsPage() {
 
                         {/* Add Player Form */}
                         <form onSubmit={(e) => handleAddPlayer(e, t.id)} className="flex gap-3">
-                          <input 
-                            type="text" 
-                            value={newPlayerName}
-                            onChange={(e) => setNewPlayerName(e.target.value)}
-                            placeholder="Player Name"
+                          <select 
+                            value={selectedPlayerId}
+                            onChange={(e) => setSelectedPlayerId(e.target.value)}
                             className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:ring-2 focus:ring-purple-500"
                             required
-                          />
-                          <select 
-                            value={newPlayerRole}
-                            onChange={(e) => setNewPlayerRole(e.target.value)}
-                            className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:ring-2 focus:ring-purple-500"
                           >
-                            <option value="Batsman">Batsman</option>
-                            <option value="Bowler">Bowler</option>
-                            <option value="All-Rounder">All-Rounder</option>
-                            <option value="Wicket Keeper">Wicket Keeper</option>
+                            <option value="">-- Select Player --</option>
+                            {globalPlayers.map(gp => {
+                               // Don't show if already in squad
+                               if (t.players.some(p => p.id === gp.id)) return null;
+                               return (
+                                 <option key={gp.id} value={gp.id}>{gp.name} ({gp.role})</option>
+                               );
+                            })}
                           </select>
-                          <button type="submit" className="bg-purple-500 hover:bg-purple-600 text-white px-4 rounded-xl text-sm font-bold transition-colors">
-                            Add
+                          <button type="submit" className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition-colors">
+                            Add to Squad
                           </button>
                         </form>
                       </div>
