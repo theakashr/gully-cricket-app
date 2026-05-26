@@ -6,6 +6,7 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { db } from '@/lib/firebase';
 import { ref, onValue, push, set, update, get, remove } from 'firebase/database';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 export default function ScorerPage({ params: paramsPromise }) {
   const params = use(paramsPromise);
@@ -104,8 +105,10 @@ export default function ScorerPage({ params: paramsPromise }) {
         nonStriker,
         bowler
       });
+      toast.success("Players saved successfully", { id: 'save-players' });
     } catch (error) {
       console.error("Error updating players:", error);
+      toast.error("Failed to save players");
     }
   };
 
@@ -535,7 +538,6 @@ export default function ScorerPage({ params: paramsPromise }) {
                     type="text" 
                     value={striker.name} 
                     onChange={(e) => setStriker({...striker, name: e.target.value})}
-                    onBlur={updatePlayers}
                     placeholder="Striker Name" 
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[var(--color-cricket-accent)]"
                   />
@@ -549,7 +551,6 @@ export default function ScorerPage({ params: paramsPromise }) {
                     type="text" 
                     value={nonStriker.name} 
                     onChange={(e) => setNonStriker({...nonStriker, name: e.target.value})}
-                    onBlur={updatePlayers}
                     placeholder="Non-Striker Name" 
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[var(--color-cricket-accent)]"
                   />
@@ -564,7 +565,6 @@ export default function ScorerPage({ params: paramsPromise }) {
                   type="text" 
                   value={bowler.name} 
                   onChange={(e) => setBowler({...bowler, name: e.target.value})}
-                  onBlur={updatePlayers}
                   placeholder="Bowler Name" 
                   className="w-full bg-[var(--color-cricket-accent)]/10 border border-[var(--color-cricket-accent)]/30 rounded-xl px-3 py-2 text-[var(--color-cricket-accent)] font-bold text-sm focus:outline-none focus:border-[var(--color-cricket-accent)]"
                 />
@@ -573,6 +573,12 @@ export default function ScorerPage({ params: paramsPromise }) {
                   <span className="opacity-80">ECON: {econ}</span>
                 </div>
               </div>
+              <button 
+                onClick={updatePlayers} 
+                className="w-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-widest py-3 rounded-xl transition-all border border-white/10"
+              >
+                Save Player Names
+              </button>
             </div>
           </div>
 

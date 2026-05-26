@@ -23,7 +23,8 @@ export default function MatchesPage() {
     scorerId: '',
     overs: 20,
     tossWinner: '',
-    tossDecision: 'bat'
+    tossDecision: 'bat',
+    scheduledTime: ''
   });
 
   useEffect(() => {
@@ -93,6 +94,7 @@ export default function MatchesPage() {
         overs: newMatch.overs,
         status: 'upcoming', 
         createdAt: new Date().toISOString(),
+        scheduledTime: newMatch.scheduledTime,
         toss: { wonBy: newMatch.tossWinner, decision: newMatch.tossDecision },
         currentInnings: 1,
         score: {
@@ -107,7 +109,7 @@ export default function MatchesPage() {
         }
       });
       
-      setNewMatch({ tournamentId: '', stage: 'Match 1', teamA: '', teamB: '', scorerId: '', overs: 20, tossWinner: '', tossDecision: 'bat' });
+      setNewMatch({ tournamentId: '', stage: 'Match 1', teamA: '', teamB: '', scorerId: '', overs: 20, tossWinner: '', tossDecision: 'bat', scheduledTime: '' });
     } catch (error) {
       console.error("Error creating match:", error);
     }
@@ -173,6 +175,18 @@ export default function MatchesPage() {
                     <option value="Semi-Final" />
                     <option value="Final" />
                   </datalist>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Scheduled Time (Optional)</label>
+                  <input 
+                    type="datetime-local"
+                    value={newMatch.scheduledTime}
+                    onChange={e => setNewMatch({...newMatch, scheduledTime: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--color-cricket-accent)]"
+                  />
                 </div>
               </div>
 
@@ -295,9 +309,14 @@ export default function MatchesPage() {
                       }`}>
                         {m.status}
                       </span>
-                      <p className="text-xs text-gray-500 mt-2">
+                      <p className="text-xs text-gray-500 mt-2 font-bold">
                         {tournaments.find(t => t.id === m.tournamentId)?.name || 'Unknown Tournament'} • {m.stage || 'Match 1'} • {m.overs} Overs
                       </p>
+                      {m.scheduledTime && (
+                        <p className="text-xs text-[var(--color-cricket-accent)] mt-1 font-bold tracking-wider">
+                          🗓 {new Date(m.scheduledTime).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                        </p>
+                      )}
                     </div>
                     <button 
                       onClick={() => handleDelete(m.id)}
