@@ -6,6 +6,7 @@ import { db, storage } from '@/lib/firebase';
 import { ref, push, set, onValue, remove } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '@/context/AuthContext';
+import toast from 'react-hot-toast';
 
 export default function TeamsPage() {
   const { role } = useAuth();
@@ -70,7 +71,9 @@ export default function TeamsPage() {
       // If a file was selected, upload it to Firebase Storage
       if (logoFile) {
         const fileRef = storageRef(storage, `teams/${Date.now()}_${logoFile.name}`);
-        const snapshot = await uploadBytes(fileRef, logoFile);
+        const uploadTask = uploadBytes(fileRef, logoFile);
+        const timeoutTask = new Promise((_, reject) => setTimeout(() => reject(new Error("Upload timed out. Please check if Firebase Storage is enabled in your Firebase console.")), 15000));
+        const snapshot = await Promise.race([uploadTask, timeoutTask]);
         finalLogoUrl = await getDownloadURL(snapshot.ref);
       }
 
@@ -88,7 +91,7 @@ export default function TeamsPage() {
       setLogoFile(null);
     } catch (error) {
       console.error("Error creating team:", error);
-      alert("Failed to create team or upload logo.");
+      toast.error(error.message === "Upload timed out. Please check if Firebase Storage is enabled in your Firebase console." ? error.message : "Failed to create team or upload logo.");
     } finally {
       setIsUploading(false);
     }

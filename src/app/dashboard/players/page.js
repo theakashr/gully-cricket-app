@@ -7,6 +7,7 @@ import { ref, push, set, onValue, remove } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import toast from 'react-hot-toast';
 
 export default function PlayersPage() {
   const { role: userRole } = useAuth();
@@ -50,7 +51,9 @@ export default function PlayersPage() {
       // If a file was selected, upload it to Firebase Storage
       if (photoFile) {
         const fileRef = storageRef(storage, `players/${Date.now()}_${photoFile.name}`);
-        const snapshot = await uploadBytes(fileRef, photoFile);
+        const uploadTask = uploadBytes(fileRef, photoFile);
+        const timeoutTask = new Promise((_, reject) => setTimeout(() => reject(new Error("Upload timed out. Please check if Firebase Storage is enabled in your Firebase console.")), 15000));
+        const snapshot = await Promise.race([uploadTask, timeoutTask]);
         finalPhotoUrl = await getDownloadURL(snapshot.ref);
       }
 
@@ -69,7 +72,7 @@ export default function PlayersPage() {
       setPhotoFile(null);
     } catch (error) {
       console.error("Error creating player:", error);
-      alert("Failed to upload image or create player.");
+      toast.error(error.message === "Upload timed out. Please check if Firebase Storage is enabled in your Firebase console." ? error.message : "Failed to upload image or create player.");
     } finally {
       setIsUploading(false);
     }
