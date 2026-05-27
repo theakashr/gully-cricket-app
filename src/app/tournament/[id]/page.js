@@ -215,14 +215,158 @@ export default function TournamentPage({ params: paramsPromise }) {
   const liveMatch = matches.find(m => m.status === 'live');
   const recentMatch = matches.find(m => m.status === 'completed');
 
-  // IND vs AUS Broadcaster Graph Data points
-  const ausRunsPerOver = [6, 8, 4, 12, 15, 8, 5, 9, 7, 14, 6, 8, 11, 5, 18, 9, 7, 12, 14, 18];
-  const ausWickets = [3, 8, 14, 17, 20]; // Overs where wickets fell
-  const ausCumRuns = [6, 14, 18, 30, 45, 53, 58, 67, 74, 88, 94, 102, 113, 118, 136, 145, 152, 164, 178, 196];
+  // Selected Match for Live Analytics
+  const [selectedMatchId, setSelectedMatchId] = useState(null);
 
-  const indRunsPerOver = [8, 10, 5, 14, 9, 12, 6, 8, 11, 15, 7, 9, 12, 8, 16, 11, 12, 15]; // Up to over 18
-  const indWickets = [2, 6, 11, 15, 17];
-  const indCumRuns = [8, 18, 23, 37, 46, 58, 64, 72, 83, 98, 105, 114, 126, 134, 150, 161, 173, 188]; // Up to over 18
+  useEffect(() => {
+    if (matches.length > 0) {
+      const live = matches.find(m => m.status === 'live');
+      if (live) {
+        setSelectedMatchId(live.id);
+      } else {
+        const completed = matches.find(m => m.status === 'completed' && m.score);
+        if (completed) {
+          setSelectedMatchId(completed.id);
+        } else {
+          setSelectedMatchId(matches[0].id);
+        }
+      }
+    } else {
+      setSelectedMatchId(null);
+    }
+  }, [matches]);
+
+  const selectedMatch = matches.find(m => m.id === selectedMatchId);
+
+  const parseMatchAnalytics = (m) => {
+    if (!m || !m.score || !m.score.innings1) return null;
+    
+    const maxOvers = m.overs || 20;
+    
+    // Sort balls chronologically (oldest first)
+    let rawBalls = [];
+    if (m.balls) {
+      rawBalls = Object.entries(m.balls)
+        .map(([id, val]) => ({ id, ...val }))
+        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    }
+    
+    const parseInnings = (innNum, teamId) => {
+      const innBalls = rawBalls.filter(b => b.innings === innNum);
+      const runsPerOver = Array.from({ length: maxOvers }, () => 0);
+      const wicketsPerOver = [];
+      
+      let runningRuns = 0;
+      let wktCount = 0;
+      const cumRuns = [];
+      const overLabels = [];
+      
+      innBalls.forEach(ball => {
+        const overIndex = Math.floor(ball.over);
+        if (overIndex >= 0 && overIndex < maxOvers) {
+          let r = ball.runs || 0;
+          if (ball.type === 'wd' || ball.type === 'nb') {
+            r += 1;
+          }
+          runsPerOver[overIndex] += r;
+        }
+        
+        let ballR = ball.runs || 0;
+        if (ball.type === 'wd' || ball.type === 'nb') ballR += 1;
+        runningRuns += ballR;
+
+        if (ball.type === 'wicket') {
+          wktCount += 1;
+          wicketsPerOver.push({ over: ball.over, runsAtWicket: runningRuns });
+        }
+      });
+      
+      let currentSum = 0;
+      for (let o = 0; o < maxOvers; o++) {
+        currentSum += runsPerOver[o];
+        cumRuns.push(currentSum);
+        overLabels.push(o + 1);
+      }
+      
+      return {
+        teamId,
+        teamName: getTeamDetails(teamId).shortName,
+        runsPerOver,
+        cumRuns,
+        wicketsPerOver,
+        totalRuns: m.score[`innings${innNum}`]?.runs ?? currentSum,
+        totalWickets: m.score[`innings${innNum}`]?.wickets ?? wktCount,
+        oversPlayed: m.score[`innings${innNum}`]?.overs ?? 0,
+      };
+    };
+    
+    const inn1TeamId = m.score.innings1.team || m.teamA;
+    const inn2TeamId = m.score.innings2?.team || m.teamB;
+    
+    const inn1 = parseInnings(1, inn1TeamId);
+    const inn2 = parseInnings(2, inn2TeamId);
+    
+    return { inn1, inn2 };
+  };
+
+  const analyticsData = parseMatchAnalytics(selectedMatch);
+
+  const calculateWinProbability = (m, data) => {
+    if (!m || !data) return { teamA: 50, teamB: 50 };
+    
+    const { inn1, inn2 } = data;
+    
+    if (m.status === 'completed') {
+      if (m.result?.winner === m.teamA) return { teamA: 100, teamB: 0 };
+      if (m.result?.winner === m.teamB) return { teamA: 0, teamB: 100 };
+      return { teamA: 50, teamB: 50 };
+    }
+    
+    if (m.currentInnings === 1) {
+      const runs = inn1.totalRuns;
+      const wickets = inn1.totalWickets;
+      const overs = inn1.oversPlayed;
+      
+      if (overs === 0) return { teamA: 50, teamB: 50 };
+      
+      const crr = runs / overs;
+      const projected = crr * m.overs;
+      
+      let p = 50 + (projected - 140) * 0.25;
+      p = Math.max(15, Math.min(85, p));
+      p -= wickets * 3.5;
+      p = Math.max(10, Math.min(90, p));
+      
+      const teamAPercent = Math.round(p);
+      return { teamA: teamAPercent, teamB: 100 - teamAPercent };
+    } else {
+      const target = inn1.totalRuns + 1;
+      const runs = inn2.totalRuns;
+      const wickets = inn2.totalWickets;
+      const overs = inn2.oversPlayed;
+      
+      const maxBalls = m.overs * 6;
+      const ballsBowled = Math.floor(overs) * 6 + Math.round((overs % 1) * 10);
+      const ballsRemaining = Math.max(0, maxBalls - ballsBowled);
+      const runsNeeded = Math.max(0, target - runs);
+      
+      if (runsNeeded === 0) return { teamA: 0, teamB: 100 };
+      if (ballsRemaining === 0) return { teamA: 100, teamB: 0 };
+      
+      const rrr = runsNeeded / (ballsRemaining / 6);
+      const crr = runs / (overs > 0 ? overs : 1);
+      
+      let p = 50;
+      p += (crr - rrr) * 8;
+      p -= wickets * 8;
+      p = Math.max(5, Math.min(95, p));
+      
+      const teamBPercent = Math.round(p);
+      return { teamA: 100 - teamBPercent, teamB: teamBPercent };
+    }
+  };
+
+  const prob = calculateWinProbability(selectedMatch, analyticsData);
 
   return (
     <div className="container mx-auto px-2 md:px-4 py-6 md:py-8 max-w-4xl pb-24 md:pb-8">
@@ -253,283 +397,396 @@ export default function TournamentPage({ params: paramsPromise }) {
       </div>
 
       {/* ========================================================
-          🏆 IPL STATE-OF-THE-ART BROADCAST ANALYTICS: IND vs AUS
+          🏆 REAL-TIME DYNAMIC BROADCAST ANALYTICS
           ======================================================== */}
-      <div className="glass-card rounded-3xl p-6 relative overflow-hidden border border-white shadow-md mb-8 mx-2 md:mx-0 bg-white">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-amber-400 to-blue-600"></div>
-        
-        {/* Widget Top Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-5 mb-5">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-orange-50 border border-orange-200/50 flex items-center justify-center">
-              <TrendingUp className="text-orange-500" size={20} />
-            </div>
-            <div>
-              <span className="bg-red-50 border border-red-200 text-red-650 px-2.5 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase inline-flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Broadcaster Feed
-              </span>
-              <h2 className="text-lg font-black text-slate-900 mt-1 leading-tight tracking-tight">IPL Featured Analytics: IND vs AUS</h2>
-            </div>
-          </div>
-          <div className="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200/40">
-             Ruleset: standard ipl rules
-          </div>
-        </div>
-
-        {/* Live Broadcaster Scoreboard Grid */}
-        <div className="grid md:grid-cols-5 gap-6 items-center mb-6">
-          <div className="md:col-span-3 space-y-4">
-             {/* Australia Score */}
-             <div className="flex justify-between items-center bg-slate-50 border border-slate-150 p-3.5 rounded-2xl shadow-sm">
+      {!selectedMatch ? (
+         <div className="glass bg-white p-8 md:p-12 rounded-3xl text-center border border-slate-200/80 shadow-md mb-8 mx-2 md:mx-0">
+            <TrendingUp size={48} className="mx-auto text-slate-350 mb-4 animate-pulse" />
+            <h3 className="text-xl font-bold text-slate-800">Real-time Analytics Feed</h3>
+            <p className="text-slate-500 font-semibold mt-2 max-w-sm mx-auto">
+               No matches scheduled or played yet in this tournament. Real-time Worm, Manhattan, and Win Predictor charts will automatically render once play starts!
+            </p>
+         </div>
+      ) : !selectedMatch.balls || Object.keys(selectedMatch.balls).length === 0 ? (
+         <div className="glass-card rounded-3xl p-6 relative overflow-hidden border border-slate-200/80 shadow-md bg-white mb-8 mx-2 md:mx-0">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-emerald-500"></div>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-5 mb-5">
                <div className="flex items-center gap-3">
-                 <div className="w-9 h-9 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center font-black text-amber-700 text-xs shadow-inner">AUS</div>
-                 <span className="font-extrabold text-slate-800 text-base">Australia</span>
+                  <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center">
+                     <Play className="text-blue-500 fill-blue-500" size={18} />
+                  </div>
+                  <div>
+                     <span className="bg-slate-100 border border-slate-200 text-slate-500 px-2.5 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase">
+                        {selectedMatch.status}
+                     </span>
+                     <h2 className="text-lg font-black text-slate-900 mt-1 leading-tight tracking-tight">
+                        {getTeamDetails(selectedMatch.teamA).name} vs {getTeamDetails(selectedMatch.teamB).name}
+                     </h2>
+                  </div>
                </div>
-               <div className="text-right">
-                 <span className="font-black text-lg text-slate-900">196/7</span>
-                 <span className="text-[10px] text-slate-400 block font-bold">20.0 Overs</span>
-               </div>
-             </div>
-
-             {/* India Live Chase Score */}
-             <div className="flex justify-between items-center bg-blue-50/50 border border-blue-200/60 p-3.5 rounded-2xl shadow-sm relative overflow-hidden">
-               <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500"></div>
-               <div className="flex items-center gap-3">
-                 <div className="w-9 h-9 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center font-black text-blue-700 text-xs shadow-inner">IND</div>
-                 <span className="font-extrabold text-slate-800 text-base flex items-center gap-1.5">
-                   India 
-                   <span className="bg-red-500 w-1.5 h-1.5 rounded-full animate-ping"></span>
-                 </span>
-               </div>
-               <div className="text-right">
-                 <span className="font-black text-xl text-slate-900">184/5</span>
-                 <span className="text-[10px] text-emerald-700 block font-black">18.2 Overs</span>
-               </div>
-             </div>
-
-             {/* Live Match Situation Text */}
-             <div className="bg-emerald-50/30 border border-emerald-100 rounded-xl p-3 text-center">
-               <p className="text-xs font-black text-emerald-750 uppercase tracking-wide">
-                 🏏 Target: 197 • India needs 13 runs from 10 balls to win
+               {matches.length > 1 && (
+                  <select
+                    value={selectedMatchId || ''}
+                    onChange={(e) => setSelectedMatchId(e.target.value)}
+                    className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 max-w-xs truncate"
+                  >
+                    {matches.map(m => (
+                      <option key={m.id} value={m.id}>
+                        {m.status === 'live' ? '🔴 LIVE: ' : m.status === 'completed' ? '🏁 ' : '🗓 '}{getTeamDetails(m.teamA).shortName} vs {getTeamDetails(m.teamB).shortName}
+                      </option>
+                    ))}
+                  </select>
+               )}
+            </div>
+            
+            <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-150 shadow-inner">
+               <TrendingUp size={40} className="mx-auto text-slate-350 mb-3 animate-pulse" />
+               <h3 className="text-base font-bold text-slate-800 uppercase tracking-wider">Waiting for Live Action</h3>
+               <p className="text-xs text-slate-500 font-semibold mt-2 max-w-xs mx-auto">
+                  Real-time Manhattan graphs, cumulative Worm charts, and chase probability gauges will load automatically once the first ball is bowled!
                </p>
+            </div>
+         </div>
+      ) : (
+         <div className="glass-card rounded-3xl p-6 relative overflow-hidden border border-slate-200/80 shadow-md bg-white mb-8 mx-2 md:mx-0">
+           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-amber-400 to-blue-600"></div>
+           
+           {/* Widget Top Header */}
+           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-5 mb-5">
+             <div className="flex items-center gap-3">
+               <div className="w-10 h-10 rounded-full bg-orange-50 border border-orange-200/50 flex items-center justify-center">
+                 <TrendingUp className="text-orange-500" size={20} />
+               </div>
+               <div>
+                 <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase inline-flex items-center gap-1 border ${
+                   selectedMatch.status === 'live' ? 'bg-red-50 border-red-200 text-red-650' : 'bg-green-50 border-green-200 text-green-700'
+                 }`}>
+                   {selectedMatch.status === 'live' && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>}
+                   {selectedMatch.status === 'live' ? 'Live Analytics Feed' : 'Match Highlights Feed'}
+                 </span>
+                 <h2 className="text-lg font-black text-slate-900 mt-1 leading-tight tracking-tight">
+                    Real-time Match Analytics: {getTeamDetails(selectedMatch.teamA).shortName} vs {getTeamDetails(selectedMatch.teamB).shortName}
+                 </h2>
+               </div>
              </div>
-          </div>
-
-          {/* Win Predictor Gauge Widget */}
-          <div className="md:col-span-2 bg-slate-50 border border-slate-200/80 rounded-2xl p-5 text-center flex flex-col justify-center items-center h-full relative overflow-hidden shadow-inner">
-             <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider mb-3">Live IPL Win Predictor</span>
              
-             {/* Circle Indicator */}
-             <div className="relative w-28 h-28 flex items-center justify-center mb-3">
-                <svg className="w-full h-full transform -rotate-90">
-                   <circle cx="56" cy="56" r="46" className="stroke-slate-200 fill-none" strokeWidth="8"/>
-                   <circle cx="56" cy="56" r="46" className="stroke-blue-500 fill-none transition-all duration-1000" strokeWidth="8"
-                           strokeDasharray={2 * Math.PI * 46}
-                           strokeDashoffset={2 * Math.PI * 46 * (1 - predictorWinPercent/100)}/>
-                </svg>
-                <div className="absolute inset-0 flex flex-col justify-center items-center">
-                   <span className="text-2xl font-black text-slate-850">{predictorWinPercent}%</span>
-                   <span className="text-[8px] font-black text-blue-600 uppercase tracking-widest">IND WIN</span>
+             {matches.length > 1 && (
+               <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider hidden sm:inline">Select Match:</span>
+                  <select
+                    value={selectedMatchId || ''}
+                    onChange={(e) => setSelectedMatchId(e.target.value)}
+                    className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 max-w-xs truncate"
+                  >
+                    {matches.map(m => (
+                      <option key={m.id} value={m.id}>
+                        {m.status === 'live' ? '🔴 LIVE: ' : m.status === 'completed' ? '🏁 ' : '🗓 '}{getTeamDetails(m.teamA).shortName} vs {getTeamDetails(m.teamB).shortName}
+                      </option>
+                    ))}
+                  </select>
+               </div>
+             )}
+           </div>
+
+           {/* Live Scoreboard Grid */}
+           <div className="grid md:grid-cols-5 gap-6 items-center mb-6">
+             <div className="md:col-span-3 space-y-4">
+                {/* Innings 1 Score */}
+                <div className="flex justify-between items-center bg-slate-50 border border-slate-150 p-3.5 rounded-2xl shadow-sm">
+                   <div className="flex items-center gap-3">
+                     <div className="w-9 h-9 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center font-black text-blue-700 text-xs shadow-inner">1st</div>
+                     <span className="font-extrabold text-slate-800 text-base">{analyticsData.inn1.teamName}</span>
+                   </div>
+                   <div className="text-right">
+                     <span className="font-black text-lg text-slate-900">{analyticsData.inn1.totalRuns}/{analyticsData.inn1.totalWickets}</span>
+                     <span className="text-[10px] text-slate-400 block font-bold">{(analyticsData.inn1.oversPlayed || 0).toFixed(1)} Overs</span>
+                   </div>
+                </div>
+
+                {/* Innings 2 Score */}
+                <div className="flex justify-between items-center bg-emerald-50/20 border border-emerald-200/50 p-3.5 rounded-2xl shadow-sm relative overflow-hidden">
+                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500"></div>
+                   <div className="flex items-center gap-3">
+                     <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center font-black text-emerald-700 text-xs shadow-inner">2nd</div>
+                     <span className="font-extrabold text-slate-800 text-base flex items-center gap-1.5">
+                       {analyticsData.inn2.teamName}
+                       {selectedMatch.status === 'live' && selectedMatch.currentInnings === 2 && (
+                         <span className="bg-red-500 w-1.5 h-1.5 rounded-full animate-ping"></span>
+                       )}
+                     </span>
+                   </div>
+                   <div className="text-right">
+                     <span className="font-black text-xl text-slate-900">
+                       {selectedMatch.currentInnings === 1 && selectedMatch.status !== 'completed' ? 'Yet to bat' : `${analyticsData.inn2.totalRuns}/${analyticsData.inn2.totalWickets}`}
+                     </span>
+                     {selectedMatch.currentInnings === 2 && (
+                       <span className="text-[10px] text-emerald-700 block font-black">{(analyticsData.inn2.oversPlayed || 0).toFixed(1)} Overs</span>
+                     )}
+                   </div>
+                </div>
+
+                {/* Situation Text */}
+                <div className="bg-emerald-50/30 border border-emerald-100 rounded-xl p-3 text-center">
+                   <p className="text-xs font-black text-emerald-750 uppercase tracking-wide">
+                     {selectedMatch.status === 'completed' ? (
+                        `🏁 Result: ${selectedMatch.result?.margin || 'Match Completed'}`
+                     ) : selectedMatch.currentInnings === 2 ? (
+                        `🏏 Target: ${analyticsData.inn1.totalRuns + 1} • Need ${Math.max(0, analyticsData.inn1.totalRuns + 1 - analyticsData.inn2.totalRuns)} runs from ${Math.max(0, selectedMatch.overs * 6 - (Math.floor(analyticsData.inn2.oversPlayed)*6 + Math.round((analyticsData.inn2.oversPlayed%1)*10)))} balls`
+                     ) : (
+                        `🏏 First Innings active • Projected total: ${Math.round((analyticsData.inn1.totalRuns / (analyticsData.inn1.oversPlayed > 0 ? analyticsData.inn1.oversPlayed : 1)) * selectedMatch.overs)} runs`
+                     )}
+                   </p>
                 </div>
              </div>
 
-             <div className="flex justify-between w-full text-[10px] font-extrabold text-slate-500 px-2 mt-1">
-                <span className="text-blue-600">IND: 64%</span>
-                <span className="text-amber-600">AUS: 36%</span>
+             {/* Win Predictor Gauge Widget */}
+             <div className="md:col-span-2 bg-slate-50 border border-slate-200/80 rounded-2xl p-5 text-center flex flex-col justify-center items-center h-full relative overflow-hidden shadow-inner">
+                <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider mb-3">Live Win Predictor</span>
+                
+                {/* Circle Indicator */}
+                <div className="relative w-28 h-28 flex items-center justify-center mb-3">
+                   <svg className="w-full h-full transform -rotate-90">
+                      <circle cx="56" cy="56" r="46" className="stroke-slate-200 fill-none" strokeWidth="8"/>
+                      <circle cx="56" cy="56" r="46" className="stroke-blue-500 fill-none transition-all duration-1000" strokeWidth="8"
+                              strokeDasharray={2 * Math.PI * 46}
+                              strokeDashoffset={2 * Math.PI * 46 * (1 - (selectedMatch.currentInnings === 1 || selectedMatch.status === 'completed' ? prob.teamA : prob.teamB)/100)}/>
+                   </svg>
+                   <div className="absolute inset-0 flex flex-col justify-center items-center">
+                      <span className="text-2xl font-black text-slate-900">
+                        {selectedMatch.currentInnings === 1 || selectedMatch.status === 'completed' ? prob.teamA : prob.teamB}%
+                      </span>
+                      <span className="text-[8px] font-black text-blue-600 uppercase tracking-widest">
+                        {selectedMatch.currentInnings === 1 || selectedMatch.status === 'completed' ? analyticsData.inn1.teamName : analyticsData.inn2.teamName} WIN
+                      </span>
+                   </div>
+                </div>
+
+                <div className="flex justify-between w-full text-[10px] font-extrabold text-slate-500 px-2 mt-1">
+                   <span className="text-blue-600">{analyticsData.inn1.teamName}: {prob.teamA}%</span>
+                   <span className="text-emerald-600">{analyticsData.inn2.teamName}: {prob.teamB}%</span>
+                </div>
              </div>
+           </div>
+
+           {/* Analytics Tabs Selector */}
+           <div className="flex bg-slate-100 p-1 rounded-xl mb-4 border border-slate-200/50 max-w-md mx-auto shadow-inner text-xs">
+             <button 
+               onClick={() => setAnalyticsTab('worm')}
+               className={`flex-1 py-2 font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${analyticsTab === 'worm' ? 'bg-white text-slate-800 shadow' : 'text-slate-500 hover:text-slate-700'}`}
+             >
+               📈 Worm Chart
+             </button>
+             <button 
+               onClick={() => setAnalyticsTab('manhattan')}
+               className={`flex-1 py-2 font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${analyticsTab === 'manhattan' ? 'bg-white text-slate-800 shadow' : 'text-slate-500 hover:text-slate-700'}`}
+             >
+               📊 Manhattan
+             </button>
+             <button 
+               onClick={() => setAnalyticsTab('projection')}
+               className={`flex-1 py-2 font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${analyticsTab === 'projection' ? 'bg-white text-slate-800 shadow' : 'text-slate-500 hover:text-slate-700'}`}
+             >
+               🎯 Projections
+             </button>
+           </div>
+
+           {/* Dynamic Interactive SVG Charts Box */}
+           <div className="bg-slate-50 border border-slate-150 rounded-2xl p-4 min-h-[220px] flex items-center justify-center relative shadow-inner overflow-hidden">
+              
+              {/* 1. WORM CHART */}
+              {analyticsTab === 'worm' && (() => {
+                 const wormMaxRuns = Math.max(150, ...analyticsData.inn1.cumRuns, ...analyticsData.inn2.cumRuns) + 20;
+                 const wormTotalOvers = selectedMatch.overs || 20;
+                 const wormStepX = 440 / wormTotalOvers;
+                 
+                 const inn1BowledOvers = Math.ceil(analyticsData.inn1.oversPlayed);
+                 const plottedInn1Runs = analyticsData.inn1.cumRuns.slice(0, inn1BowledOvers);
+                 
+                 const inn2BowledOvers = Math.ceil(analyticsData.inn2.oversPlayed);
+                 const plottedInn2Runs = analyticsData.inn2.cumRuns.slice(0, inn2BowledOvers);
+
+                 return (
+                   <div className="w-full flex flex-col items-center">
+                      <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-2 self-start pl-2">Cumulative Runs Comparison</span>
+                      <svg className="w-full max-w-[480px] h-[160px]" viewBox="0 0 500 180">
+                         {/* Grid Lines */}
+                         <line x1="30" y1="20" x2="470" y2="20" className="stroke-slate-200" strokeWidth="1" strokeDasharray="3 3"/>
+                         <line x1="30" y1="60" x2="470" y2="60" className="stroke-slate-200" strokeWidth="1" strokeDasharray="3 3"/>
+                         <line x1="30" y1="100" x2="470" y2="100" className="stroke-slate-200" strokeWidth="1" strokeDasharray="3 3"/>
+                         <line x1="30" y1="140" x2="470" y2="140" className="stroke-slate-200" strokeWidth="1" strokeDasharray="3 3"/>
+                         <line x1="30" y1="160" x2="470" y2="160" className="stroke-slate-300" strokeWidth="1.5"/>
+                         <line x1="30" y1="20" x2="30" y2="160" className="stroke-slate-300" strokeWidth="1.5"/>
+
+                         {/* Y-Axis Labels */}
+                         <text x="5" y="25" className="fill-slate-400 font-mono text-[9px] font-black">{Math.round(wormMaxRuns)}</text>
+                         <text x="5" y="65" className="fill-slate-400 font-mono text-[9px] font-black">{Math.round(wormMaxRuns * 0.75)}</text>
+                         <text x="5" y="105" className="fill-slate-400 font-mono text-[9px] font-black">{Math.round(wormMaxRuns * 0.5)}</text>
+                         <text x="10" y="145" className="fill-slate-400 font-mono text-[9px] font-black">{Math.round(wormMaxRuns * 0.25)}</text>
+                         <text x="15" y="165" className="fill-slate-400 font-mono text-[9px] font-black">0</text>
+
+                         {/* X-Axis Labels */}
+                         <text x="30" y="175" className="fill-slate-400 font-mono text-[9px] font-black">0</text>
+                         <text x={30 + (wormTotalOvers * 0.25) * wormStepX - 5} y="175" className="fill-slate-400 font-mono text-[9px] font-black">{Math.round(wormTotalOvers * 0.25)}</text>
+                         <text x={30 + (wormTotalOvers * 0.5) * wormStepX - 5} y="175" className="fill-slate-400 font-mono text-[9px] font-black">{Math.round(wormTotalOvers * 0.5)}</text>
+                         <text x={30 + (wormTotalOvers * 0.75) * wormStepX - 5} y="175" className="fill-slate-400 font-mono text-[9px] font-black">{Math.round(wormTotalOvers * 0.75)}</text>
+                         <text x="460" y="175" className="fill-slate-400 font-mono text-[9px] font-black">{wormTotalOvers}</text>
+
+                         {/* Innings 1 Worm Path (Blue) */}
+                         <path d={`M 30,160 ${plottedInn1Runs.map((r, i) => `L ${30 + (i+1)*wormStepX},${160 - (r/wormMaxRuns)*140}`).join(' ')}`}
+                               className="stroke-blue-500 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                         
+                         {/* Innings 2 Worm Path (Emerald) */}
+                         {selectedMatch.currentInnings === 2 && (
+                           <path d={`M 30,160 ${plottedInn2Runs.map((r, i) => `L ${30 + (i+1)*wormStepX},${160 - (r/wormMaxRuns)*140}`).join(' ')}`}
+                                 className="stroke-emerald-500 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                         )}
+
+                         {/* Wickets Dots (Innings 1) */}
+                         {analyticsData.inn1.wicketsPerOver.map((w, idx) => (
+                            <circle key={`w-inn1-${idx}`} cx={30 + w.over*wormStepX} cy={160 - (w.runsAtWicket/wormMaxRuns)*140} r="3.5" className="fill-red-650 stroke-white" strokeWidth="1"/>
+                         ))}
+
+                         {/* Wickets Dots (Innings 2) */}
+                         {selectedMatch.currentInnings === 2 && analyticsData.inn2.wicketsPerOver.map((w, idx) => (
+                            <circle key={`w-inn2-${idx}`} cx={30 + w.over*wormStepX} cy={160 - (w.runsAtWicket/wormMaxRuns)*140} r="3.5" className="fill-red-650 stroke-white" strokeWidth="1"/>
+                         ))}
+
+                         {/* Live Dot for active batting team */}
+                         {selectedMatch.status === 'live' && (
+                            selectedMatch.currentInnings === 1 ? (
+                               <>
+                                 <circle cx={30 + analyticsData.inn1.oversPlayed*wormStepX} cy={160 - (analyticsData.inn1.totalRuns/wormMaxRuns)*140} r="4.5" className="fill-blue-500 stroke-white animate-ping" strokeWidth="1.5"/>
+                                 <circle cx={30 + analyticsData.inn1.oversPlayed*wormStepX} cy={160 - (analyticsData.inn1.totalRuns/wormMaxRuns)*140} r="3" className="fill-blue-500 stroke-white" strokeWidth="1.5"/>
+                               </>
+                            ) : (
+                               <>
+                                 <circle cx={30 + analyticsData.inn2.oversPlayed*wormStepX} cy={160 - (analyticsData.inn2.totalRuns/wormMaxRuns)*140} r="4.5" className="fill-emerald-500 stroke-white animate-ping" strokeWidth="1.5"/>
+                                 <circle cx={30 + analyticsData.inn2.oversPlayed*wormStepX} cy={160 - (analyticsData.inn2.totalRuns/wormMaxRuns)*140} r="3" className="fill-emerald-500 stroke-white" strokeWidth="1.5"/>
+                               </>
+                            )
+                         )}
+                      </svg>
+
+                      {/* Legend */}
+                      <div className="flex gap-4 mt-3 justify-center text-[10px] font-black uppercase tracking-wider text-slate-600">
+                         <span className="flex items-center gap-1.5"><span className="w-3 h-1 bg-blue-500 rounded"></span> {analyticsData.inn1.teamName}: {analyticsData.inn1.totalRuns}/{analyticsData.inn1.totalWickets} ({(analyticsData.inn1.oversPlayed || 0).toFixed(1)})</span>
+                         <span className="flex items-center gap-1.5"><span className="w-3 h-1 bg-emerald-500 rounded"></span> {analyticsData.inn2.teamName}: {selectedMatch.currentInnings === 1 && selectedMatch.status !== 'completed' ? '-' : `${analyticsData.inn2.totalRuns}/${analyticsData.inn2.totalWickets} (${(analyticsData.inn2.oversPlayed || 0).toFixed(1)})`}</span>
+                         <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 bg-red-650 rounded-full border border-white"></span> Wicket</span>
+                      </div>
+                   </div>
+                 );
+              })()}
+
+              {/* 2. MANHATTAN CHART */}
+              {analyticsTab === 'manhattan' && (() => {
+                 const manhattanMaxRuns = Math.max(12, ...analyticsData.inn1.runsPerOver, ...analyticsData.inn2.runsPerOver) + 2;
+                 const manhattanTotalOvers = selectedMatch.overs || 20;
+                 const manhattanStepX = 440 / manhattanTotalOvers;
+                 const barW = Math.max(3, manhattanStepX * 0.35);
+
+                 const inn1BowledOvers = Math.ceil(analyticsData.inn1.oversPlayed);
+                 const inn2BowledOvers = Math.ceil(analyticsData.inn2.oversPlayed);
+
+                 return (
+                   <div className="w-full flex flex-col items-center">
+                      <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-2 self-start pl-2">Runs Scored Per Over</span>
+                      <svg className="w-full max-w-[480px] h-[160px]" viewBox="0 0 500 180">
+                         {/* Grid lines */}
+                         <line x1="35" y1="20" x2="475" y2="20" className="stroke-slate-200" strokeWidth="1" strokeDasharray="3 3"/>
+                         <line x1="35" y1="65" x2="475" y2="65" className="stroke-slate-200" strokeWidth="1" strokeDasharray="3 3"/>
+                         <line x1="35" y1="110" x2="475" y2="110" className="stroke-slate-200" strokeWidth="1" strokeDasharray="3 3"/>
+                         <line x1="35" y1="150" x2="475" y2="150" className="stroke-slate-300" strokeWidth="1.5"/>
+                         <line x1="35" y1="20" x2="35" y2="150" className="stroke-slate-300" strokeWidth="1.5"/>
+
+                         {/* Y-Axis Labels */}
+                         <text x="5" y="25" className="fill-slate-400 font-mono text-[9px] font-black">{Math.round(manhattanMaxRuns)} runs</text>
+                         <text x="5" y="70" className="fill-slate-400 font-mono text-[9px] font-black">{Math.round(manhattanMaxRuns * 0.6)} runs</text>
+                         <text x="10" y="115" className="fill-slate-400 font-mono text-[9px] font-black">{Math.round(manhattanMaxRuns * 0.3)} runs</text>
+                         <text x="15" y="155" className="fill-slate-400 font-mono text-[9px] font-black">0</text>
+
+                         {/* Bars for both teams */}
+                         {Array.from({ length: manhattanTotalOvers }).map((_, index) => {
+                            const over = index + 1;
+                            const inn1Val = analyticsData.inn1.runsPerOver[index] || 0;
+                            const inn2Val = analyticsData.inn2.runsPerOver[index] || 0;
+                            
+                            const posX = 35 + index * manhattanStepX;
+                            
+                            const inn1Height = (inn1Val / manhattanMaxRuns) * 130;
+                            const inn2Height = (inn2Val / manhattanMaxRuns) * 130;
+                            
+                            const inn1Wkts = analyticsData.inn1.wicketsPerOver.filter(w => Math.floor(w.over) === index);
+                            const inn2Wkts = analyticsData.inn2.wicketsPerOver.filter(w => Math.floor(w.over) === index);
+
+                            return (
+                               <g key={`bars-${over}`}>
+                                  {/* Innings 1 Bar (Blue) */}
+                                  {index < inn1BowledOvers && (
+                                     <>
+                                       <rect x={posX + 2} y={150 - inn1Height} width={barW} height={inn1Height} className="fill-blue-500/80 hover:fill-blue-600 rounded-t" rx="1.5"/>
+                                       {inn1Wkts.length > 0 && (
+                                          <circle cx={posX + 2 + barW/2} cy={145 - inn1Height} r="2.5" className="fill-red-650 stroke-white" strokeWidth="0.5"/>
+                                       )}
+                                     </>
+                                  )}
+                                  {/* Innings 2 Bar (Emerald) */}
+                                  {selectedMatch.currentInnings === 2 && index < inn2BowledOvers && (
+                                     <>
+                                       <rect x={posX + 2 + barW + 1} y={150 - inn2Height} width={barW} height={inn2Height} className="fill-emerald-500/80 hover:fill-emerald-600 rounded-t" rx="1.5"/>
+                                       {inn2Wkts.length > 0 && (
+                                          <circle cx={posX + 2 + barW + 1 + barW/2} cy={145 - inn2Height} r="2.5" className="fill-red-650 stroke-white" strokeWidth="0.5"/>
+                                       )}
+                                     </>
+                                  )}
+                               </g>
+                            );
+                         })}
+                      </svg>
+                   </div>
+                 );
+              })()}
+
+              {/* 3. PROJECTIONS TABLE */}
+              {analyticsTab === 'projection' && (
+                 <div className="w-full text-center">
+                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-3 block">Match Projection Calculator</span>
+                    <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
+                       <div className="bg-white border border-slate-200 p-3 rounded-2xl shadow-sm">
+                          <p className="text-[9px] font-black uppercase text-slate-400">Current Run Rate (CRR)</p>
+                          <p className="text-xl font-black text-slate-800 mt-1">
+                            {selectedMatch.currentInnings === 1 
+                               ? (analyticsData.inn1.totalRuns / (analyticsData.inn1.oversPlayed > 0 ? analyticsData.inn1.oversPlayed : 1)).toFixed(2)
+                               : (analyticsData.inn2.totalRuns / (analyticsData.inn2.oversPlayed > 0 ? analyticsData.inn2.oversPlayed : 1)).toFixed(2)
+                            }
+                          </p>
+                          <p className="text-[10px] font-bold text-slate-500 mt-0.5">
+                            {selectedMatch.currentInnings === 1 
+                               ? `Projected: ${Math.round((analyticsData.inn1.totalRuns / (analyticsData.inn1.oversPlayed > 0 ? analyticsData.inn1.oversPlayed : 1)) * selectedMatch.overs)} runs`
+                               : `Target: ${analyticsData.inn1.totalRuns + 1} runs`
+                            }
+                          </p>
+                       </div>
+                       <div className="bg-white border border-slate-200 p-3 rounded-2xl shadow-sm">
+                          <p className="text-[9px] font-black uppercase text-slate-400">Required Run Rate (RRR)</p>
+                          <p className="text-xl font-black text-red-650 mt-1">
+                            {selectedMatch.currentInnings === 2 
+                               ? (Math.max(0, (analyticsData.inn1.totalRuns + 1 - analyticsData.inn2.totalRuns)) / Math.max(0.1, (selectedMatch.overs * 6 - (Math.floor(analyticsData.inn2.oversPlayed)*6 + Math.round((analyticsData.inn2.oversPlayed%1)*10)))/6)).toFixed(2)
+                               : '-'
+                            }
+                          </p>
+                          <p className="text-[10px] font-bold text-slate-500 mt-0.5">
+                            {selectedMatch.currentInnings === 2 
+                               ? `Need ${Math.max(0, (analyticsData.inn1.totalRuns + 1 - analyticsData.inn2.totalRuns))} from ${Math.max(0, selectedMatch.overs * 6 - (Math.floor(analyticsData.inn2.oversPlayed)*6 + Math.round((analyticsData.inn2.oversPlayed%1)*10)))} balls`
+                               : 'First innings active'
+                            }
+                          </p>
+                       </div>
+                    </div>
+                 </div>
+              )}
           </div>
         </div>
-
-        {/* Analytics Tabs Selector */}
-        <div className="flex bg-slate-100 p-1 rounded-xl mb-4 border border-slate-200/50 max-w-md mx-auto shadow-inner text-xs">
-          <button 
-            onClick={() => setAnalyticsTab('worm')}
-            className={`flex-1 py-2 font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${analyticsTab === 'worm' ? 'bg-white text-slate-850 shadow' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            📈 Worm Chart
-          </button>
-          <button 
-            onClick={() => setAnalyticsTab('manhattan')}
-            className={`flex-1 py-2 font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${analyticsTab === 'manhattan' ? 'bg-white text-slate-850 shadow' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            📊 Manhattan
-          </button>
-          <button 
-            onClick={() => setAnalyticsTab('projection')}
-            className={`flex-1 py-2 font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${analyticsTab === 'projection' ? 'bg-white text-slate-850 shadow' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            🎯 Projections
-          </button>
-        </div>
-
-        {/* Dynamic Interactive SVG Charts Box */}
-        <div className="bg-slate-50 border border-slate-150 rounded-2xl p-4 min-h-[220px] flex items-center justify-center relative shadow-inner overflow-hidden">
-           
-           {/* 1. WORM CHART */}
-           {analyticsTab === 'worm' && (
-              <div className="w-full flex flex-col items-center">
-                 <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-2 self-start pl-2">Cumulative Runs Comparison</span>
-                 <svg className="w-full max-w-[480px] h-[160px]" viewBox="0 0 500 180">
-                    {/* Grid Lines */}
-                    <line x1="30" y1="20" x2="470" y2="20" className="stroke-slate-200" strokeWidth="1" strokeDasharray="3 3"/>
-                    <line x1="30" y1="60" x2="470" y2="60" className="stroke-slate-200" strokeWidth="1" strokeDasharray="3 3"/>
-                    <line x1="30" y1="100" x2="470" y2="100" className="stroke-slate-200" strokeWidth="1" strokeDasharray="3 3"/>
-                    <line x1="30" y1="140" x2="470" y2="140" className="stroke-slate-200" strokeWidth="1" strokeDasharray="3 3"/>
-                    <line x1="30" y1="160" x2="470" y2="160" className="stroke-slate-300" strokeWidth="1.5"/>
-                    <line x1="30" y1="20" x2="30" y2="160" className="stroke-slate-300" strokeWidth="1.5"/>
-
-                    {/* Y-Axis Labels */}
-                    <text x="5" y="25" className="fill-slate-405 font-mono text-[9px] font-bold">200</text>
-                    <text x="5" y="65" className="fill-slate-405 font-mono text-[9px] font-bold">150</text>
-                    <text x="5" y="105" className="fill-slate-405 font-mono text-[9px] font-bold">100</text>
-                    <text x="10" y="145" className="fill-slate-405 font-mono text-[9px] font-bold">50</text>
-                    <text x="15" y="165" className="fill-slate-405 font-mono text-[9px] font-bold">0</text>
-
-                    {/* X-Axis Labels */}
-                    <text x="30" y="175" className="fill-slate-405 font-mono text-[9px] font-bold text-center">0</text>
-                    <text x="135" y="175" className="fill-slate-405 font-mono text-[9px] font-bold">5</text>
-                    <text x="245" y="175" className="fill-slate-405 font-mono text-[9px] font-bold">10</text>
-                    <text x="355" y="175" className="fill-slate-405 font-mono text-[9px] font-bold">15</text>
-                    <text x="460" y="175" className="fill-slate-405 font-mono text-[9px] font-bold">20</text>
-
-                    {/* AUS Worm Path (Yellow/Gold) */}
-                    <path d={`M 30,160 
-                             ${ausCumRuns.map((r, i) => `L ${30 + (i+1)*22},${160 - (r/200)*140}`).join(' ')}`}
-                          className="stroke-amber-500 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    
-                    {/* IND Worm Path (Blue) */}
-                    <path d={`M 30,160 
-                             ${indCumRuns.map((r, i) => `L ${30 + (i+1)*22},${160 - (r/200)*140}`).join(' ')}`}
-                          className="stroke-blue-500 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-
-                    {/* Wickets Dots (AUS) */}
-                    {ausWickets.map(o => (
-                       <circle key={`w-aus-${o}`} cx={30 + o*22} cy={160 - (ausCumRuns[o-1]/200)*140} r="3" className="fill-red-600 stroke-white" strokeWidth="1"/>
-                    ))}
-
-                    {/* Wickets Dots (IND) */}
-                    {indWickets.map(o => (
-                       <circle key={`w-ind-${o}`} cx={30 + o*22} cy={160 - (indCumRuns[o-1]/200)*140} r="3" className="fill-red-600 stroke-white" strokeWidth="1"/>
-                    ))}
-
-                    {/* Live Dot for India */}
-                    <circle cx={30 + 18*22 + 4} cy={160 - (184/200)*140} r="4" className="fill-blue-500 stroke-white animate-ping" strokeWidth="1.5"/>
-                    <circle cx={30 + 18*22 + 4} cy={160 - (184/200)*140} r="3.5" className="fill-blue-500 stroke-white" strokeWidth="1.5"/>
-                 </svg>
-
-                 {/* Legend */}
-                 <div className="flex gap-4 mt-2 justify-center text-[10px] font-black uppercase tracking-wider">
-                    <span className="flex items-center gap-1.5"><span className="w-3 h-1 bg-blue-500 rounded"></span> IND: 184/5 (18.2)</span>
-                    <span className="flex items-center gap-1.5"><span className="w-3 h-1 bg-amber-500 rounded"></span> AUS: 196/7 (20)</span>
-                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 bg-red-600 rounded-full border border-white"></span> Wicket</span>
-                 </div>
-              </div>
-           )}
-
-           {/* 2. MANHATTAN CHART */}
-           {analyticsTab === 'manhattan' && (
-              <div className="w-full flex flex-col items-center">
-                 <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-2 self-start pl-2">Runs Scored Per Over</span>
-                 <svg className="w-full max-w-[480px] h-[160px]" viewBox="0 0 500 180">
-                    {/* Grid lines */}
-                    <line x1="35" y1="20" x2="475" y2="20" className="stroke-slate-200" strokeWidth="1" strokeDasharray="3 3"/>
-                    <line x1="35" y1="65" x2="475" y2="65" className="stroke-slate-200" strokeWidth="1" strokeDasharray="3 3"/>
-                    <line x1="35" y1="110" x2="475" y2="110" className="stroke-slate-200" strokeWidth="1" strokeDasharray="3 3"/>
-                    <line x1="35" y1="150" x2="475" y2="150" className="stroke-slate-300" strokeWidth="1.5"/>
-                    <line x1="35" y1="20" x2="35" y2="150" className="stroke-slate-300" strokeWidth="1.5"/>
-
-                    {/* Y-Axis Labels */}
-                    <text x="5" y="25" className="fill-slate-405 font-mono text-[9px] font-bold">20 runs</text>
-                    <text x="5" y="70" className="fill-slate-405 font-mono text-[9px] font-bold">12 runs</text>
-                    <text x="10" y="115" className="fill-slate-405 font-mono text-[9px] font-bold">6 runs</text>
-                    <text x="15" y="155" className="fill-slate-405 font-mono text-[9px] font-bold">0</text>
-
-                    {/* X-Axis Labels */}
-                    <text x="35" y="165" className="fill-slate-405 font-mono text-[9px] font-bold">Over 1</text>
-                    <text x="140" y="165" className="fill-slate-405 font-mono text-[9px] font-bold">Over 5</text>
-                    <text x="250" y="165" className="fill-slate-405 font-mono text-[9px] font-bold">Over 10</text>
-                    <text x="360" y="165" className="fill-slate-405 font-mono text-[9px] font-bold">Over 15</text>
-                    <text x="450" y="165" className="fill-slate-405 font-mono text-[9px] font-bold">Over 20</text>
-
-                    {/* Bars for both teams up to over 18 */}
-                    {Array.from({ length: 18 }).map((_, index) => {
-                       const over = index + 1;
-                       const ausVal = ausRunsPerOver[index];
-                       const indVal = indRunsPerOver[index];
-                       const posX = 35 + index * 24;
-
-                       // AUS Bar (Amber)
-                       const ausHeight = (ausVal / 20) * 130;
-                       // IND Bar (Blue)
-                       const indHeight = (indVal / 20) * 130;
-
-                       return (
-                          <g key={`bars-${over}`}>
-                             {/* AUS */}
-                             <rect x={posX + 2} y={150 - ausHeight} width="8" height={ausHeight} className="fill-amber-500/80 hover:fill-amber-600 rounded-t" rx="1.5"/>
-                             {/* IND */}
-                             <rect x={posX + 11} y={150 - indHeight} width="8" height={indHeight} className="fill-blue-500/85 hover:fill-blue-600 rounded-t" rx="1.5"/>
-
-                             {/* Wickets fell in this over */}
-                             {ausWickets.includes(over) && (
-                                <circle cx={posX + 6} cy={140 - ausHeight} r="2.5" className="fill-red-600 stroke-white" strokeWidth="0.5"/>
-                             )}
-                             {indWickets.includes(over) && (
-                                <circle cx={posX + 15} cy={140 - indHeight} r="2.5" className="fill-red-600 stroke-white" strokeWidth="0.5"/>
-                             )}
-                          </g>
-                       );
-                    })}
-                 </svg>
-              </div>
-           )}
-
-           {/* 3. IPL PROJECTION TABLE */}
-           {analyticsTab === 'projection' && (
-              <div className="w-full text-center">
-                 <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-3 block">IPL Projection Calculator</span>
-                 <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
-                    <div className="bg-white border border-slate-200 p-3 rounded-2xl shadow-sm">
-                       <p className="text-[9px] font-black uppercase text-slate-400">Current Run Rate (CRR)</p>
-                       <p className="text-xl font-black text-slate-800 mt-1">10.04</p>
-                       <p className="text-[10px] font-bold text-slate-450 mt-0.5">Projected Score: 200</p>
-                    </div>
-                    <div className="bg-white border border-slate-200 p-3 rounded-2xl shadow-sm">
-                       <p className="text-[9px] font-black uppercase text-slate-400">Required Run Rate (RRR)</p>
-                       <p className="text-xl font-black text-red-600 mt-1">7.80</p>
-                       <p className="text-[10px] font-bold text-slate-450 mt-0.5">Need 13 runs in 10 balls</p>
-                    </div>
-                 </div>
-
-                 {/* IPL Rate Projections Matrix */}
-                 <div className="mt-4 overflow-hidden rounded-xl border border-slate-150 max-w-xs mx-auto shadow-sm">
-                    <table className="w-full text-xs text-left bg-white">
-                       <thead>
-                          <tr className="bg-slate-50 border-b border-slate-150">
-                             <th className="p-2 font-bold text-slate-550">Projection Mode</th>
-                             <th className="p-2 font-black text-slate-550 text-right">Target Match Score</th>
-                          </tr>
-                       </thead>
-                       <tbody className="divide-y divide-slate-100 font-semibold text-slate-700">
-                          <tr>
-                             <td className="p-2 text-slate-500">At Current Rate (10.04)</td>
-                             <td className="p-2 text-right font-bold text-slate-800">188 (Win in 18.5 overs)</td>
-                          </tr>
-                          <tr>
-                             <td className="p-2 text-slate-500">At IPL Standard (6.00 RPO)</td>
-                             <td className="p-2 text-right font-bold text-slate-850">194 (Need 3 runs in last over)</td>
-                          </tr>
-                          <tr>
-                             <td className="p-2 text-slate-500">At Power Hitting (12.00 RPO)</td>
-                             <td className="p-2 text-right font-bold text-emerald-650">208 (Win with 6 balls to spare)</td>
-                          </tr>
-                       </tbody>
-                    </table>
-                 </div>
-              </div>
-           )}
-        </div>
-      </div>
+       )}
 
       {/* ========================================================
           Tabs & Content Section
