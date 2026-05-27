@@ -23,7 +23,7 @@ export default function MatchCard({ match, teams }) {
         }`}></div>
         
         <div className="flex justify-between items-center mb-8">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-900 bg-slate-100 px-3 py-1 rounded-full">Match Center</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-900 bg-slate-100 px-3 py-1 rounded-full">{match.matchName || match.stage || "Match Center"}</span>
           <span className={`px-3 py-1 rounded-full text-xs font-black flex items-center gap-2 uppercase tracking-wider ${
             isLive ? 'bg-red-50 text-red-650 border border-red-200 shadow-sm' : 
             isFinished ? 'bg-green-50 text-green-600 border border-green-200' :

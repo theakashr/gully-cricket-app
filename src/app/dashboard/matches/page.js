@@ -17,6 +17,7 @@ export default function MatchesPage() {
   // Form State
   const [newMatch, setNewMatch] = useState({
     tournamentId: '',
+    matchName: '',
     stage: 'Match 1',
     teamA: '',
     teamB: '',
@@ -88,6 +89,7 @@ export default function MatchesPage() {
       const matchRef = push(ref(db, 'matches'));
       await set(matchRef, {
         tournamentId: newMatch.tournamentId,
+        matchName: newMatch.matchName || '',
         stage: newMatch.stage || 'League',
         teamA: newMatch.teamA,
         teamB: newMatch.teamB,
@@ -110,7 +112,7 @@ export default function MatchesPage() {
         }
       });
       
-      setNewMatch({ tournamentId: '', stage: 'Match 1', teamA: '', teamB: '', scorerId: '', overs: 20, tossWinner: '', tossDecision: 'bat', scheduledTime: '' });
+      setNewMatch({ tournamentId: '', matchName: '', stage: 'Match 1', teamA: '', teamB: '', scorerId: '', overs: 20, tossWinner: '', tossDecision: 'bat', scheduledTime: '' });
     } catch (error) {
       console.error("Error creating match:", error);
     }
@@ -167,26 +169,39 @@ export default function MatchesPage() {
                   </div>
                   <div>
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Match Stage</label>
-                    <input 
-                      type="text"
-                      list="stage-options"
+                    <select 
                       value={newMatch.stage}
                       onChange={e => setNewMatch({...newMatch, stage: e.target.value})}
-                      placeholder="e.g. Match 1"
-                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
+                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
                       required
+                    >
+                      <option value="Match 1">Match 1</option>
+                      <option value="Match 2">Match 2</option>
+                      <option value="Match 3">Match 3</option>
+                      <option value="Match 4">Match 4</option>
+                      <option value="Match 5">Match 5</option>
+                      <option value="League Match">League Match</option>
+                      <option value="Qualifier 1">Qualifier 1</option>
+                      <option value="Qualifier 2">Qualifier 2</option>
+                      <option value="Eliminator">Eliminator</option>
+                      <option value="Semi-Final">Semi-Final</option>
+                      <option value="Semi-Final 1">Semi-Final 1</option>
+                      <option value="Semi-Final 2">Semi-Final 2</option>
+                      <option value="Final">Final</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Match Name (Optional)</label>
+                    <input 
+                      type="text"
+                      value={newMatch.matchName}
+                      onChange={e => setNewMatch({...newMatch, matchName: e.target.value})}
+                      placeholder="e.g. Grand Finale, Rivalry Week"
+                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
                     />
-                    <datalist id="stage-options">
-                      <option value="Match 1" />
-                      <option value="Match 2" />
-                      <option value="Match 3" />
-                      <option value="Match 4" />
-                      <option value="Match 5" />
-                      <option value="League Match" />
-                      <option value="Quarter-Final" />
-                      <option value="Semi-Final" />
-                      <option value="Final" />
-                    </datalist>
                   </div>
                 </div>
 
@@ -324,7 +339,7 @@ export default function MatchesPage() {
                         {m.status}
                       </span>
                       <p className="text-xs text-slate-400 mt-2.5 font-bold">
-                        {tournaments.find(t => t.id === m.tournamentId)?.name || 'Unknown Tournament'} • {m.stage || 'Match 1'} • {m.overs} Overs
+                        {tournaments.find(t => t.id === m.tournamentId)?.name || 'Unknown Tournament'} • {m.matchName || m.stage || 'Match 1'} • {m.overs} Overs
                       </p>
                       {m.scheduledTime && (
                         <p className="text-xs text-emerald-600 mt-1.5 font-bold tracking-wider">
