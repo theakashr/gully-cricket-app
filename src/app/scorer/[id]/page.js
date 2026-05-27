@@ -424,7 +424,7 @@ export default function ScorerPage({ params: paramsPromise }) {
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-emerald-500"></div>
             
             <div className="flex justify-between items-center mb-6">
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200/50">Innings {match.currentInnings}</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200/50">{match.matchName || match.stage || 'Match'} • Innings {match.currentInnings}</span>
               <span className="bg-red-50 text-red-650 border border-red-100 px-3 py-1.5 rounded-full text-[10px] font-black tracking-wider flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> {match.status === 'live' ? 'SCORING LIVE' : 'MATCH READY'}
               </span>

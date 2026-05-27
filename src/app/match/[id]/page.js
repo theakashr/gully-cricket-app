@@ -15,6 +15,7 @@ export default function MatchCenterPage({ params: paramsPromise }) {
   const [match, setMatch] = useState(null);
   const [teamA, setTeamA] = useState(null);
   const [teamB, setTeamB] = useState(null);
+  const [tournament, setTournament] = useState(null);
   const [balls, setBalls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSharing, setIsSharing] = useState(false);
@@ -48,6 +49,15 @@ export default function MatchCenterPage({ params: paramsPromise }) {
               console.error("Error fetching teams:", error);
               setTeamA({ shortName: 'TBA', name: 'Error' });
               setTeamB({ shortName: 'TBA', name: 'Error' });
+           }
+        }
+        
+        if (data.tournamentId && !tournament) {
+           try {
+              const tSnap = await get(ref(db, `tournaments/${data.tournamentId}`));
+              setTournament(tSnap.exists() ? tSnap.val() : { name: 'Unknown Tournament' });
+           } catch (err) {
+              console.error(err);
            }
         }
 
@@ -186,7 +196,7 @@ export default function MatchCenterPage({ params: paramsPromise }) {
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-emerald-500"></div>
           
           <div className="flex justify-between items-center mb-6">
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-550 bg-slate-100/80 border border-slate-200/50 px-2.5 py-1 rounded-lg">Innings {match.currentInnings}</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-550 bg-slate-100/80 border border-slate-200/50 px-2.5 py-1 rounded-lg">{tournament?.name || 'Tournament'} • {match.matchName || match.stage || 'Match'} • Innings {match.currentInnings}</span>
             <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-wider flex items-center gap-1.5 uppercase border ${
               match.status === 'live' 
                 ? 'bg-red-50 text-red-650 border-red-150 shadow-sm' 

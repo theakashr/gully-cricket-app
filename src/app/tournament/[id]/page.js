@@ -832,7 +832,7 @@ export default function TournamentPage({ params: paramsPromise }) {
                            <span className="bg-red-50 text-red-650 border border-red-200 px-3 py-1 rounded-full text-[10px] font-black tracking-widest flex items-center gap-2 uppercase shadow-sm">
                              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> LIVE
                            </span>
-                           {liveMatch.stage && <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded border border-slate-100">{liveMatch.stage}</span>}
+                           {(liveMatch.matchName || liveMatch.stage) && <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded border border-slate-100">{liveMatch.matchName || liveMatch.stage}</span>}
                         </div>
                         
                         <div className="flex justify-between items-center mb-4">
@@ -1032,10 +1032,10 @@ export default function TournamentPage({ params: paramsPromise }) {
                                {m.status === 'live' && <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse mr-1.5 align-middle"></span>}
                                {m.status}
                              </span>
-                             {m.stage && (
-                                <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${stageColor}`}>
-                                  {m.stage}
-                                </span>
+                             {(m.matchName || m.stage) && (
+                               <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${stageColor}`}>
+                                 {m.matchName || m.stage}
+                               </span>
                              )}
                            </div>
                            <span className="text-[10px] md:text-xs text-slate-400 font-bold bg-slate-50 px-2 py-1 rounded-lg border border-slate-150">{new Date(m.createdAt).toLocaleDateString()}</span>
