@@ -21,7 +21,7 @@ export default function ScorerPage({ params: paramsPromise }) {
   const [striker, setStriker] = useState({ name: '', runs: 0, balls: 0 });
   const [nonStriker, setNonStriker] = useState({ name: '', runs: 0, balls: 0 });
   const [bowler, setBowler] = useState({ name: '', overs: 0, runs: 0, wickets: 0 });
-  const [bowler, setBowler] = useState({ name: '', overs: 0, runs: 0, wickets: 0 });
+
   const [loading, setLoading] = useState(true);
   const [editingOvers, setEditingOvers] = useState(false);
   const [newTotalOvers, setNewTotalOvers] = useState(20);
