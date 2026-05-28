@@ -11,8 +11,6 @@ export default function Home() {
   const [matches, setMatches] = useState({ live: [], upcoming: [], finished: [] });
   const [teams, setTeams] = useState({});
   const [loading, setLoading] = useState(true);
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('live');
 
   useEffect(() => {
@@ -30,9 +28,9 @@ export default function Home() {
         const allMatches = Object.entries(matchesData).map(([id, val]) => ({ id, ...val }));
         
         setMatches({
-           live: allMatches.filter(m => m.status === 'live'),
-           upcoming: allMatches.filter(m => m.status === 'upcoming' || m.status === 'ready'),
-           finished: allMatches.filter(m => m.status === 'completed')
+          live: allMatches.filter(m => m.status === 'live'),
+          upcoming: allMatches.filter(m => m.status === 'upcoming' || m.status === 'ready'),
+          finished: allMatches.filter(m => m.status === 'completed')
         });
       }
       setLoading(false);
@@ -77,22 +75,21 @@ export default function Home() {
         <div className="absolute top-[20%] right-[-10%] w-[600px] h-[600px] bg-[var(--color-cricket-cyan)]/5 rounded-full blur-[120px]"></div>
       </div>
 
-
+      {/* Hero Section - Exploded Kinetic Logo */}
+      <div className="relative z-10 pt-16 pb-8 md:pt-20 md:pb-12 text-center">
+        <div className="relative mx-auto w-40 h-40 md:w-56 md:h-56">
+          <motion.div
+            animate={{ y: [-10, 10, -10] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute inset-0"
+          >
+            <img src="/stumpflow-logo.jpg" alt="StumpFlow" className="w-full h-full object-contain rounded-3xl drop-shadow-[0_0_25px_rgba(57,255,20,0.3)]" />
+          </motion.div>
+        </div>
+      </div>
 
       {/* High-Density Navigation Tabs */}
-       <div className="relative z-20 container mx-auto px-4 max-w-5xl mb-6">
-          <div className="flex items-center mb-4">
-            <button onClick={() => setShowSearch(prev => !prev)} className="px-4 py-2 bg-emerald-600 text-white rounded-md mr-2">Search</button>
-            {showSearch && (
-              <input
-                type="text"
-                placeholder="Search matches..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="flex-1 px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
-            )}
-          </div>
+      <div className="relative z-20 container mx-auto px-4 max-w-5xl mb-6">
         <div className="glass-dark rounded-xl p-1.5 flex justify-between sm:justify-start gap-1 sm:gap-2 overflow-x-auto scrollbar-hide">
           <button 
             onClick={() => setActiveTab('live')}
@@ -155,66 +152,57 @@ export default function Home() {
               {/* LIVE TAB */}
               {activeTab === 'live' && (
                 <div className="w-full pb-8">
-                  {(() => {
-                  const filteredLive = matches.live.filter(m => !searchTerm || (m.matchName && m.matchName.toLowerCase().includes(searchTerm.toLowerCase())));
-                  const filteredUpcoming = matches.upcoming.filter(m => !searchTerm || (m.matchName && m.matchName.toLowerCase().includes(searchTerm.toLowerCase())));
-                  const filteredFinished = matches.finished.filter(m => !searchTerm || (m.matchName && m.matchName.toLowerCase().includes(searchTerm.toLowerCase())));
-                  return (
-                    filteredLive.length > 0 ? (
-                     <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-4 pb-6 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3">
-                       {filteredLive.map(match => (
-                         <div key={match.id} className="min-w-[85vw] sm:min-w-0 snap-center">
-                           <MatchCard match={match} teams={teams} />
-                         </div>
-                       ))}
-                     </div>
+                  {matches.live.length > 0 ? (
+                    <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-4 pb-6 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3">
+                      {matches.live.map(match => (
+                        <div key={match.id} className="min-w-[85vw] sm:min-w-0 snap-center">
+                          <MatchCard match={match} teams={teams} />
+                        </div>
+                      ))}
+                    </div>
                   ) : (
                     <div className="glass-dark rounded-2xl p-10 text-center border-dashed border border-slate-300">
                       <Activity size={32} className="mx-auto text-gray-600 mb-3" />
                       <p className="text-slate-500 font-bold mb-1 uppercase tracking-widest text-xs">No live matches</p>
                       <p className="text-[10px] text-gray-600">Check the upcoming tab for schedules.</p>
                     </div>
-                  )})()}
+                  )}
                 </div>
               )}
 
               {/* UPCOMING TAB */}
               {activeTab === 'upcoming' && (
                 <div className="flex flex-col gap-4 pb-8">
-                  {(() => {
-                  const filteredUpcoming = matches.upcoming.filter(m => !searchTerm || (m.matchName && m.matchName.toLowerCase().includes(searchTerm.toLowerCase())));
-                  return filteredUpcoming.length > 0 ? (
-                      filteredUpcoming.map(match => (
-                        <div key={match.id} className="w-full md:w-1/2 lg:w-1/3">
-                          <MatchCard match={match} teams={teams} />
-                        </div>
-                      ))
-                 ) : (
+                  {matches.upcoming.length > 0 ? (
+                    matches.upcoming.map(match => (
+                      <div key={match.id} className="w-full md:w-1/2 lg:w-1/3">
+                        <MatchCard match={match} teams={teams} />
+                      </div>
+                    ))
+                  ) : (
                     <div className="glass-dark rounded-2xl p-10 text-center border-dashed border border-slate-300">
                       <Calendar size={32} className="mx-auto text-gray-600 mb-3" />
                       <p className="text-slate-500 font-bold mb-1 uppercase tracking-widest text-xs">No upcoming matches</p>
                     </div>
-                  )})()}
+                  )}
                 </div>
               )}
 
               {/* FINISHED TAB */}
               {activeTab === 'finished' && (
                 <div className="flex flex-col gap-4 pb-8">
-                  {(() => {
-                  const filteredFinished = matches.finished.filter(m => !searchTerm || (m.matchName && m.matchName.toLowerCase().includes(searchTerm.toLowerCase())));
-                  return filteredFinished.length > 0 ? (
-                      filteredFinished.map(match => (
-                        <div key={match.id} className="w-full md:w-1/2 lg:w-1/3">
-                          <MatchCard match={match} teams={teams} />
-                        </div>
-                      ))
-                 ) : (
+                  {matches.finished.length > 0 ? (
+                    matches.finished.map(match => (
+                      <div key={match.id} className="w-full md:w-1/2 lg:w-1/3">
+                        <MatchCard match={match} teams={teams} />
+                      </div>
+                    ))
+                  ) : (
                     <div className="glass-dark rounded-2xl p-10 text-center border-dashed border border-slate-300">
                       <CheckCircle2 size={32} className="mx-auto text-gray-600 mb-3" />
                       <p className="text-slate-500 font-bold mb-1 uppercase tracking-widest text-xs">No finished matches</p>
                     </div>
-                  )})()}
+                  )}
                 </div>
               )}
             </motion.div>
