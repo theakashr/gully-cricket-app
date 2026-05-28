@@ -54,7 +54,7 @@ export default function Home() {
           className="max-w-4xl mx-auto space-y-8"
         >
           <div className="w-28 h-28 md:w-36 md:h-36 mx-auto rounded-full overflow-hidden border-4 border-white shadow-xl shadow-[var(--color-cricket-accent)]/20 mb-6 transition-transform hover:scale-110 duration-500">
-            <img src="/skcc-logo.jpg" alt="Shree Krishna Cricket Club" className="w-full h-full object-cover" />
+            <img src="/stumpflow-logo.jpg" alt="StumpFlow" className="w-full h-full object-cover" />
           </div>
           
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[var(--color-cricket-accent)]/30 text-[var(--color-cricket-accent)] text-sm font-bold mx-auto shadow-sm">
