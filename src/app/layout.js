@@ -7,13 +7,13 @@ import { Toaster } from 'react-hot-toast';
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata = {
-  title: "SKCC CRICKETRS Live",
+  title: "StumpFlow Live",
   description: "Premium Local Cricket Scoring Engine - Ball by Ball Live Scoring, Real-time Match Center, Tournament Management",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "SKCC CRICKETRS",
+    title: "StumpFlow",
   },
   icons: {
     icon: [
@@ -27,8 +27,8 @@ export const metadata = {
   other: {
     "mobile-web-app-capable": "yes",
     "apple-mobile-web-app-capable": "yes",
-    "application-name": "SKCC CRICKETRS",
-    "apple-mobile-web-app-title": "SKCC CRICKETRS",
+    "application-name": "StumpFlow",
+    "apple-mobile-web-app-title": "StumpFlow",
     "msapplication-TileColor": "#ffffff",
     "msapplication-TileImage": "/icons/icon-144x144.png",
   },

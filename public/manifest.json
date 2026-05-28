@@ -1,6 +1,6 @@
 {
-  "name": "SKCC CRICKETRS Live",
-  "short_name": "SKCC Cricket",
+  "name": "StumpFlow",
+  "short_name": "StumpFlow",
   "description": "Premium Live Cricket Scoring Engine - Ball by Ball, Real-time Match Center, Tournament Management",
   "start_url": "/",
   "scope": "/",

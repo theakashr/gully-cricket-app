@@ -144,7 +144,7 @@ export default function LoginPage() {
 
           <div className="text-center mb-8">
             <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4 border-2 border-[var(--color-cricket-accent)]/20 shadow-md hover:scale-105 transition-transform duration-300">
-              <img src="/skcc-logo.jpg" alt="SKCC Logo" className="w-full h-full object-cover" />
+              <img src="/stumpflow-logo.jpg" alt="STUMPFLOW Logo" className="w-full h-full object-cover" />
             </div>
             
             {/* DEEP BLACK HEADING */}
@@ -154,7 +154,7 @@ export default function LoginPage() {
             
             {/* HIGH CONTRAST SLATE-600 SUBTITLE */}
             <p className="text-slate-600 font-semibold text-sm mt-3 leading-relaxed">
-              {mode === 'login' ? 'Sign in to access your dashboard' : mode === 'signup' ? 'Join SKCC CRICKETRS Live today' : 'Enter your email to receive a reset link'}
+              {mode === 'login' ? 'Sign in to access your dashboard' : mode === 'signup' ? 'Join STUMPFLOW Live today' : 'Enter your email to receive a reset link'}
             </p>
           </div>
 
@@ -181,7 +181,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-slate-50/80 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 focus:bg-white transition-all font-semibold shadow-inner"
-                placeholder="scorer@skcc.com"
+                placeholder="scorer@stumpflow.com"
                 required
               />
             </div>
