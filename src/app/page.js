@@ -46,7 +46,7 @@ export default function Home() {
   const particles = Array.from({ length: 15 });
 
   return (
-    <div className="relative overflow-hidden min-h-screen bg-[var(--color-cricket-dark)] pb-24 text-white">
+    <div className="relative overflow-hidden min-h-screen bg-[var(--background)] pb-24 text-slate-900">
       
       {/* Zero-G Particle Layer */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
@@ -93,7 +93,7 @@ export default function Home() {
         <div className="glass-dark rounded-xl p-1.5 flex justify-between sm:justify-start gap-1 sm:gap-2 overflow-x-auto scrollbar-hide">
           <button 
             onClick={() => setActiveTab('live')}
-            className={`flex-1 sm:flex-none relative px-4 py-3 rounded-lg text-xs md:text-sm font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === 'live' ? 'text-white' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`flex-1 sm:flex-none relative px-4 py-3 rounded-lg text-xs md:text-sm font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === 'live' ? 'text-slate-900' : 'text-slate-600 hover:text-slate-700'}`}
           >
             <span className={`w-2 h-2 rounded-full ${activeTab === 'live' ? 'bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]' : 'bg-gray-600'}`}></span>
             Live ({matches.live.length})
@@ -104,7 +104,7 @@ export default function Home() {
           
           <button 
             onClick={() => setActiveTab('upcoming')}
-            className={`flex-1 sm:flex-none relative px-4 py-3 rounded-lg text-xs md:text-sm font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === 'upcoming' ? 'text-white' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`flex-1 sm:flex-none relative px-4 py-3 rounded-lg text-xs md:text-sm font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === 'upcoming' ? 'text-slate-900' : 'text-slate-600 hover:text-slate-700'}`}
           >
             <Calendar size={14} className={activeTab === 'upcoming' ? 'text-[var(--color-cricket-cyan)]' : 'text-gray-600'} />
             Upcoming ({matches.upcoming.length})
@@ -115,7 +115,7 @@ export default function Home() {
 
           <button 
             onClick={() => setActiveTab('finished')}
-            className={`flex-1 sm:flex-none relative px-4 py-3 rounded-lg text-xs md:text-sm font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === 'finished' ? 'text-white' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`flex-1 sm:flex-none relative px-4 py-3 rounded-lg text-xs md:text-sm font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === 'finished' ? 'text-slate-900' : 'text-slate-600 hover:text-slate-700'}`}
           >
             <CheckCircle2 size={14} className={activeTab === 'finished' ? 'text-green-500' : 'text-gray-600'} />
             Finished ({matches.finished.length})
@@ -126,11 +126,11 @@ export default function Home() {
         </div>
         
         {/* Secondary Filters */}
-        <div className="flex gap-4 mt-3 px-2 overflow-x-auto scrollbar-hide text-[10px] uppercase font-bold tracking-widest text-gray-500">
+        <div className="flex gap-4 mt-3 px-2 overflow-x-auto scrollbar-hide text-[10px] uppercase font-bold tracking-widest text-slate-600">
           <span className="text-[var(--color-cricket-accent)] cursor-pointer">All</span>
-          <span className="cursor-pointer hover:text-gray-300">T20</span>
-          <span className="cursor-pointer hover:text-gray-300">ODI</span>
-          <span className="cursor-pointer hover:text-gray-300">Local Leagues</span>
+          <span className="cursor-pointer hover:text-slate-700">T20</span>
+          <span className="cursor-pointer hover:text-slate-700">ODI</span>
+          <span className="cursor-pointer hover:text-slate-700">Local Leagues</span>
         </div>
       </div>
 
@@ -161,9 +161,9 @@ export default function Home() {
                       ))}
                     </div>
                   ) : (
-                    <div className="glass-dark rounded-2xl p-10 text-center border-dashed border border-gray-700">
+                    <div className="glass-dark rounded-2xl p-10 text-center border-dashed border border-slate-300">
                       <Activity size={32} className="mx-auto text-gray-600 mb-3" />
-                      <p className="text-gray-400 font-bold mb-1 uppercase tracking-widest text-xs">No live matches</p>
+                      <p className="text-slate-500 font-bold mb-1 uppercase tracking-widest text-xs">No live matches</p>
                       <p className="text-[10px] text-gray-600">Check the upcoming tab for schedules.</p>
                     </div>
                   )}
@@ -180,9 +180,9 @@ export default function Home() {
                       </div>
                     ))
                   ) : (
-                    <div className="glass-dark rounded-2xl p-10 text-center border-dashed border border-gray-700">
+                    <div className="glass-dark rounded-2xl p-10 text-center border-dashed border border-slate-300">
                       <Calendar size={32} className="mx-auto text-gray-600 mb-3" />
-                      <p className="text-gray-400 font-bold mb-1 uppercase tracking-widest text-xs">No upcoming matches</p>
+                      <p className="text-slate-500 font-bold mb-1 uppercase tracking-widest text-xs">No upcoming matches</p>
                     </div>
                   )}
                 </div>
@@ -198,9 +198,9 @@ export default function Home() {
                       </div>
                     ))
                   ) : (
-                    <div className="glass-dark rounded-2xl p-10 text-center border-dashed border border-gray-700">
+                    <div className="glass-dark rounded-2xl p-10 text-center border-dashed border border-slate-300">
                       <CheckCircle2 size={32} className="mx-auto text-gray-600 mb-3" />
-                      <p className="text-gray-400 font-bold mb-1 uppercase tracking-widest text-xs">No finished matches</p>
+                      <p className="text-slate-500 font-bold mb-1 uppercase tracking-widest text-xs">No finished matches</p>
                     </div>
                   )}
                 </div>

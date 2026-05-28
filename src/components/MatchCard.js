@@ -63,13 +63,13 @@ export default function MatchCard({ match, teams }) {
 
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 truncate pr-2">
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 truncate pr-2">
             {match.matchName || match.stage || "Match Center"}
           </span>
           <span className={`px-2 py-0.5 rounded-sm text-[10px] font-black flex items-center gap-1.5 uppercase tracking-wider ${
             isLive ? 'bg-[var(--color-cricket-accent)]/10 text-[var(--color-cricket-accent)] border border-[var(--color-cricket-accent)]/30' : 
-            isFinished ? 'bg-gray-800 text-gray-300 border border-gray-700' :
-            'bg-gray-800 text-gray-400 border border-gray-700'
+            isFinished ? 'bg-slate-100 text-slate-700 border border-slate-300' :
+            'bg-slate-100 text-slate-500 border border-slate-300'
           }`}>
             {isLive && <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-cricket-accent)] animate-pulse shadow-[0_0_8px_var(--color-cricket-accent)]"></span>}
             {match.status}
@@ -81,19 +81,19 @@ export default function MatchCard({ match, teams }) {
           {/* Team A */}
           <div className={`flex justify-between items-center pl-2 border-l-2 ${activeBatting === match.teamA ? 'border-[var(--color-cricket-accent)]' : 'border-transparent'}`}>
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center border border-gray-700">
-                <span className="text-xs font-black text-white">{getTeamCode(match.teamA).substring(0, 3)}</span>
+              <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center border border-slate-300">
+                <span className="text-xs font-black text-slate-900">{getTeamCode(match.teamA).substring(0, 3)}</span>
               </div>
-              <span className="text-sm font-bold text-gray-100">{getTeamCode(match.teamA)}</span>
+              <span className="text-sm font-bold text-slate-800">{getTeamCode(match.teamA)}</span>
             </div>
             <div className="text-right">
               {((isLive || isFinished) && match.currentInnings >= 1) ? (
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-lg font-black text-white">{match.score?.innings1?.runs || 0}/{match.score?.innings1?.wickets || 0}</span>
-                  <span className="text-[10px] text-gray-400 font-bold">({match.score?.innings1?.overs || 0})</span>
+                  <span className="text-lg font-black text-slate-900">{match.score?.innings1?.runs || 0}/{match.score?.innings1?.wickets || 0}</span>
+                  <span className="text-[10px] text-slate-500 font-bold">({match.score?.innings1?.overs || 0})</span>
                 </div>
               ) : isUpcoming ? (
-                <span className="text-xs text-gray-500 font-bold">Yet to bat</span>
+                <span className="text-xs text-slate-600 font-bold">Yet to bat</span>
               ) : null}
             </div>
           </div>
@@ -101,19 +101,19 @@ export default function MatchCard({ match, teams }) {
           {/* Team B */}
           <div className={`flex justify-between items-center pl-2 border-l-2 ${activeBatting === match.teamB ? 'border-[var(--color-cricket-accent)]' : 'border-transparent'}`}>
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center border border-gray-700">
-                <span className="text-xs font-black text-white">{getTeamCode(match.teamB).substring(0, 3)}</span>
+              <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center border border-slate-300">
+                <span className="text-xs font-black text-slate-900">{getTeamCode(match.teamB).substring(0, 3)}</span>
               </div>
-              <span className="text-sm font-bold text-gray-100">{getTeamCode(match.teamB)}</span>
+              <span className="text-sm font-bold text-slate-800">{getTeamCode(match.teamB)}</span>
             </div>
             <div className="text-right">
               {((isLive || isFinished) && match.currentInnings === 2) ? (
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-lg font-black text-white">{match.score?.innings2?.runs || 0}/{match.score?.innings2?.wickets || 0}</span>
-                  <span className="text-[10px] text-gray-400 font-bold">({match.score?.innings2?.overs || 0})</span>
+                  <span className="text-lg font-black text-slate-900">{match.score?.innings2?.runs || 0}/{match.score?.innings2?.wickets || 0}</span>
+                  <span className="text-[10px] text-slate-500 font-bold">({match.score?.innings2?.overs || 0})</span>
                 </div>
               ) : isLive && match.currentInnings === 1 ? (
-                <span className="text-xs text-gray-500 font-bold">Yet to bat</span>
+                <span className="text-xs text-slate-600 font-bold">Yet to bat</span>
               ) : null}
             </div>
           </div>
@@ -121,16 +121,16 @@ export default function MatchCard({ match, teams }) {
 
         {/* Live Analytics & Ticker */}
         {isLive && (
-          <div className="mt-auto pt-3 border-t border-gray-800/60">
+          <div className="mt-auto pt-3 border-t border-slate-200">
             {recentBalls.length > 0 && (
               <div className="flex items-center gap-1.5 mb-2 overflow-x-auto scrollbar-hide py-1">
-                <span className="text-[9px] font-black uppercase text-gray-500 mr-1">Last 6:</span>
+                <span className="text-[9px] font-black uppercase text-slate-600 mr-1">Last 6:</span>
                 {recentBalls.map((ball) => {
-                  let ballClass = "border border-gray-600 text-gray-300";
+                  let ballClass = "border border-slate-300 text-slate-700";
                   let label = ball.runs;
                   
                   if (ball.type === 'wicket') {
-                    ballClass = "bg-red-600 text-white border-red-500 shadow-[0_0_8px_rgba(220,38,38,0.5)]";
+                    ballClass = "bg-red-600 text-slate-900 border-red-500 shadow-[0_0_8px_rgba(220,38,38,0.5)]";
                     label = "W";
                   } else if (ball.runs === 4) {
                     ballClass = "bg-[var(--color-cricket-cyan)] text-black font-black shadow-[0_0_8px_rgba(0,240,255,0.4)]";
@@ -155,7 +155,7 @@ export default function MatchCard({ match, teams }) {
               <span className="text-[var(--color-cricket-cyan)] font-black uppercase tracking-wider">
                 CRR: {overs > 0 ? (runs / overs).toFixed(2) : "0.00"}
               </span>
-              <span className="text-gray-400 font-bold">
+              <span className="text-slate-500 font-bold">
                 {match.currentInnings === 2 ? `Target: ${match.score.innings1.runs + 1}` : `Innings 1`}
               </span>
             </div>
@@ -163,7 +163,7 @@ export default function MatchCard({ match, teams }) {
         )}
 
         {isFinished && match.result && (
-          <div className="mt-auto pt-3 border-t border-gray-800/60 text-center">
+          <div className="mt-auto pt-3 border-t border-slate-200 text-center">
             <span className="text-[10px] font-black text-[var(--color-cricket-accent)] uppercase tracking-widest">
               {teams[match.result.winner]?.shortName} Won
             </span>
@@ -171,7 +171,7 @@ export default function MatchCard({ match, teams }) {
         )}
         
         {isUpcoming && (
-          <div className="mt-auto pt-3 border-t border-gray-800/60 text-center">
+          <div className="mt-auto pt-3 border-t border-slate-200 text-center">
             <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
               Starts Soon
             </span>
