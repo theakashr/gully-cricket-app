@@ -21,7 +21,14 @@ export default function ScorerPage({ params: paramsPromise }) {
   const [striker, setStriker] = useState({ name: '', runs: 0, balls: 0 });
   const [nonStriker, setNonStriker] = useState({ name: '', runs: 0, balls: 0 });
   const [bowler, setBowler] = useState({ name: '', overs: 0, runs: 0, wickets: 0 });
+  const [bowler, setBowler] = useState({ name: '', overs: 0, runs: 0, wickets: 0 });
   const [loading, setLoading] = useState(true);
+  const [editingOvers, setEditingOvers] = useState(false);
+  const [newTotalOvers, setNewTotalOvers] = useState(20);
+
+  useEffect(() => {
+    if (match) setNewTotalOvers(match.overs);
+  }, [match?.overs]);
 
   useEffect(() => {
     if (!matchId) return;
@@ -166,10 +173,7 @@ export default function ScorerPage({ params: paramsPromise }) {
       let newBallsInt = currentBallsInt + 1;
       let newOversInt = currentOversInt;
       
-      if (newBallsInt === 6) {
-        newOversInt += 1;
-        newBallsInt = 0;
-      }
+      // Removed the jump from 0.5 to 1.0. Allows tracking 0.6 explicitly.
       newOvers = parseFloat(`${newOversInt}.${newBallsInt}`);
     }
 
@@ -197,10 +201,6 @@ export default function ScorerPage({ params: paramsPromise }) {
        let currentBallsInt = Math.round((newBowler.overs - currentOversInt) * 10);
        let newBallsInt = currentBallsInt + 1;
        let newOversInt = currentOversInt;
-       if (newBallsInt === 6) {
-         newOversInt += 1;
-         newBallsInt = 0;
-       }
        newBowler.overs = parseFloat(`${newOversInt}.${newBallsInt}`);
     }
 
@@ -220,14 +220,9 @@ export default function ScorerPage({ params: paramsPromise }) {
     let shouldSwap = false;
     if (type === 'normal' || type === 'boundary' || type === 'b' || type === 'lb') {
        if (runs % 2 !== 0) shouldSwap = !shouldSwap;
-     }
-    
-    if (isLegalBall) {
-       let currentBallsInt = Math.round((newOvers - Math.floor(newOvers)) * 10);
-       if (currentBallsInt === 0) {
-         shouldSwap = !shouldSwap; // Swap at end of over
-       }
     }
+    
+    // Automatic swap at end of over is removed. Strike swaps when "End Over" is clicked.
 
     if (shouldSwap) {
        const temp = newStriker;
@@ -345,6 +340,61 @@ export default function ScorerPage({ params: paramsPromise }) {
     }
   };
 
+  const handleEndOver = async () => {
+    if (!match) return;
+    const currInningsKey = match.currentInnings === 1 ? 'innings1' : 'innings2';
+    const currentScore = match.score[currInningsKey];
+    
+    const currentOversInt = Math.floor(currentScore.overs);
+    const currentBallsInt = Math.round((currentScore.overs - currentOversInt) * 10);
+    
+    if (currentBallsInt < 6) return;
+    
+    const newOvers = parseFloat(`${currentOversInt + 1}.0`);
+    
+    let newBowler = { ...bowler };
+    const bOversInt = Math.floor(newBowler.overs);
+    const bBallsInt = Math.round((newBowler.overs - bOversInt) * 10);
+    if (bBallsInt >= 6) {
+      newBowler.overs = parseFloat(`${bOversInt + 1}.0`);
+    }
+    
+    // Swap strike automatically at end of over
+    const temp = striker;
+    const newStriker = nonStriker;
+    const newNonStriker = temp;
+    
+    // Reset bowler name to force them to pick the next bowler
+    newBowler = { name: '', overs: newBowler.overs, runs: newBowler.runs, wickets: newBowler.wickets };
+    
+    setStriker(newStriker);
+    setNonStriker(newNonStriker);
+    setBowler(newBowler);
+    
+    try {
+      await update(ref(db, `matches/${matchId}`), {
+        [`score/${currInningsKey}/overs`]: newOvers,
+        [`score/${currInningsKey}/currentPlayers`]: {
+           striker: newStriker,
+           nonStriker: newNonStriker,
+           bowler: newBowler
+        }
+      });
+      toast.success("Over Completed! Select next bowler.");
+    } catch(e) {
+      console.error(e);
+      toast.error("Error ending over");
+    }
+  };
+
+  const handleUpdateTotalOvers = async () => {
+    if (confirm(`Change match overs from ${match.overs} to ${newTotalOvers}?`)) {
+      await update(ref(db, `matches/${matchId}`), { overs: newTotalOvers });
+      setEditingOvers(false);
+      toast.success("Total overs updated!");
+    }
+  };
+
   const startNextInnings = async () => {
     if (confirm("Start 2nd Innings?")) {
       await update(ref(db, `matches/${matchId}`), { currentInnings: 2 });
@@ -439,7 +489,24 @@ export default function ScorerPage({ params: paramsPromise }) {
                 </h2>
                 <div className="mt-4 bg-slate-50 border border-slate-150 inline-flex items-center gap-3 px-3.5 py-1.5 rounded-xl">
                   <span className="text-slate-400 text-[10px] font-black uppercase tracking-wider">OVERS</span>
-                  <span className="text-lg font-black text-slate-800 tabular-nums">{overs.toFixed(1)} <span className="text-xs text-slate-400 font-medium">({match.overs}.0)</span></span>
+                  <span className="text-lg font-black text-slate-800 tabular-nums">{overs.toFixed(1)}</span>
+                  
+                  {editingOvers ? (
+                    <div className="flex items-center gap-2 ml-2">
+                      <input 
+                        type="number" 
+                        value={newTotalOvers} 
+                        onChange={(e) => setNewTotalOvers(Number(e.target.value))} 
+                        className="w-16 h-8 text-sm px-2 border border-emerald-500 rounded-md"
+                      />
+                      <button onClick={handleUpdateTotalOvers} className="bg-emerald-600 text-white text-[10px] px-2 py-1 rounded-md font-bold uppercase">Save</button>
+                      <button onClick={() => setEditingOvers(false)} className="text-slate-500 text-[10px] px-2 py-1 rounded-md font-bold uppercase">Cancel</button>
+                    </div>
+                  ) : (
+                    <span onClick={() => setEditingOvers(true)} className="text-xs text-slate-400 font-medium cursor-pointer hover:text-emerald-600 hover:underline transition-colors ml-1">
+                      (Total: {match.overs}.0) ✎
+                    </span>
+                  )}
                 </div>
               </div>
               
@@ -585,62 +652,82 @@ export default function ScorerPage({ params: paramsPromise }) {
           {/* Scoring Controls */}
           {(!isAllOut && !isOversDone && (match.currentInnings === 1 || runsNeeded > 0)) && (
             <>
-              <div className="grid grid-cols-3 gap-4">
-                {[0, 1, 2, 3, 4, 6].map(run => (
+              {Math.round((overs - Math.floor(overs)) * 10) === 6 ? (
+                <div className="mt-6 mb-2">
                   <motion.button 
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    key={run} 
-                    className={`h-20 rounded-2xl text-3xl font-black transition-all shadow-sm ${
-                      run === 4 || run === 6 
-                      ? 'bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-emerald-100 border-none' 
-                      : 'bg-white border border-slate-200 hover:bg-slate-50 text-slate-800'
-                    }`}
-                    onClick={() => recordBall(run, run >= 4 ? 'boundary' : 'normal')}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleEndOver}
+                    className="w-full h-20 rounded-2xl bg-gradient-to-br from-emerald-600 to-green-700 text-white text-2xl font-black uppercase tracking-widest shadow-sm shadow-emerald-100 border-none flex justify-center items-center gap-2"
                   >
-                    {run}
+                    End Over {Math.floor(overs) + 1} <ArrowRight size={24} />
                   </motion.button>
-                ))}
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <motion.button 
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="h-16 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 text-white text-xl font-black uppercase tracking-widest shadow-sm shadow-red-100 border-none flex justify-center items-center gap-2"
-                  onClick={() => recordBall(0, 'wicket')}
-                >
-                  <AlertTriangle size={20} /> Wicket
-                </motion.button>
-                <motion.button 
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  disabled={!lastBallId}
-                  className={`h-16 rounded-2xl text-lg font-bold uppercase tracking-wider flex justify-center items-center gap-2 transition-all shadow-sm ${
-                    lastBallId 
-                      ? 'bg-white hover:bg-amber-50 text-amber-600 border border-slate-200 hover:border-amber-200' 
-                      : 'bg-slate-100 text-slate-300 border border-slate-200 cursor-not-allowed'
-                  }`}
-                  onClick={handleUndo}
-                >
-                  <RotateCcw size={18} /> Undo
-                </motion.button>
-              </div>
-              
-              <div className="grid grid-cols-4 gap-3 mt-4">
-                <button onClick={() => recordBall(0, 'wd')} className="h-14 rounded-xl bg-white hover:bg-amber-50 border border-slate-200 hover:border-amber-250 text-amber-600 text-xs font-bold uppercase tracking-wider transition-all shadow-sm">
-                  Wide
-                </button>
-                <button onClick={() => recordBall(0, 'nb')} className="h-14 rounded-xl bg-white hover:bg-amber-50 border border-slate-200 hover:border-amber-250 text-amber-600 text-xs font-bold uppercase tracking-wider transition-all shadow-sm">
-                  No Ball
-                </button>
-                <button onClick={() => recordBall(1, 'b')} className="h-14 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-650 text-xs font-bold uppercase tracking-wider transition-all shadow-sm">
-                  Bye (1)
-                </button>
-                <button onClick={() => recordBall(1, 'lb')} className="h-14 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-650 text-xs font-bold uppercase tracking-wider transition-all shadow-sm">
-                  L.Bye (1)
-                </button>
-              </div>
+                  <div className="flex justify-center mt-3">
+                    <button onClick={handleUndo} className="text-amber-600 text-sm font-bold flex items-center gap-1 hover:underline">
+                      <RotateCcw size={16} /> Undo last ball
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-3 gap-4">
+                    {[0, 1, 2, 3, 4, 6].map(run => (
+                      <motion.button 
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        key={run} 
+                        className={`h-20 rounded-2xl text-3xl font-black transition-all shadow-sm ${
+                          run === 4 || run === 6 
+                          ? 'bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-emerald-100 border-none' 
+                          : 'bg-white border border-slate-200 hover:bg-slate-50 text-slate-800'
+                        }`}
+                        onClick={() => recordBall(run, run >= 4 ? 'boundary' : 'normal')}
+                      >
+                        {run}
+                      </motion.button>
+                    ))}
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <motion.button 
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="h-16 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 text-white text-xl font-black uppercase tracking-widest shadow-sm shadow-red-100 border-none flex justify-center items-center gap-2"
+                      onClick={() => recordBall(0, 'wicket')}
+                    >
+                      <AlertTriangle size={20} /> Wicket
+                    </motion.button>
+                    <motion.button 
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      disabled={!lastBallId}
+                      className={`h-16 rounded-2xl text-lg font-bold uppercase tracking-wider flex justify-center items-center gap-2 transition-all shadow-sm ${
+                        lastBallId 
+                          ? 'bg-white hover:bg-amber-50 text-amber-600 border border-slate-200 hover:border-amber-200' 
+                          : 'bg-slate-100 text-slate-300 border border-slate-200 cursor-not-allowed'
+                      }`}
+                      onClick={handleUndo}
+                    >
+                      <RotateCcw size={18} /> Undo
+                    </motion.button>
+                  </div>
+                  
+                  <div className="grid grid-cols-4 gap-3 mt-4">
+                    <button onClick={() => recordBall(0, 'wd')} className="h-14 rounded-xl bg-white hover:bg-amber-50 border border-slate-200 hover:border-amber-250 text-amber-600 text-xs font-bold uppercase tracking-wider transition-all shadow-sm">
+                      Wide
+                    </button>
+                    <button onClick={() => recordBall(0, 'nb')} className="h-14 rounded-xl bg-white hover:bg-amber-50 border border-slate-200 hover:border-amber-250 text-amber-600 text-xs font-bold uppercase tracking-wider transition-all shadow-sm">
+                      No Ball
+                    </button>
+                    <button onClick={() => recordBall(1, 'b')} className="h-14 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-650 text-xs font-bold uppercase tracking-wider transition-all shadow-sm">
+                      Bye (1)
+                    </button>
+                    <button onClick={() => recordBall(1, 'lb')} className="h-14 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-650 text-xs font-bold uppercase tracking-wider transition-all shadow-sm">
+                      L.Bye (1)
+                    </button>
+                  </div>
+                </>
+              )}
             </>
           )}
         </motion.div>
