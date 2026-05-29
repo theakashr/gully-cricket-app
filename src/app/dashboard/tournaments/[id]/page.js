@@ -879,8 +879,8 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
                               )}
                             </div>
                             <div className="min-w-0">
-                              <span className="text-sm font-black text-slate-900 block md:inline">{team.code}</span>
-                              <span className="text-[10px] text-slate-500 font-medium md:ml-1.5 block md:inline truncate">{team.name}</span>
+                              <span className="text-sm font-black text-slate-900 block md:inline">{team.name}</span>
+                              <span className="text-[10px] text-slate-500 font-medium md:ml-1.5 block md:inline truncate">{team.code}</span>
                             </div>
                           </div>
                           <span className="text-center text-xs font-bold text-slate-700 tabular-nums">{team.p}</span>
