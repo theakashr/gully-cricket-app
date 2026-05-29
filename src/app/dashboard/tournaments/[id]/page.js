@@ -773,7 +773,7 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
                               <XAxis type="number" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={{ stroke: 'rgba(0,0,0,0.05)' }} />
                               <YAxis dataKey="name" type="category" tick={{ fontSize: 10, fill: '#64748b' }} width={90} axisLine={{ stroke: 'rgba(0,0,0,0.05)' }} />
                               <Tooltip content={<CustomTooltip chartType="projections" />} />
-                              {selectedMatch.currentInnings === 2 && analyticsData.inn1.totalRuns && (
+                              {selectedMatch.currentInnings === 2 && analyticsData.inn1.totalRuns > 0 && (
                                  <ReferenceLine x={analyticsData.inn1.totalRuns} stroke="#ef4444" strokeDasharray="3 3">
                                    <Label value="Target" position="top" fill="#ef4444" fontSize={10} fontWeight="bold" />
                                  </ReferenceLine>
