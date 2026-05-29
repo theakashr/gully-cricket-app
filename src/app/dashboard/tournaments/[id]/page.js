@@ -461,25 +461,25 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
   ];
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-900 relative overflow-hidden font-sans">
       {/* Background Glow Effects */}
       <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-emerald-500/8 rounded-full blur-[100px] pointer-events-none"></div>
 
       {/* ──────────────────── HEADER ──────────────────── */}
-      <nav className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-xl border-b border-white/5">
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200">
         <div className="container mx-auto max-w-6xl px-4 py-3 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-              <span className="text-white font-black text-xs">SL</span>
+              <span className="text-slate-900 font-black text-xs">SL</span>
             </div>
             <span className="text-lg font-black tracking-tight">
               Stumpflow <span className="text-blue-400">Live</span>
             </span>
           </Link>
           <div className="hidden md:flex items-center gap-6">
-            <Link href="/" className="text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">Home</Link>
-            <Link href="/matches" className="text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">Matches</Link>
+            <Link href="/" className="text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors">Home</Link>
+            <Link href="/matches" className="text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors">Matches</Link>
             <Link href="/tournaments" className="text-xs font-bold uppercase tracking-wider text-blue-400 transition-colors">Tournaments</Link>
           </div>
         </div>
@@ -487,7 +487,7 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
 
       <div className="container mx-auto max-w-6xl px-4 py-6 md:py-8 space-y-6 md:space-y-8 relative z-10">
 
-        <Link href="/dashboard/tournaments" className="inline-flex items-center gap-2 text-slate-400 hover:text-white font-bold text-sm transition-all">
+        <Link href="/dashboard/tournaments" className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 font-bold text-sm transition-all">
           <ArrowLeft size={16} /> Back to Dashboard
         </Link>
 
@@ -495,13 +495,13 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-5 flex items-center gap-4"
+          className="bg-white shadow-sm backdrop-blur-md border border-slate-200 rounded-xl p-5 flex items-center gap-4"
         >
           <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
             <Trophy size={22} className="text-amber-400" />
           </div>
           <div>
-            <span className={`inline-block text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full mb-1 ${tournament.status === 'active' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/10 text-slate-400'}`}>
+            <span className={`inline-block text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full mb-1 ${tournament.status === 'active' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-50 text-slate-500'}`}>
               {tournament.status}
             </span>
             <h1 className="text-2xl font-black tracking-tight">{tournament.name}</h1>
@@ -514,16 +514,16 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden"
+          className="bg-white shadow-sm backdrop-blur-md border border-slate-200 rounded-xl overflow-hidden"
         >
           {/* Match Header */}
-          <div className="flex justify-between items-center px-5 pt-4 pb-2 border-b border-white/5 mb-2">
+          <div className="flex justify-between items-center px-5 pt-4 pb-2 border-b border-slate-200 mb-2">
             <div className="flex items-center gap-2">
               <span className={`relative flex h-2.5 w-2.5 ${selectedMatch.status === 'live' ? '' : 'hidden'}`}>
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
               </span>
-              <span className={`text-[10px] font-black uppercase tracking-widest ${selectedMatch.status === 'live' ? 'text-emerald-400' : 'text-slate-400'}`}>
+              <span className={`text-[10px] font-black uppercase tracking-widest ${selectedMatch.status === 'live' ? 'text-emerald-400' : 'text-slate-500'}`}>
                 {selectedMatch.status === 'live' ? 'Live Analytics' : 'Match Result'}
               </span>
             </div>
@@ -532,10 +532,10 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
               <select
                 value={selectedMatchId || ''}
                 onChange={(e) => setSelectedMatchId(e.target.value)}
-                className="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-300 focus:outline-none focus:border-white/20"
+                className="bg-white shadow-sm border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-700 focus:outline-none focus:border-slate-300"
               >
                 {matches.map(m => (
-                  <option key={m.id} value={m.id} className="bg-slate-800 text-white">
+                  <option key={m.id} value={m.id} className="bg-white text-slate-900">
                     {m.status === 'live' ? '🔴 LIVE: ' : m.status === 'completed' ? '🏁 ' : '🗓 '}{getTeamDetails(m.teamA).shortName} vs {getTeamDetails(m.teamB).shortName}
                   </option>
                 ))}
@@ -558,14 +558,14 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
                   )}
                 </div>
                 <div>
-                  <p className="text-[10px] text-slate-400 font-bold mb-0.5">{getTeamDetails(selectedMatch.teamA).shortName}</p>
+                  <p className="text-[10px] text-slate-500 font-bold mb-0.5">{getTeamDetails(selectedMatch.teamA).shortName}</p>
                   {(analyticsData?.inn1?.teamId === selectedMatch.teamA || analyticsData?.inn2?.teamId === selectedMatch.teamA) ? (
                     (() => {
                       const inn = analyticsData.inn1.teamId === selectedMatch.teamA ? analyticsData.inn1 : analyticsData.inn2;
                       return (
                         <>
                           <h2 className="text-3xl font-black tabular-nums leading-none">{inn.totalRuns}<span className="text-xl text-slate-500">/{inn.totalWickets}</span></h2>
-                          <p className="text-[10px] text-slate-400 font-bold mt-1">{(inn.oversPlayed || 0).toFixed(1)} Overs</p>
+                          <p className="text-[10px] text-slate-500 font-bold mt-1">{(inn.oversPlayed || 0).toFixed(1)} Overs</p>
                         </>
                       )
                     })()
@@ -590,14 +590,14 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
                   )}
                 </div>
                 <div>
-                  <p className="text-[10px] text-slate-400 font-bold mb-0.5">{getTeamDetails(selectedMatch.teamB).shortName}</p>
+                  <p className="text-[10px] text-slate-500 font-bold mb-0.5">{getTeamDetails(selectedMatch.teamB).shortName}</p>
                   {(analyticsData?.inn1?.teamId === selectedMatch.teamB || analyticsData?.inn2?.teamId === selectedMatch.teamB) ? (
                     (() => {
                       const inn = analyticsData.inn1.teamId === selectedMatch.teamB ? analyticsData.inn1 : analyticsData.inn2;
                       return (
                         <>
                           <h2 className="text-3xl font-black tabular-nums leading-none">{inn.totalRuns}<span className="text-xl text-slate-500">/{inn.totalWickets}</span></h2>
-                          <p className="text-[10px] text-slate-400 font-bold mt-1">{(inn.oversPlayed || 0).toFixed(1)} Overs</p>
+                          <p className="text-[10px] text-slate-500 font-bold mt-1">{(inn.oversPlayed || 0).toFixed(1)} Overs</p>
                         </>
                       )
                     })()
@@ -611,7 +611,7 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
             {/* Win Predictor */}
             {analyticsData && (
               <div className="flex flex-col items-center gap-2">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Win Predictor</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Win Predictor</p>
                 <div className="relative w-24 h-24">
                   <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
                     <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(239,68,68,0.3)" strokeWidth="8" />
@@ -625,7 +625,7 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-lg font-black text-white tabular-nums">{teamAProb}%</span>
+                    <span className="text-lg font-black text-slate-900 tabular-nums">{teamAProb}%</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 text-[10px] font-bold">
@@ -637,7 +637,7 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
           </div>
 
           {/* Status Strip */}
-          <div className="px-5 pb-3 pt-2 border-t border-white/5 bg-white/5 flex flex-col md:flex-row items-center gap-6 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          <div className="px-5 pb-3 pt-2 border-t border-slate-200 bg-white shadow-sm flex flex-col md:flex-row items-center gap-6 text-[10px] font-bold uppercase tracking-wider text-slate-500">
              <span className="text-blue-400">
                {selectedMatch.status === 'completed' ? `Result: ${selectedMatch.result?.margin || 'Match Completed'}` : 
                 selectedMatch.currentInnings === 2 ? `Target: ${analyticsData?.inn1?.totalRuns + 1} • Need ${Math.max(0, analyticsData?.inn1?.totalRuns + 1 - analyticsData?.inn2?.totalRuns)} runs from ${Math.max(0, selectedMatch.overs * 6 - (Math.floor(analyticsData?.inn2?.oversPlayed)*6 + Math.round((analyticsData?.inn2?.oversPlayed%1)*10)))} balls` :
@@ -647,10 +647,10 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
 
           {/* Worm Chart Accordion */}
           {analyticsData && (
-          <div className="border-t border-white/5">
+          <div className="border-t border-slate-200">
             <button
               onClick={() => setChartOpen(!chartOpen)}
-              className="w-full flex items-center justify-between px-5 py-3 text-xs font-bold text-slate-400 hover:text-white transition-colors"
+              className="w-full flex items-center justify-between px-5 py-3 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors"
             >
               <span className="flex items-center gap-2">
                 <TrendingUp size={14} /> Cumulative Runs Comparison (Worm Chart)
@@ -665,7 +665,7 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.25 }}
-                  className="overflow-hidden bg-black/20"
+                  className="overflow-hidden bg-slate-100"
                 >
                   <div className="px-5 pb-5 pt-3">
                     <div className="h-56 md:h-64">
@@ -681,14 +681,14 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
                               <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                             </linearGradient>
                           </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                          <XAxis dataKey="over" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={{ stroke: 'rgba(255,255,255,0.05)' }} />
-                          <YAxis tick={{ fontSize: 10, fill: '#64748b' }} axisLine={{ stroke: 'rgba(255,255,255,0.05)' }} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
+                          <XAxis dataKey="over" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={{ stroke: 'rgba(0,0,0,0.05)' }} />
+                          <YAxis tick={{ fontSize: 10, fill: '#64748b' }} axisLine={{ stroke: 'rgba(0,0,0,0.05)' }} />
                           <Tooltip content={<CustomTooltip />} />
                           <Legend
                             verticalAlign="top"
                             height={30}
-                            formatter={(value) => <span className="text-xs font-bold text-slate-300">{value}</span>}
+                            formatter={(value) => <span className="text-xs font-bold text-slate-700">{value}</span>}
                           />
                           <Area type="monotone" dataKey={analyticsData.inn1.teamName} stroke="#3b82f6" fillOpacity={1} fill="url(#gradRCB)" strokeWidth={2.5} dot={false} />
                           {selectedMatch.currentInnings === 2 && (
@@ -705,8 +705,8 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
           )}
         </motion.div>
         ) : (
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-8 text-center">
-            <p className="text-slate-400 font-bold">No matches scheduled yet.</p>
+          <div className="bg-white shadow-sm backdrop-blur-md border border-slate-200 rounded-xl p-8 text-center">
+            <p className="text-slate-500 font-bold">No matches scheduled yet.</p>
           </div>
         )}
 
@@ -717,13 +717,13 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
           transition={{ delay: 0.2 }}
         >
           {/* Tab Switcher */}
-          <div className="flex gap-0 border-b border-white/10 mb-5 overflow-x-auto scrollbar-hide">
+          <div className="flex gap-0 border-b border-slate-200 mb-5 overflow-x-auto scrollbar-hide">
             {tabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`relative px-5 py-3 text-xs font-black uppercase tracking-widest transition-colors whitespace-nowrap ${
-                  activeTab === tab.id ? 'text-white' : 'text-slate-500 hover:text-slate-300'
+                  activeTab === tab.id ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
                 {tab.label}
@@ -750,10 +750,10 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
 
               {/* ═══ POINTS TABLE ═══ */}
               {activeTab === 'standings' && (
-                <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl overflow-x-auto">
+                <div className="bg-white shadow-sm backdrop-blur-md border border-slate-200 rounded-xl overflow-x-auto">
                   <div className="min-w-[600px]">
                     {/* Table Header */}
-                    <div className="grid grid-cols-[minmax(160px,2fr)_repeat(6,1fr)] gap-0 px-4 py-3 bg-white/5 border-b border-white/5 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                    <div className="grid grid-cols-[minmax(160px,2fr)_repeat(6,1fr)] gap-0 px-4 py-3 bg-white shadow-sm border-b border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-500">
                       <span>Team</span>
                       <span className="text-center">P</span>
                       <span className="text-center">W</span>
@@ -765,19 +765,19 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
 
                     {/* Table Rows */}
                     {mappedPointsTable.length === 0 ? (
-                       <div className="p-8 text-center text-slate-400 font-bold">No matches played yet.</div>
+                       <div className="p-8 text-center text-slate-500 font-bold">No matches played yet.</div>
                     ) : (
                       mappedPointsTable.map((team, i) => (
                         <div
                           key={team.code}
-                          className={`grid grid-cols-[minmax(160px,2fr)_repeat(6,1fr)] gap-0 px-4 py-3 border-b border-white/5 items-center transition-colors hover:bg-white/5 ${
+                          className={`grid grid-cols-[minmax(160px,2fr)_repeat(6,1fr)] gap-0 px-4 py-3 border-b border-slate-200 items-center transition-colors hover:bg-white shadow-sm ${
                             i < 4 ? 'border-l-2 border-l-emerald-500/60 bg-emerald-500/5' : 'border-l-2 border-l-transparent'
                           }`}
                         >
                           {/* Team */}
                           <div className="flex items-center gap-3 min-w-0">
                             <div
-                              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border overflow-hidden bg-white/5"
+                              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border overflow-hidden bg-white shadow-sm"
                               style={{ borderColor: team.color + '40' }}
                             >
                               {team.logoUrl ? (
@@ -789,25 +789,25 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
                               )}
                             </div>
                             <div className="min-w-0">
-                              <span className="text-sm font-black text-white block md:inline">{team.code}</span>
+                              <span className="text-sm font-black text-slate-900 block md:inline">{team.code}</span>
                               <span className="text-[10px] text-slate-500 font-medium md:ml-1.5 block md:inline truncate">{team.name}</span>
                             </div>
                           </div>
-                          <span className="text-center text-xs font-bold text-slate-300 tabular-nums">{team.p}</span>
+                          <span className="text-center text-xs font-bold text-slate-700 tabular-nums">{team.p}</span>
                           <span className="text-center text-xs font-bold text-emerald-400 tabular-nums">{team.w}</span>
                           <span className="text-center text-xs font-bold text-red-400 tabular-nums">{team.l}</span>
                           <span className="text-center text-xs font-bold text-slate-500 tabular-nums">{team.t}</span>
                           <span className={`text-center text-xs font-bold tabular-nums ${parseFloat(team.nrr) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                             {team.nrr}
                           </span>
-                          <span className="text-center text-sm font-black text-white tabular-nums">{team.pts}</span>
+                          <span className="text-center text-sm font-black text-slate-900 tabular-nums">{team.pts}</span>
                         </div>
                       ))
                     )}
                   </div>
                   {/* Qualification Legend */}
                   {mappedPointsTable.length > 0 && (
-                    <div className="px-4 py-2.5 flex items-center gap-2 text-[10px] text-slate-500 font-medium bg-black/20">
+                    <div className="px-4 py-2.5 flex items-center gap-2 text-[10px] text-slate-500 font-medium bg-slate-100">
                       <div className="w-3 h-3 rounded-sm bg-emerald-500/20 border border-emerald-500/40"></div>
                       Playoff Qualification Zone
                     </div>
@@ -819,26 +819,26 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
               {activeTab === 'fixtures' && (
                 <div className="space-y-3">
                   {mappedFixtures.length === 0 ? (
-                    <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-8 text-center text-slate-400 font-bold">No fixtures found.</div>
+                    <div className="bg-white shadow-sm backdrop-blur-md border border-slate-200 rounded-xl p-8 text-center text-slate-500 font-bold">No fixtures found.</div>
                   ) : (
                     mappedFixtures.map(fix => (
                       <Link href={`/match/${fix.id}`} key={fix.id} className="block">
-                        <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-4 flex items-center justify-between hover:bg-white/10 transition-colors">
+                        <div className="bg-white shadow-sm backdrop-blur-md border border-slate-200 rounded-xl p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
                           <div className="flex items-center gap-4 md:gap-6">
                             {/* Team A */}
                             <div className="flex items-center gap-2 md:gap-3">
-                              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center overflow-hidden">
-                                {fix.teamALogo ? <img src={fix.teamALogo} className="w-full h-full object-cover" /> : <span className="text-[9px] font-black text-slate-300">{fix.teamA}</span>}
+                              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center overflow-hidden">
+                                {fix.teamALogo ? <img src={fix.teamALogo} className="w-full h-full object-cover" /> : <span className="text-[9px] font-black text-slate-700">{fix.teamA}</span>}
                               </div>
                               <span className="text-sm md:text-base font-black">{fix.teamA}</span>
                             </div>
                             {/* VS */}
-                            <span className="text-[10px] font-bold text-slate-600 uppercase bg-black/30 px-2 py-0.5 rounded">vs</span>
+                            <span className="text-[10px] font-bold text-slate-600 uppercase bg-slate-100 border border-slate-200 px-2 py-0.5 rounded">vs</span>
                             {/* Team B */}
                             <div className="flex items-center gap-2 md:gap-3">
                               <span className="text-sm md:text-base font-black">{fix.teamB}</span>
-                              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center overflow-hidden">
-                                {fix.teamBLogo ? <img src={fix.teamBLogo} className="w-full h-full object-cover" /> : <span className="text-[9px] font-black text-slate-300">{fix.teamB}</span>}
+                              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center overflow-hidden">
+                                {fix.teamBLogo ? <img src={fix.teamBLogo} className="w-full h-full object-cover" /> : <span className="text-[9px] font-black text-slate-700">{fix.teamB}</span>}
                               </div>
                             </div>
                           </div>
@@ -847,12 +847,12 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
                             {fix.status === 'completed' ? (
                               <>
                                 <p className="text-xs md:text-sm font-black text-emerald-400">Completed</p>
-                                <p className="text-[9px] md:text-[10px] text-slate-400 font-bold">{fix.result}</p>
+                                <p className="text-[9px] md:text-[10px] text-slate-500 font-bold">{fix.result}</p>
                               </>
                             ) : fix.status === 'live' ? (
                               <>
                                 <p className="text-xs md:text-sm font-black text-red-400 animate-pulse">LIVE</p>
-                                <p className="text-[9px] md:text-[10px] text-slate-400 font-bold">{fix.venue}</p>
+                                <p className="text-[9px] md:text-[10px] text-slate-500 font-bold">{fix.venue}</p>
                               </>
                             ) : (
                               <>
@@ -872,7 +872,7 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
               {activeTab === 'stats' && (
                 <div className="grid md:grid-cols-2 gap-4">
                   {/* Orange Cap */}
-                  <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-5">
+                  <div className="bg-white shadow-sm backdrop-blur-md border border-slate-200 rounded-xl p-5">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center">
                         <Star size={20} className="text-orange-400" />
@@ -902,7 +902,7 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
                   </div>
 
                   {/* Purple Cap */}
-                  <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-5">
+                  <div className="bg-white shadow-sm backdrop-blur-md border border-slate-200 rounded-xl p-5">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
                         <Award size={20} className="text-purple-400" />
