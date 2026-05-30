@@ -1,34 +1,9 @@
-const fs = require('fs');
-const path = require('path');
-
+const sharp = require('sharp');
 const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
-const iconsDir = path.join(__dirname, 'public', 'icons');
+const img = 'public/11shots-logo.png';
 
-if (!fs.existsSync(iconsDir)) {
-  fs.mkdirSync(iconsDir, { recursive: true });
-}
-
-const sourceIcon = path.join(iconsDir, 'icon-512x512.png');
-
-if (fs.existsSync(sourceIcon)) {
-  sizes.forEach(size => {
-    const dest = path.join(iconsDir, `icon-${size}x${size}.png`);
-    if (!fs.existsSync(dest)) {
-      fs.copyFileSync(sourceIcon, dest);
-      console.log(`Created icon-${size}x${size}.png`);
-    } else {
-      console.log(`icon-${size}x${size}.png already exists`);
-    }
-  });
-
-  // Create maskable icons
-  [192, 512].forEach(size => {
-    const dest = path.join(iconsDir, `icon-maskable-${size}x${size}.png`);
-    fs.copyFileSync(sourceIcon, dest);
-    console.log(`Created icon-maskable-${size}x${size}.png`);
-  });
-
-  console.log('\nAll icons created successfully!');
-} else {
-  console.error('Source icon not found at:', sourceIcon);
-}
+Promise.all([
+  ...sizes.map(s => sharp(img).resize(s, s).toFile(`public/icons/icon-${s}x${s}.png`)),
+  sharp(img).resize(192, 192).toFile(`public/icons/icon-maskable-192x192.png`),
+  sharp(img).resize(512, 512).toFile(`public/icons/icon-maskable-512x512.png`)
+]).then(() => console.log('Icons generated!')).catch(e => console.error(e));

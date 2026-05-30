@@ -144,7 +144,7 @@ export default function LoginPage() {
 
           <div className="text-center mb-8">
             <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4 border-2 border-[var(--color-cricket-accent)]/20 shadow-md hover:scale-105 transition-transform duration-300">
-              <img src="/stumpflow-logo.jpg" alt="11shots Logo" className="w-full h-full object-cover" />
+              <img src="/11shots-logo.png?v=2" alt="11shots Logo" className="w-full h-full object-cover" />
             </div>
             
             {/* DEEP BLACK HEADING */}
