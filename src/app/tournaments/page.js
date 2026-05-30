@@ -34,7 +34,7 @@ export default function PublicTournamentsPage() {
             id,
             format: val.format || 'T20',
             location: val.location || 'Local Ground, India',
-            prizePool: val.prizePool || '₹50,000',
+            prizePool: val.prizePool || 'TBA',
             teamsRegistered: val.teamsRegistered || Math.floor(Math.random() * 10) + 6,
             maxTeams: val.maxTeams || 16,
             coverImage: val.coverImage || STADIUM_BGS[index % STADIUM_BGS.length],

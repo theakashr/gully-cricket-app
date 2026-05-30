@@ -1,12 +1,13 @@
 "use client";
 import { useState, useEffect, use } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Calendar, List, ArrowLeft, Shield, BarChart3, Medal, Star, Play, Award, ChevronRight, TrendingUp, Zap, ChevronUp, ChevronDown } from 'lucide-react';
+import { Trophy, Calendar, List, ArrowLeft, Shield, BarChart3, Medal, Star, Play, Award, ChevronRight, TrendingUp, Zap, ChevronUp, ChevronDown, Edit2, Check, X } from 'lucide-react';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell, ReferenceLine, Label } from 'recharts';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import Link from 'next/link';
 import { db } from '@/lib/firebase';
-import { ref, onValue, get } from 'firebase/database';
+import { ref, onValue, get, update } from 'firebase/database';
+import { useAuth } from '@/context/AuthContext';
 
 export default function DashboardTournamentDetailsPage({ params: paramsPromise }) {
   const params = use(paramsPromise);
@@ -20,6 +21,20 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
   const [activeTab, setActiveTab] = useState('standings'); // standings, fixtures, stats
   const [statsTab, setStatsTab] = useState('orange'); // orange, purple, mvp
   const [loading, setLoading] = useState(true);
+  
+  const { role } = useAuth();
+  const [editingPrize, setEditingPrize] = useState(false);
+  const [tempPrize, setTempPrize] = useState('');
+
+  const handleSavePrize = async () => {
+    try {
+      await update(ref(db, `tournaments/${tournamentId}`), { prizePool: tempPrize });
+      setTournament(prev => ({ ...prev, prizePool: tempPrize }));
+      setEditingPrize(false);
+    } catch (err) {
+      console.error("Failed to update prize pool", err);
+    }
+  };
 
   // IND vs AUS Mock Live Broadcaster Dashboard State
   const [analyticsTab, setAnalyticsTab] = useState('worm'); // worm, manhattan, projection
@@ -554,16 +569,47 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white shadow-sm backdrop-blur-md border border-slate-200 rounded-xl p-5 flex items-center gap-4"
+          className="bg-white shadow-sm backdrop-blur-md border border-slate-200 rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
         >
-          <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-            <Trophy size={22} className="text-amber-400" />
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+              <Trophy size={22} className="text-amber-400" />
+            </div>
+            <div>
+              <span className={`inline-block text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full mb-1 ${tournament.status === 'active' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-50 text-slate-500'}`}>
+                {tournament.status}
+              </span>
+              <h1 className="text-2xl font-black tracking-tight">{tournament.name}</h1>
+            </div>
           </div>
-          <div>
-            <span className={`inline-block text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full mb-1 ${tournament.status === 'active' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-50 text-slate-500'}`}>
-              {tournament.status}
-            </span>
-            <h1 className="text-2xl font-black tracking-tight">{tournament.name}</h1>
+          
+          <div className="bg-slate-50 rounded-xl px-4 py-3 border border-slate-200 flex items-center gap-4">
+             <div>
+               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Prize Pool</p>
+               {editingPrize ? (
+                 <div className="flex items-center gap-2">
+                   <input 
+                     type="text" 
+                     value={tempPrize}
+                     onChange={(e) => setTempPrize(e.target.value)}
+                     className="bg-white border border-slate-300 rounded px-2 py-1 text-sm font-bold text-slate-900 w-28 focus:outline-none focus:border-blue-500"
+                     placeholder="e.g. ₹50,000"
+                     autoFocus
+                   />
+                   <button onClick={handleSavePrize} className="text-emerald-600 hover:bg-emerald-50 p-1 rounded"><Check size={16}/></button>
+                   <button onClick={() => setEditingPrize(false)} className="text-slate-400 hover:bg-slate-100 p-1 rounded"><X size={16}/></button>
+                 </div>
+               ) : (
+                 <div className="flex items-center gap-2">
+                   <p className="text-lg font-black text-slate-900">{tournament.prizePool || 'TBA'}</p>
+                   {role === 'admin' && (
+                     <button onClick={() => { setTempPrize(tournament.prizePool || ''); setEditingPrize(true); }} className="text-slate-400 hover:text-blue-600 transition-colors p-1">
+                       <Edit2 size={14} />
+                     </button>
+                   )}
+                 </div>
+               )}
+             </div>
           </div>
         </motion.div>
 
