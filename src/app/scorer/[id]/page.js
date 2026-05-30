@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RotateCcw, AlertTriangle, PlayCircle, LogOut, ArrowRight, Settings2 } from 'lucide-react';
+import { RotateCcw, AlertTriangle, PlayCircle, LogOut, ArrowRight, Settings2, Search, Zap, CheckCircle2, Plus, Users, Target } from 'lucide-react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { db } from '@/lib/firebase';
 import { ref, onValue, push, set, update, get, remove } from 'firebase/database';
@@ -9,20 +9,141 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/context/AuthContext';
 
-// Safe over arithmetic helpers — avoids floating-point bugs entirely
-function oversToTotalBalls(overs) {
+// ════════════════════════════════════════════════════════════
+// CORE LOGIC HELPERS
+// ════════════════════════════════════════════════════════════
+
+function oversToTotalBalls(overs, ballsPerOver) {
   const o = typeof overs === 'number' ? overs : parseFloat(overs || 0);
   const completedOvers = Math.floor(o);
-  // Round to avoid floating point: 2.3 -> balls = 3
   const partialBalls = Math.round((o - completedOvers) * 10);
-  return completedOvers * 6 + partialBalls;
+  return (completedOvers * ballsPerOver) + partialBalls;
 }
 
-function totalBallsToOvers(totalBalls) {
-  const completedOvers = Math.floor(totalBalls / 6);
-  const remainingBalls = totalBalls % 6;
+function totalBallsToOvers(totalBalls, ballsPerOver) {
+  const completedOvers = Math.floor(totalBalls / ballsPerOver);
+  const remainingBalls = totalBalls % ballsPerOver;
   return parseFloat(`${completedOvers}.${remainingBalls}`);
 }
+
+function getPartnership(ballsObj, currentInnings) {
+  if (!ballsObj) return { runs: 0, balls: 0 };
+  const inningsBalls = Object.values(ballsObj)
+    .filter(b => b.innings === currentInnings)
+    .sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+  
+  let pRuns = 0;
+  let pBalls = 0;
+  for (let i = inningsBalls.length - 1; i >= 0; i--) {
+     const b = inningsBalls[i];
+     if (b.type === 'wicket') break;
+     
+     let r = b.runs || 0;
+     if (b.type === 'wd' || b.type === 'nb') r += 1;
+     pRuns += r;
+     
+     if (b.isLegalBall || b.type === 'nb') pBalls += 1;
+  }
+  return { runs: pRuns, balls: pBalls };
+}
+
+// ════════════════════════════════════════════════════════════
+// AUTO-SAVING SEARCHABLE PLAYER SELECT
+// ════════════════════════════════════════════════════════════
+
+function SearchablePlayerSelect({ label, value, onChange, options, onSave, placeholder, isBowler }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const wrapperRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) setIsOpen(false);
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filtered = options.filter(o => o.name.toLowerCase().includes(search.toLowerCase()));
+
+  const handleSelect = (name) => {
+    onChange(name);
+    setIsOpen(false);
+    setSearch('');
+    onSave(name);
+  };
+
+  const handleCustomAdd = () => {
+    if (!search.trim()) return;
+    onChange(search.trim());
+    setIsOpen(false);
+    onSave(search.trim());
+    setSearch('');
+  };
+
+  return (
+    <div className="relative w-full" ref={wrapperRef}>
+      <label className={`text-[10px] uppercase tracking-wider font-black ml-1 mb-1.5 block ${isBowler ? 'text-emerald-700' : 'text-slate-500'}`}>
+        {label}
+      </label>
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full bg-white border ${isBowler ? 'border-emerald-200 hover:border-emerald-300 shadow-emerald-50' : 'border-slate-200 hover:border-slate-300 shadow-sm'} rounded-xl px-3 py-2.5 text-slate-900 text-sm font-bold flex justify-between items-center cursor-pointer transition-colors`}
+      >
+        <span className={value ? 'text-slate-900 truncate' : 'text-slate-400 truncate font-medium'}>
+          {value || placeholder}
+        </span>
+        <Search size={14} className={isBowler ? 'text-emerald-400' : 'text-slate-400'} />
+      </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.15 }}
+            className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden"
+          >
+            <div className="p-2 border-b border-slate-100 bg-slate-50">
+              <input 
+                type="text" 
+                autoFocus
+                placeholder="Search players..." 
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+              />
+            </div>
+            <div className="max-h-48 overflow-y-auto p-1 bg-white">
+              {filtered.map(p => (
+                <div 
+                  key={p.id} 
+                  onClick={() => handleSelect(p.name)}
+                  className="px-3 py-2.5 hover:bg-slate-50 rounded-lg cursor-pointer text-sm font-bold text-slate-700 transition-colors"
+                >
+                  {p.name}
+                </div>
+              ))}
+              {search.trim() && filtered.length === 0 && (
+                <div 
+                  onClick={handleCustomAdd}
+                  className="px-3 py-2.5 hover:bg-blue-50 rounded-lg cursor-pointer text-sm font-black text-blue-600 flex items-center gap-2"
+                >
+                  <Plus size={14} /> Add "{search}"
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════
+// MAIN SCORER COMPONENT
+// ════════════════════════════════════════════════════════════
 
 export default function ScorerPage({ params: paramsPromise }) {
   const params = use(paramsPromise);
@@ -32,45 +153,55 @@ export default function ScorerPage({ params: paramsPromise }) {
   const [match, setMatch] = useState(null);
   const [teamA, setTeamA] = useState(null);
   const [teamB, setTeamB] = useState(null);
+  const [allPlayers, setAllPlayers] = useState([]);
+  
   const [currentOver, setCurrentOver] = useState([]);
   const [lastBallId, setLastBallId] = useState(null);
   const [striker, setStriker] = useState({ name: '', runs: 0, balls: 0 });
   const [nonStriker, setNonStriker] = useState({ name: '', runs: 0, balls: 0 });
   const [bowler, setBowler] = useState({ name: '', overs: 0, runs: 0, wickets: 0 });
+  
   const [loading, setLoading] = useState(true);
   const [showOversEditor, setShowOversEditor] = useState(false);
   const [editOvers, setEditOvers] = useState(20);
+  const [editBallsPerOver, setEditBallsPerOver] = useState(6);
+  
   const { role: userRole } = useAuth();
 
+  // 1. Fetch Data
   useEffect(() => {
     if (!matchId) return;
-    const matchRef = ref(db, `matches/${matchId}`);
     
+    // Fetch Global Players once
+    onValue(ref(db, 'players'), snap => {
+       if (snap.exists()) {
+          const arr = Object.entries(snap.val()).map(([id, v]) => ({ id, ...v }));
+          setAllPlayers(arr);
+       }
+    });
+
+    const matchRef = ref(db, `matches/${matchId}`);
     const unsubscribe = onValue(matchRef, async (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
+        
+        // Ensure ballsPerOver defaults to 6 if not present
+        if (!data.ballsPerOver) data.ballsPerOver = 6;
+        
         setMatch(data);
         
-        // Fetch teams once
         if (!teamA || !teamB) {
            try {
               if (data.teamA) {
                  const taSnap = await get(ref(db, `teams/${data.teamA}`));
                  setTeamA(taSnap.exists() ? { id: data.teamA, ...taSnap.val() } : { id: data.teamA, shortName: 'TBA', name: 'Unknown Team A' });
-              } else {
-                 setTeamA({ shortName: 'TBA', name: 'Unknown Team A' });
               }
-              
               if (data.teamB) {
                  const tbSnap = await get(ref(db, `teams/${data.teamB}`));
                  setTeamB(tbSnap.exists() ? { id: data.teamB, ...tbSnap.val() } : { id: data.teamB, shortName: 'TBA', name: 'Unknown Team B' });
-              } else {
-                 setTeamB({ shortName: 'TBA', name: 'Unknown Team B' });
               }
            } catch (error) {
               console.error("Error fetching teams:", error);
-              setTeamA({ shortName: 'TBA', name: 'Error' });
-              setTeamB({ shortName: 'TBA', name: 'Error' });
            }
         }
 
@@ -85,14 +216,38 @@ export default function ScorerPage({ params: paramsPromise }) {
 
         if (data.balls) {
            const ballsEntries = Object.entries(data.balls).sort((a, b) => new Date(a[1].timestamp) - new Date(b[1].timestamp));
+           setLastBallId(ballsEntries.length > 0 ? ballsEntries[ballsEntries.length - 1][0] : null);
+
+           // Filter to just the current over in the current innings
+           const currInnBalls = ballsEntries.filter(b => b[1].innings === data.currentInnings);
            
-           if (ballsEntries.length > 0) {
-             setLastBallId(ballsEntries[ballsEntries.length - 1][0]);
-           } else {
-             setLastBallId(null);
+           // Calculate exactly what balls belong to the current over visualization
+           const currOversRaw = data.score[`innings${data.currentInnings}`].overs;
+           const ballsThrownInOver = Math.round((currOversRaw % 1) * 10);
+           
+           // If ballsThrownInOver is 0 but we've bowled balls, it means an over JUST finished.
+           // Show the full over momentarily, or clear it. Let's show the last N balls if ballsThrownInOver > 0.
+           // Actually, simply take the last `ballsThrownInOver` legal balls, plus any extras that occurred in between.
+           // A simpler robust method: get all balls since the last time `overs` was an integer.
+           const recentOver = [];
+           for (let i = currInnBalls.length - 1; i >= 0; i--) {
+              const b = currInnBalls[i][1];
+              recentOver.unshift(b);
+              // Stop if this ball was a legal ball and made the over whole (e.g. 1.0, 2.0)
+              // Wait, the over value *on the ball* is the over AFTER it was bowled.
+              const bPart = Math.round((b.over % 1) * 10);
+              if (bPart === 0 && b.isLegalBall) {
+                 // If we are currently at an exact over (e.g. 2.0) we want to SHOW the completed over
+                 // So if `currOversRaw` is exactly whole, we collect the last full over.
+                 const isCurrentlyWhole = Math.round((currOversRaw % 1) * 10) === 0;
+                 if (!isCurrentlyWhole && recentOver.length > 1) {
+                    recentOver.shift(); // remove this ball as it belongs to previous over
+                 }
+                 break;
+              }
            }
 
-           const recentBalls = ballsEntries.slice(-6).map(([id, b]) => {
+           const mappedRecent = recentOver.map(b => {
              if (b.type === 'wicket') return 'W';
              if (b.type === 'wd') return b.runs > 1 ? `${b.runs}wd` : 'wd';
              if (b.type === 'nb') return b.runs > 1 ? `${b.runs}nb` : 'nb';
@@ -100,13 +255,12 @@ export default function ScorerPage({ params: paramsPromise }) {
              if (b.type === 'boundary') return b.runs.toString();
              return b.runs.toString();
            });
-           setCurrentOver(recentBalls);
+           setCurrentOver(mappedRecent);
         } else {
            setCurrentOver([]);
            setLastBallId(null);
         }
       } else {
-        alert("Match not found!");
         router.push('/dashboard');
       }
       setLoading(false);
@@ -115,19 +269,24 @@ export default function ScorerPage({ params: paramsPromise }) {
     return () => unsubscribe();
   }, [matchId, router, teamA, teamB]);
 
-  const updatePlayers = async () => {
+  // 2. Auto-Save Players Logic
+  const handleSavePlayer = async (roleType, newName) => {
     if (!match) return;
     const currInningsKey = match.currentInnings === 1 ? 'innings1' : 'innings2';
+    
+    const newStriker = roleType === 'striker' ? { ...striker, name: newName } : striker;
+    const newNonStriker = roleType === 'nonStriker' ? { ...nonStriker, name: newName } : nonStriker;
+    const newBowler = roleType === 'bowler' ? { ...bowler, name: newName } : bowler;
+
     try {
       await update(ref(db, `matches/${matchId}/score/${currInningsKey}/currentPlayers`), {
-        striker,
-        nonStriker,
-        bowler
+        striker: newStriker,
+        nonStriker: newNonStriker,
+        bowler: newBowler
       });
-      toast.success("Players saved successfully", { id: 'save-players' });
+      toast.success("Player updated", { id: 'save-player' });
     } catch (error) {
-      console.error("Error updating players:", error);
-      toast.error("Failed to save players");
+      console.error("Error saving player:", error);
     }
   };
 
@@ -149,25 +308,25 @@ export default function ScorerPage({ params: paramsPromise }) {
     }
   };
 
+  // 3. Core Record Ball
   const recordBall = async (runs, type) => {
     if (!match) return;
-    
+    const bpo = match.ballsPerOver || 6;
     const currInningsKey = match.currentInnings === 1 ? 'innings1' : 'innings2';
     const currentScore = match.score[currInningsKey];
     
     let newRuns = currentScore.runs + runs;
     let newWickets = currentScore.wickets + (type === 'wicket' ? 1 : 0);
     
-    // Extras logic
     const extras = { ...currentScore.extras };
     let isLegalBall = true;
 
     if (type === 'wd') {
-      newRuns += 1; // Wide adds 1 run default
+      newRuns += 1;
       extras.wd += (1 + runs);
       isLegalBall = false;
     } else if (type === 'nb') {
-      newRuns += 1; // NB adds 1 run default
+      newRuns += 1;
       extras.nb += (1 + runs);
       isLegalBall = false;
     } else if (type === 'b') {
@@ -176,14 +335,12 @@ export default function ScorerPage({ params: paramsPromise }) {
       extras.lb += runs;
     }
 
-    // Overs logic — uses integer ball counting to avoid float bugs
     let newOvers = currentScore.overs;
     if (isLegalBall) {
-      const currentTotalBalls = oversToTotalBalls(currentScore.overs);
-      newOvers = totalBallsToOvers(currentTotalBalls + 1);
+      const currentTotalBalls = oversToTotalBalls(currentScore.overs, bpo);
+      newOvers = totalBallsToOvers(currentTotalBalls + 1, bpo);
     }
 
-    // Individual Stats Logic
     let newStriker = { ...striker };
     let newNonStriker = { ...nonStriker };
     let newBowler = { ...bowler };
@@ -197,17 +354,16 @@ export default function ScorerPage({ params: paramsPromise }) {
        newBowler.wickets += 1;
     } else if (type === 'wd' || type === 'nb') {
        newBowler.runs += (runs + 1);
-       if (type === 'nb') newStriker.balls += 1; // NB counts as ball faced usually
+       if (type === 'nb') newStriker.balls += 1;
     } else if (type === 'b' || type === 'lb') {
        newStriker.balls += 1;
     }
 
     if (isLegalBall) {
-       const bowlerTotalBalls = oversToTotalBalls(newBowler.overs);
-       newBowler.overs = totalBallsToOvers(bowlerTotalBalls + 1);
+       const bowlerTotalBalls = oversToTotalBalls(newBowler.overs, bpo);
+       newBowler.overs = totalBallsToOvers(bowlerTotalBalls + 1, bpo);
     }
 
-    // Commentary Generation
     let commentary = `${newBowler.name || 'Bowler'} to ${newStriker.name || 'Batsman'}, `;
     if (type === 'wicket') commentary += `OUT!`;
     else if (type === 'boundary') commentary += `FOUR!`;
@@ -219,17 +375,15 @@ export default function ScorerPage({ params: paramsPromise }) {
     else if (runs === 0) commentary += `no run.`;
     else commentary += `${runs} run${runs > 1 ? 's' : ''}.`;
 
-    // Strike Rotation Logic
     let shouldSwap = false;
     if (type === 'normal' || type === 'boundary' || type === 'b' || type === 'lb') {
        if (runs % 2 !== 0) shouldSwap = !shouldSwap;
      }
     
     if (isLegalBall) {
-       // Check if over just completed (balls part is 0 meaning new over started)
        const ballsPart = Math.round((newOvers - Math.floor(newOvers)) * 10);
        if (ballsPart === 0 && newOvers > 0) {
-         shouldSwap = !shouldSwap; // Swap at end of over
+         shouldSwap = !shouldSwap;
        }
     }
 
@@ -240,7 +394,6 @@ export default function ScorerPage({ params: paramsPromise }) {
     }
 
     if (type === 'wicket') {
-       // Reset striker for new batsman
        newStriker = { name: '', runs: 0, balls: 0 };
     }
 
@@ -252,12 +405,7 @@ export default function ScorerPage({ params: paramsPromise }) {
       const ballsRef = ref(db, `matches/${matchId}/balls`);
       const newBallRef = push(ballsRef);
       await set(newBallRef, {
-        runs,
-        type,
-        isLegalBall,
-        over: newOvers,
-        innings: match.currentInnings,
-        commentary,
+        runs, type, isLegalBall, over: newOvers, innings: match.currentInnings, commentary,
         timestamp: new Date().toISOString(),
         previousPlayers: match.score[currInningsKey].currentPlayers || { striker, nonStriker, bowler }
       });
@@ -268,11 +416,7 @@ export default function ScorerPage({ params: paramsPromise }) {
         [`score/${currInningsKey}/wickets`]: newWickets,
         [`score/${currInningsKey}/overs`]: newOvers,
         [`score/${currInningsKey}/extras`]: extras,
-        [`score/${currInningsKey}/currentPlayers`]: {
-           striker: newStriker,
-           nonStriker: newNonStriker,
-           bowler: newBowler
-        }
+        [`score/${currInningsKey}/currentPlayers`]: { striker: newStriker, nonStriker: newNonStriker, bowler: newBowler }
       };
 
       await update(ref(db, `matches/${matchId}`), updates);
@@ -283,13 +427,13 @@ export default function ScorerPage({ params: paramsPromise }) {
 
   const handleUndo = async () => {
     if (!lastBallId || !match) return;
+    const bpo = match.ballsPerOver || 6;
     
     const lastBall = match.balls[lastBallId];
     if (lastBall.innings !== match.currentInnings) {
       alert("Cannot undo a ball from the previous innings.");
       return;
     }
-
     if (!confirm("Are you sure you want to undo the last ball?")) return;
 
     const currInningsKey = match.currentInnings === 1 ? 'innings1' : 'innings2';
@@ -299,22 +443,15 @@ export default function ScorerPage({ params: paramsPromise }) {
     let revertWickets = lastBall.type === 'wicket' ? 1 : 0;
     const extras = { ...currentScore.extras };
 
-    if (lastBall.type === 'wd') {
-      revertRuns += 1;
-      extras.wd -= (1 + lastBall.runs);
-    } else if (lastBall.type === 'nb') {
-      revertRuns += 1;
-      extras.nb -= (1 + lastBall.runs);
-    } else if (lastBall.type === 'b') {
-      extras.b -= lastBall.runs;
-    } else if (lastBall.type === 'lb') {
-      extras.lb -= lastBall.runs;
-    }
+    if (lastBall.type === 'wd') { revertRuns += 1; extras.wd -= (1 + lastBall.runs); } 
+    else if (lastBall.type === 'nb') { revertRuns += 1; extras.nb -= (1 + lastBall.runs); } 
+    else if (lastBall.type === 'b') { extras.b -= lastBall.runs; } 
+    else if (lastBall.type === 'lb') { extras.lb -= lastBall.runs; }
 
     let revertedOvers = currentScore.overs;
     if (lastBall.isLegalBall) {
-      const currentTotalBalls = oversToTotalBalls(currentScore.overs);
-      revertedOvers = totalBallsToOvers(Math.max(0, currentTotalBalls - 1));
+      const currentTotalBalls = oversToTotalBalls(currentScore.overs, bpo);
+      revertedOvers = totalBallsToOvers(Math.max(0, currentTotalBalls - 1), bpo);
     }
 
     try {
@@ -358,279 +495,287 @@ export default function ScorerPage({ params: paramsPromise }) {
 
   if (loading || !match || !teamA || !teamB) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-         <div className="w-10 h-10 border-4 border-[var(--color-cricket-accent)]/30 border-t-[var(--color-cricket-accent)] rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+         <div className="w-10 h-10 border-4 border-slate-200 border-t-emerald-600 rounded-full animate-spin"></div>
       </div>
     );
   }
 
   const getTeamName = (id) => {
-    if (id === teamA.id) return teamA.shortName;
-    if (id === teamB.id) return teamB.shortName;
+    if (id === teamA?.id) return teamA?.shortName;
+    if (id === teamB?.id) return teamB?.shortName;
     return 'Unknown';
   };
 
+  // 4. Derived Stats
+  const bpo = match.ballsPerOver || 6;
   const currInningsKey = match.currentInnings === 1 ? 'innings1' : 'innings2';
   const { runs, wickets, overs } = match.score[currInningsKey];
   const battingTeam = getTeamName(match.score[currInningsKey].team);
   
-  const crr = runs > 0 && overs > 0 ? (runs / (Math.floor(overs) + ((overs % 1) * 10 / 6))).toFixed(2) : '0.00';
+  const currentTotalBalls = oversToTotalBalls(overs, bpo);
+  const crr = runs > 0 && currentTotalBalls > 0 ? (runs / (currentTotalBalls / bpo)).toFixed(2) : '0.00';
+  const proj = match.currentInnings === 1 ? Math.round((runs / (currentTotalBalls > 0 ? currentTotalBalls : 1)) * (match.overs * bpo)) : null;
 
-  // Innings Transition Logic
   const isAllOut = wickets === 10;
   const isOversDone = overs >= match.overs;
   
-  // 2nd Innings Target logic
-  let targetRuns = null;
-  let runsNeeded = null;
-  let ballsRemaining = null;
-  
+  let targetRuns = null, runsNeeded = null, ballsRemaining = null;
   if (match.currentInnings === 2) {
     targetRuns = match.score.innings1.runs + 1;
     runsNeeded = targetRuns - runs;
-    
-    const maxBalls = match.overs * 6;
-    const bowledBalls = (Math.floor(overs) * 6) + Math.round((overs % 1) * 10);
-    ballsRemaining = maxBalls - bowledBalls;
+    const maxBalls = match.overs * bpo;
+    ballsRemaining = maxBalls - currentTotalBalls;
   }
 
   const bOversNum = typeof bowler.overs === 'number' ? bowler.overs : parseFloat(bowler.overs || 0);
   const bComplete = Math.floor(bOversNum);
   const bBalls = Math.round((bOversNum - bComplete) * 10);
-  const totalBowlerBalls = (bComplete * 6) + bBalls;
-  const econ = totalBowlerBalls > 0 ? ((bowler.runs || 0) / (totalBowlerBalls / 6)).toFixed(2) : '0.00';
+  const totalBowlerBalls = (bComplete * bpo) + bBalls;
+  const econ = totalBowlerBalls > 0 ? ((bowler.runs || 0) / (totalBowlerBalls / bpo)).toFixed(2) : '0.00';
+
+  const partnership = getPartnership(match.balls, match.currentInnings);
+
+  // Timeline slots
+  const ballsInCurrentOver = Math.round((overs % 1) * 10);
+  const timelineSlots = Array.from({ length: bpo }).map((_, i) => currentOver[i] || null);
+  // Note: if extra balls are bowled (wides/noballs), timeline might exceed bpo. We just render them.
+  const actualTimeline = currentOver.length > bpo ? currentOver : timelineSlots;
 
   return (
     <ProtectedRoute allowedRoles={['admin', 'scorer', 'manager']}>
-      <div className="container mx-auto px-4 py-8 max-w-lg">
-        <div className="flex justify-between items-center mb-6">
-           <button onClick={() => router.push('/dashboard/matches')} className="text-slate-500 hover:text-slate-900 flex items-center gap-2 text-sm font-bold transition-all p-1">
-              <LogOut size={16} /> Exit Panel
-           </button>
+      <div className="min-h-screen bg-slate-100 text-slate-900 pb-20 font-sans">
+        
+        {/* STICKY HEADER */}
+        <div className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm px-4 py-3 flex justify-between items-center">
+           <div className="flex items-center gap-3">
+             <button onClick={() => router.push('/dashboard/matches')} className="text-slate-400 hover:text-slate-900 transition-colors p-1 bg-slate-50 hover:bg-slate-100 rounded-lg">
+                <LogOut size={18} />
+             </button>
+             <div>
+               <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-0.5">Live Scoring</p>
+               <h1 className="text-sm font-black text-slate-900">{teamA.shortName} vs {teamB.shortName}</h1>
+             </div>
+           </div>
+           <div className="text-right">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Innings {match.currentInnings}</p>
+              {match.currentInnings === 1 ? (
+                <p className="text-xs font-black text-slate-800">Proj: {proj}</p>
+              ) : (
+                <p className="text-xs font-black text-slate-800">Req: {(runsNeeded / (ballsRemaining / bpo)).toFixed(2)}</p>
+              )}
+           </div>
         </div>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6 pb-20"
-        >
-          {/* Overs Modification Panel (Admin only) */}
+        <div className="max-w-lg mx-auto px-4 py-6 space-y-5">
+          
+          {/* ADMIN OVERS CONFIG */}
           {(userRole === 'admin' || userRole === 'manager') && (
-            <div className="glass rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
               <button
-                onClick={() => { setShowOversEditor(!showOversEditor); setEditOvers(match.overs); }}
-                className="w-full flex items-center justify-between px-5 py-3 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-slate-700 transition-colors"
+                onClick={() => { setShowOversEditor(!showOversEditor); setEditOvers(match.overs); setEditBallsPerOver(match.ballsPerOver || 6); }}
+                className="w-full flex items-center justify-between px-5 py-3 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-colors"
               >
-                <span className="flex items-center gap-2"><Settings2 size={14} /> Overs Configuration</span>
-                <span className="text-[10px] text-emerald-600 font-black">{match.overs} OVERS</span>
+                <span className="flex items-center gap-2"><Settings2 size={14} /> Format Config</span>
+                <span className="text-emerald-600">{match.overs} OVERS • {match.ballsPerOver || 6} BPO</span>
               </button>
-              {showOversEditor && (
-                <div className="px-5 pb-4 pt-1 border-t border-slate-100 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="number"
-                      min="1"
-                      max="50"
-                      value={editOvers}
-                      onChange={(e) => setEditOvers(parseInt(e.target.value) || 1)}
-                      className="w-24 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-                    />
-                    <button
-                      onClick={async () => {
-                        try {
-                          await update(ref(db, `matches/${matchId}`), { overs: editOvers });
-                          toast.success(`Overs updated to ${editOvers}`, { id: 'overs-update' });
-                          setShowOversEditor(false);
-                        } catch (err) {
-                          toast.error("Failed to update overs");
-                        }
-                      }}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-xl transition-all shadow-sm"
-                    >
-                      Update
-                    </button>
-                  </div>
-                  <p className="text-[10px] text-slate-400 font-medium">Changes will apply immediately to the live scoreboard and match cards.</p>
-                </div>
-              )}
+              <AnimatePresence>
+                {showOversEditor && (
+                  <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden">
+                    <div className="px-5 pb-4 pt-2 border-t border-slate-100 bg-slate-50 space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-[10px] font-black uppercase text-slate-500 block mb-1">Total Overs</label>
+                          <input type="number" min="1" max="50" value={editOvers} onChange={(e) => setEditOvers(parseInt(e.target.value) || 1)} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold focus:border-blue-500 outline-none" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black uppercase text-slate-500 block mb-1">Balls/Over</label>
+                          <input type="number" min="1" max="10" value={editBallsPerOver} onChange={(e) => setEditBallsPerOver(parseInt(e.target.value) || 1)} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold focus:border-blue-500 outline-none" />
+                        </div>
+                      </div>
+                      <button
+                        onClick={async () => {
+                          try {
+                            await update(ref(db, `matches/${matchId}`), { overs: editOvers, ballsPerOver: editBallsPerOver });
+                            toast.success("Format updated");
+                            setShowOversEditor(false);
+                          } catch (err) { toast.error("Failed to update format"); }
+                        }}
+                        className="w-full bg-slate-900 text-white text-xs font-bold uppercase py-3 rounded-lg shadow-sm"
+                      >
+                        Save Configuration
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           )}
-          {/* Main Score Board */}
-          <div className="glass-card rounded-3xl p-6 relative overflow-hidden border border-white shadow-sm">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-emerald-500"></div>
-            
-            <div className="flex justify-between items-center mb-6">
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200/50">{match.matchName || match.stage || 'Match'} • Innings {match.currentInnings}</span>
-              <span className="bg-red-50 text-red-650 border border-red-100 px-3 py-1.5 rounded-full text-[10px] font-black tracking-wider flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> {match.status === 'live' ? 'SCORING LIVE' : 'MATCH READY'}
-              </span>
-            </div>
 
+          {/* MASTER SCOREBOARD */}
+          <div className="bg-white rounded-3xl p-6 relative overflow-hidden shadow-sm border border-slate-200">
             <div className="flex justify-between items-end">
               <div>
-                <h2 className="text-6xl font-black text-slate-900 tracking-tighter tabular-nums leading-none">
-                  <span className="text-2xl text-emerald-700 block mb-2 font-black tracking-normal">{battingTeam}</span>
-                  <span>{runs}</span>
-                  <span className="text-4xl text-slate-450 font-extrabold">/{wickets}</span>
+                <p className="text-lg font-black text-slate-400 mb-1 leading-none">{battingTeam}</p>
+                <h2 className="text-7xl font-black text-slate-900 tracking-tighter tabular-nums leading-none">
+                  {runs}<span className="text-4xl text-slate-300">/{wickets}</span>
                 </h2>
-                <div className="mt-4 bg-slate-50 border border-slate-150 inline-flex items-center gap-3 px-3.5 py-1.5 rounded-xl">
-                  <span className="text-slate-400 text-[10px] font-black uppercase tracking-wider">OVERS</span>
-                  <span className="text-lg font-black text-slate-800 tabular-nums">{overs.toFixed(1)} <span className="text-xs text-slate-400 font-medium">({match.overs}.0)</span></span>
-                </div>
               </div>
-              
-              <div className="flex flex-col items-end">
-                <p className="text-slate-400 text-[10px] font-black tracking-widest uppercase mb-1">CRR</p>
-                <div className="bg-blue-50 border border-blue-200/60 px-4 py-1.5 rounded-xl mb-2">
-                  <p className="text-2xl font-black text-blue-700 tabular-nums">{crr}</p>
+              <div className="text-right flex flex-col items-end">
+                <div className="bg-slate-50 border border-slate-200 px-3.5 py-1.5 rounded-xl mb-3">
+                  <span className="text-slate-400 text-[10px] font-black uppercase tracking-wider block mb-0.5 text-left">Overs</span>
+                  <span className="text-xl font-black text-slate-900 tabular-nums">{overs.toFixed(1)} <span className="text-xs text-slate-400">/ {match.overs}.0</span></span>
                 </div>
-                {targetRuns && (
-                  <div className="text-right">
-                     <p className="text-[10px] font-bold text-slate-455 uppercase tracking-widest">REQ: <span className="text-slate-700">{(runsNeeded / (ballsRemaining / 6)).toFixed(2) || 0}</span></p>
-                  </div>
-                )}
+                <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">CRR: <span className="text-blue-600 text-sm">{crr}</span></p>
               </div>
             </div>
             
             {targetRuns && (
-               <div className="mt-4 pt-4 border-t border-slate-150 text-center">
-                  <p className="text-sm font-bold text-emerald-750">
-                    Need {runsNeeded} runs from {ballsRemaining} balls
-                  </p>
+               <div className="mt-5 pt-4 border-t border-slate-100 flex justify-between items-center">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Target: <span className="text-slate-900">{targetRuns}</span></p>
+                  <p className="text-sm font-black text-emerald-600">Need {runsNeeded} from {ballsRemaining}</p>
                </div>
             )}
           </div>
-          
-          {/* Current Over Timeline */}
-          <div className="glass rounded-2xl p-5 border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-slate-500 font-bold text-xs uppercase tracking-widest flex items-center gap-2">
-                <PlayCircle size={14} className="text-emerald-600" /> Recent Balls
+
+          {/* LIVE CONTEXT CARDS */}
+          <div className="grid grid-cols-2 gap-3">
+             <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col justify-center">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5"><Users size={12}/> Partnership</p>
+                <p className="text-xl font-black text-slate-800">{partnership.runs} <span className="text-xs text-slate-400 font-bold">({partnership.balls})</span></p>
+             </div>
+             <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5"><Target size={12}/> Last Wicket</p>
+                <p className="text-sm font-bold text-slate-700 mt-1 truncate">
+                   {match.balls && Object.values(match.balls).filter(b => b.innings === match.currentInnings && b.type === 'wicket').pop()?.commentary.split(',')[0] || 'None yet'}
+                </p>
+             </div>
+          </div>
+
+          {/* OVER TIMELINE */}
+          <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-slate-400 font-black text-[10px] uppercase tracking-widest flex items-center gap-1.5">
+                <PlayCircle size={14} className="text-emerald-500" /> Current Over
               </span>
             </div>
-            
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-              <AnimatePresence>
-                {currentOver.length === 0 && (
-                  <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-slate-400 text-sm font-medium italic">
-                    Waiting for first ball...
-                  </motion.span>
-                )}
-                {currentOver.map((ball, i) => (
-                  <motion.div 
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    key={i} 
-                    className={`flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full text-lg font-black shadow-sm border ${
-                      ball === 'W' ? 'bg-red-600 text-white border-red-500 shadow-red-100' : 
-                      (ball === '6' || ball === '4') ? 'bg-emerald-600 text-white border-emerald-500 shadow-emerald-100' : 
-                      ball.includes('wd') || ball.includes('nb') ? 'bg-amber-500 text-white border-amber-400 text-sm shadow-amber-50' :
-                      'bg-slate-100 text-slate-800 border-slate-200'
-                    }`}
-                  >
-                    {ball}
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+              {actualTimeline.map((ball, i) => (
+                <div 
+                  key={i} 
+                  className={`flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full text-sm font-black transition-all ${
+                    ball === null ? 'bg-slate-50 border-2 border-dashed border-slate-200 text-transparent' :
+                    ball === 'W' ? 'bg-red-500 text-white shadow-sm' : 
+                    (ball === '6' || ball === '4') ? 'bg-emerald-500 text-white shadow-sm' : 
+                    ball.includes('wd') || ball.includes('nb') ? 'bg-amber-400 text-white text-xs shadow-sm' :
+                    'bg-slate-100 text-slate-700 border border-slate-200 shadow-sm'
+                  }`}
+                >
+                  {ball || '-'}
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* End Innings / Match Triggers */}
+          {/* END INNINGS TRIGGERS */}
           {(isAllOut || isOversDone) && match.currentInnings === 1 && (
-            <div className="bg-amber-50 border border-amber-250 p-4 rounded-2xl text-center shadow-sm">
-               <h3 className="text-amber-700 font-black text-xl mb-2">Innings Complete!</h3>
-               <button onClick={startNextInnings} className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl flex justify-center items-center gap-2 transition-all shadow-sm shadow-amber-100">
-                 Start 2nd Innings <ArrowRight size={18} />
+            <div className="bg-amber-50 border border-amber-200 p-5 rounded-2xl text-center shadow-sm">
+               <h3 className="text-amber-700 font-black text-lg mb-3">Innings Complete</h3>
+               <button onClick={startNextInnings} className="w-full bg-amber-500 hover:bg-amber-600 text-white font-black uppercase tracking-widest text-sm py-4 rounded-xl transition-all shadow-sm">
+                 Start 2nd Innings
                </button>
             </div>
           )}
           
           {(match.currentInnings === 2 && (isAllOut || isOversDone || runsNeeded <= 0)) && (
-            <div className="bg-emerald-50 border border-emerald-250 p-4 rounded-2xl text-center shadow-sm">
-               <h3 className="text-emerald-700 font-black text-xl mb-2">Match Complete!</h3>
+            <div className="bg-emerald-50 border border-emerald-200 p-5 rounded-2xl text-center shadow-sm">
+               <h3 className="text-emerald-700 font-black text-lg mb-3">Match Complete</h3>
                <button onClick={() => {
                  if (runsNeeded <= 0) endMatch(match.score.innings2.team, `${getTeamName(match.score.innings2.team)} chased the target`);
                  else if (runsNeeded > 0) endMatch(match.score.innings1.team, `${getTeamName(match.score.innings1.team)} defended the target`);
                  else endMatch('Draw', 'Match Tied');
-               }} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-all shadow-sm shadow-emerald-100">
-                 Declare Result & End Match
+               }} className="w-full bg-emerald-600 text-white font-black uppercase tracking-widest text-sm py-4 rounded-xl transition-all shadow-sm">
+                 Declare Result
                </button>
             </div>
           )}
 
-          {/* Current Players Inputs */}
-          <div className="glass rounded-2xl p-5 mb-4 border border-slate-200 shadow-sm relative">
-            <div className="flex justify-between items-center mb-3">
-               <h3 className="text-slate-500 font-bold text-xs uppercase tracking-widest">Current Players</h3>
-               <button onClick={manualSwapStrike} className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-widest text-emerald-750 hover:text-emerald-800 transition-colors bg-emerald-100/80 px-2 py-1 rounded-lg">
-                  <RotateCcw size={12} /> Swap Strike
+          {/* PLAYER MANAGEMENT */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm relative">
+            <div className="absolute right-4 top-4">
+               <button onClick={manualSwapStrike} className="flex items-center gap-1.5 text-[9px] uppercase font-black tracking-widest text-slate-500 hover:text-slate-900 bg-slate-100 px-2.5 py-1.5 rounded-lg transition-colors">
+                  <RotateCcw size={12} /> Swap
                </button>
             </div>
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 pt-2">
                 <div>
-                  <label className="text-[10px] text-slate-400 uppercase tracking-wider font-black ml-1">Striker</label>
-                  <input 
-                    type="text" 
+                  <SearchablePlayerSelect 
+                    label="Striker" 
+                    placeholder="Search Striker"
                     value={striker.name} 
-                    onChange={(e) => setStriker({...striker, name: e.target.value})}
-                    placeholder="Striker Name" 
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
+                    onChange={(val) => setStriker({...striker, name: val})}
+                    options={allPlayers}
+                    onSave={(val) => handleSavePlayer('striker', val)}
                   />
-                  <div className="text-[10px] text-slate-550 font-bold ml-1 mt-1">
-                    {striker.runs} R ({striker.balls} B)
+                  <div className="text-[10px] text-slate-400 font-black ml-1 mt-1.5">
+                    <span className="text-slate-800">{striker.runs}</span> R <span className="text-slate-800">{striker.balls}</span> B
                   </div>
                 </div>
                 <div>
-                  <label className="text-[10px] text-slate-400 uppercase tracking-wider font-black ml-1">Non-Striker</label>
-                  <input 
-                    type="text" 
+                  <SearchablePlayerSelect 
+                    label="Non-Striker" 
+                    placeholder="Search Non-Striker"
                     value={nonStriker.name} 
-                    onChange={(e) => setNonStriker({...nonStriker, name: e.target.value})}
-                    placeholder="Non-Striker Name" 
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
+                    onChange={(val) => setNonStriker({...nonStriker, name: val})}
+                    options={allPlayers}
+                    onSave={(val) => handleSavePlayer('nonStriker', val)}
                   />
-                  <div className="text-[10px] text-slate-550 font-bold ml-1 mt-1">
-                    {nonStriker.runs} R ({nonStriker.balls} B)
+                  <div className="text-[10px] text-slate-400 font-black ml-1 mt-1.5">
+                    <span className="text-slate-800">{nonStriker.runs}</span> R <span className="text-slate-800">{nonStriker.balls}</span> B
                   </div>
                 </div>
               </div>
-              <div>
-                <label className="text-[10px] text-emerald-700 uppercase tracking-wider font-black ml-1">Bowler</label>
-                <input 
-                  type="text" 
+              <div className="pt-2 border-t border-slate-100">
+                <SearchablePlayerSelect 
+                  label="Bowler" 
+                  placeholder="Search Bowler"
+                  isBowler={true}
                   value={bowler.name} 
-                  onChange={(e) => setBowler({...bowler, name: e.target.value})}
-                  placeholder="Bowler Name" 
-                  className="w-full bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 text-emerald-800 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                  onChange={(val) => setBowler({...bowler, name: val})}
+                  options={allPlayers}
+                  onSave={(val) => handleSavePlayer('bowler', val)}
                 />
-                <div className="text-[10px] text-emerald-700 ml-1 mt-1 font-bold flex justify-between">
-                  <span>{bowler.overs} O - {bowler.runs} R - {bowler.wickets} W</span>
-                  <span className="opacity-80">ECON: {econ}</span>
+                <div className="text-[10px] text-emerald-600 font-black ml-1 mt-1.5 flex gap-3">
+                  <span><span className="text-emerald-800">{bowler.overs}</span> O</span>
+                  <span><span className="text-emerald-800">{bowler.runs}</span> R</span>
+                  <span><span className="text-emerald-800">{bowler.wickets}</span> W</span>
+                  <span className="text-emerald-400 ml-auto">ECON: {econ}</span>
                 </div>
               </div>
-              <button 
-                onClick={updatePlayers} 
-                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold uppercase tracking-widest py-3 rounded-xl transition-all border border-slate-200 shadow-sm"
-              >
-                Save Player Names
-              </button>
             </div>
           </div>
 
-          {/* Scoring Controls */}
+          {/* ADVANCED SCORING PAD */}
           {(!isAllOut && !isOversDone && (match.currentInnings === 1 || runsNeeded > 0)) && (
-            <>
-              <div className="grid grid-cols-3 gap-4">
+            <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
+              
+              <div className="grid grid-cols-4 gap-3">
+                <button onClick={() => recordBall(0, 'wd')} className="h-12 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 text-[11px] font-black uppercase tracking-wider transition-colors">Wide</button>
+                <button onClick={() => recordBall(0, 'nb')} className="h-12 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 text-[11px] font-black uppercase tracking-wider transition-colors">No Ball</button>
+                <button onClick={() => recordBall(1, 'b')} className="h-12 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 text-slate-600 text-[11px] font-black uppercase tracking-wider transition-colors">Bye 1</button>
+                <button onClick={() => recordBall(1, 'lb')} className="h-12 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 text-slate-600 text-[11px] font-black uppercase tracking-wider transition-colors">LB 1</button>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
                 {[0, 1, 2, 3, 4, 6].map(run => (
                   <motion.button 
-                    whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     key={run} 
-                    className={`h-20 rounded-2xl text-3xl font-black transition-all shadow-sm ${
+                    className={`h-[72px] rounded-2xl text-2xl font-black transition-all ${
                       run === 4 || run === 6 
-                      ? 'bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-emerald-100 border-none' 
-                      : 'bg-white border border-slate-200 hover:bg-slate-50 text-slate-800'
+                      ? 'bg-emerald-500 text-white shadow-md shadow-emerald-200' 
+                      : 'bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 shadow-sm'
                     }`}
                     onClick={() => recordBall(run, run >= 4 ? 'boundary' : 'normal')}
                   >
@@ -639,47 +784,32 @@ export default function ScorerPage({ params: paramsPromise }) {
                 ))}
               </div>
               
-              <div className="grid grid-cols-2 gap-4 mt-4">
+              <div className="grid grid-cols-12 gap-3 pt-2">
                 <motion.button 
-                  whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="h-16 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 text-white text-xl font-black uppercase tracking-widest shadow-sm shadow-red-100 border-none flex justify-center items-center gap-2"
+                  disabled={!lastBallId}
+                  className={`col-span-4 h-16 rounded-2xl text-xs font-black uppercase tracking-widest flex flex-col justify-center items-center gap-1 transition-all ${
+                    lastBallId 
+                      ? 'bg-slate-50 hover:bg-slate-100 text-slate-500 border border-slate-200' 
+                      : 'bg-slate-50 text-slate-300 border border-slate-100 cursor-not-allowed'
+                  }`}
+                  onClick={handleUndo}
+                >
+                  <RotateCcw size={16} /> Undo
+                </motion.button>
+                
+                <motion.button 
+                  whileTap={{ scale: 0.98 }}
+                  className="col-span-8 h-16 rounded-2xl bg-red-600 text-white text-xl font-black uppercase tracking-widest shadow-md shadow-red-200 border-none flex justify-center items-center gap-2"
                   onClick={() => recordBall(0, 'wicket')}
                 >
                   <AlertTriangle size={20} /> Wicket
                 </motion.button>
-                <motion.button 
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  disabled={!lastBallId}
-                  className={`h-16 rounded-2xl text-lg font-bold uppercase tracking-wider flex justify-center items-center gap-2 transition-all shadow-sm ${
-                    lastBallId 
-                      ? 'bg-white hover:bg-amber-50 text-amber-600 border border-slate-200 hover:border-amber-200' 
-                      : 'bg-slate-100 text-slate-300 border border-slate-200 cursor-not-allowed'
-                  }`}
-                  onClick={handleUndo}
-                >
-                  <RotateCcw size={18} /> Undo
-                </motion.button>
               </div>
-              
-              <div className="grid grid-cols-4 gap-3 mt-4">
-                <button onClick={() => recordBall(0, 'wd')} className="h-14 rounded-xl bg-white hover:bg-amber-50 border border-slate-200 hover:border-amber-250 text-amber-600 text-xs font-bold uppercase tracking-wider transition-all shadow-sm">
-                  Wide
-                </button>
-                <button onClick={() => recordBall(0, 'nb')} className="h-14 rounded-xl bg-white hover:bg-amber-50 border border-slate-200 hover:border-amber-250 text-amber-600 text-xs font-bold uppercase tracking-wider transition-all shadow-sm">
-                  No Ball
-                </button>
-                <button onClick={() => recordBall(1, 'b')} className="h-14 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-650 text-xs font-bold uppercase tracking-wider transition-all shadow-sm">
-                  Bye (1)
-                </button>
-                <button onClick={() => recordBall(1, 'lb')} className="h-14 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-650 text-xs font-bold uppercase tracking-wider transition-all shadow-sm">
-                  L.Bye (1)
-                </button>
-              </div>
-            </>
+            </div>
           )}
-        </motion.div>
+
+        </div>
       </div>
     </ProtectedRoute>
   );
