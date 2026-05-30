@@ -3,6 +3,7 @@ import { useState, useEffect, use } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Calendar, List, ArrowLeft, Shield, BarChart3, Medal, Star, Play, Award, ChevronRight, TrendingUp, Zap, ChevronUp, ChevronDown } from 'lucide-react';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell, ReferenceLine, Label } from 'recharts';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { ref, onValue, get } from 'firebase/database';
@@ -140,7 +141,7 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
         if (!innings) return;
 
         if (innings.batting) {
-          Object.entries(innings.batting).forEach(([playerId, stats]) => {
+          Object.entries(innings.batting).forEach(([playerId, stats]) => { if (!stats) return;
             if (!players[playerId]) players[playerId] = { id: playerId, name: stats.name, teamId: innings.team, runs: 0, wickets: 0, mvpPoints: 0 };
             players[playerId].runs += (stats.runs || 0);
             players[playerId].mvpPoints += (stats.runs || 0) * 1; 
@@ -149,7 +150,7 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
 
         if (innings.bowling) {
           const bowlingTeam = inningsNum === 1 ? m.teamB : m.teamA;
-          Object.entries(innings.bowling).forEach(([playerId, stats]) => {
+          Object.entries(innings.bowling).forEach(([playerId, stats]) => { if (!stats) return;
             if (!players[playerId]) players[playerId] = { id: playerId, name: stats.name, teamId: bowlingTeam, runs: 0, wickets: 0, mvpPoints: 0 };
             players[playerId].wickets += (stats.wickets || 0);
             players[playerId].mvpPoints += (stats.wickets || 0) * 20; 
@@ -732,7 +733,7 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
                   
                   <div className="px-5 pb-5 pt-4">
                     <div className="h-56 md:h-64">
-                      <ResponsiveContainer width="100%" height="100%">
+                      <ErrorBoundary><ResponsiveContainer width="100%" height="100%">
                         {activeChartTab === 'worm' ? (
                             <AreaChart data={WORM_DATA} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                               <defs>
@@ -785,7 +786,7 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
                               </Bar>
                             </BarChart>
                         )}
-                      </ResponsiveContainer>
+                      </ResponsiveContainer></ErrorBoundary>
                     </div>
                   </div>
                 </motion.div>
@@ -874,7 +875,7 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
                                 <img src={team.logoUrl} className="w-full h-full object-cover" />
                               ) : (
                                 <span className="text-[9px] font-black" style={{ color: team.color }}>
-                                  {team.code.substring(0, 2)}
+                                  {team.code ? team.code.substring(0, 2) : "UN"}
                                 </span>
                               )}
                             </div>
@@ -975,7 +976,7 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
                     {orangeLeader ? (
                       <div className="flex items-center gap-4 mt-2">
                         <div className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-500/30 to-amber-500/20 border border-orange-500/30 flex items-center justify-center">
-                          <span className="text-xl font-black text-orange-400">{orangeLeader.name.charAt(0)}</span>
+                          <span className="text-xl font-black text-orange-400">{orangeLeader.name ? orangeLeader.name.charAt(0) : "U"}</span>
                         </div>
                         <div>
                           <p className="text-lg font-black">{orangeLeader.name}</p>
@@ -1005,7 +1006,7 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
                     {purpleLeader ? (
                       <div className="flex items-center gap-4 mt-2">
                         <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500/30 to-indigo-500/20 border border-purple-500/30 flex items-center justify-center">
-                          <span className="text-xl font-black text-purple-400">{purpleLeader.name.charAt(0)}</span>
+                          <span className="text-xl font-black text-purple-400">{purpleLeader.name ? purpleLeader.name.charAt(0) : "U"}</span>
                         </div>
                         <div>
                           <p className="text-lg font-black">{purpleLeader.name}</p>
