@@ -84,8 +84,8 @@ export default function PublicTournamentsPage() {
     if (s === 'active' || s === 'live') {
       return { 
         text: 'Live', 
-        badge: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-        glow: 'group-hover:shadow-[0_0_30px_rgba(16,185,129,0.3)]',
+        badge: 'bg-emerald-100 text-emerald-600 border-emerald-200',
+        glow: 'group-hover:shadow-[0_0_30px_rgba(16,185,129,0.2)]',
         accent: 'text-emerald-500',
         button: 'bg-emerald-500 hover:bg-emerald-400 text-white',
         buttonText: 'View Dashboard'
@@ -94,8 +94,8 @@ export default function PublicTournamentsPage() {
     if (s === 'upcoming') {
       return { 
         text: 'Upcoming', 
-        badge: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-        glow: 'group-hover:shadow-[0_0_30px_rgba(59,130,246,0.3)]',
+        badge: 'bg-blue-100 text-blue-600 border-blue-200',
+        glow: 'group-hover:shadow-[0_0_30px_rgba(59,130,246,0.2)]',
         accent: 'text-blue-500',
         button: 'bg-[var(--color-cricket-accent)] hover:bg-[var(--color-cricket-blue)] text-white',
         buttonText: 'Register Now'
@@ -103,8 +103,8 @@ export default function PublicTournamentsPage() {
     }
     return { 
       text: 'Completed', 
-      badge: 'bg-slate-500/20 text-slate-400 border-slate-500/30',
-      glow: 'group-hover:shadow-[0_0_30px_rgba(148,163,184,0.3)]',
+      badge: 'bg-slate-100 text-slate-600 border-slate-200',
+      glow: 'group-hover:shadow-[0_0_30px_rgba(148,163,184,0.2)]',
       accent: 'text-slate-500',
       button: 'bg-slate-700 hover:bg-slate-600 text-white',
       buttonText: 'View Stats'
@@ -112,9 +112,9 @@ export default function PublicTournamentsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B1120] text-slate-100 font-sans selection:bg-[var(--color-cricket-accent)] selection:text-white">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[var(--color-cricket-accent)] selection:text-white">
       {/* HEADER NAVBAR */}
-      <nav className="sticky top-0 z-50 bg-[#0B1120]/80 backdrop-blur-xl border-b border-slate-800/50">
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200">
         <div className="container mx-auto max-w-7xl px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
              <Link href="/">
@@ -123,8 +123,8 @@ export default function PublicTournamentsPage() {
                </div>
              </Link>
              <div className="hidden md:flex items-center gap-6 ml-4">
-               <Link href="/" className="text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">Home</Link>
-               <Link href="/matches" className="text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">Matches</Link>
+               <Link href="/" className="text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors">Home</Link>
+               <Link href="/matches" className="text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors">Matches</Link>
                <Link href="/tournaments" className="text-xs font-bold uppercase tracking-wider text-[var(--color-cricket-accent)] neon-text-green transition-colors">Tournaments</Link>
              </div>
           </div>
@@ -139,7 +139,7 @@ export default function PublicTournamentsPage() {
             <motion.h1 
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-white"
+              className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-slate-900"
             >
               Discover <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-cricket-accent)] to-[var(--color-cricket-blue)]">Tournaments</span>
             </motion.h1>
@@ -147,7 +147,7 @@ export default function PublicTournamentsPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.1 }}
-              className="text-slate-400 text-lg"
+              className="text-slate-500 text-lg"
             >
               Find and track the most exciting local cricket leagues happening near you.
             </motion.p>
@@ -157,7 +157,7 @@ export default function PublicTournamentsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-slate-900/50 backdrop-blur-md border border-slate-800 rounded-3xl p-4 md:p-6 shadow-2xl flex flex-col lg:flex-row gap-4 relative overflow-hidden"
+            className="bg-white/80 backdrop-blur-md border border-slate-200 rounded-3xl p-4 md:p-6 shadow-xl flex flex-col lg:flex-row gap-4 relative overflow-hidden"
           >
             {/* Search Bar */}
             <div className="relative flex-1 group">
@@ -167,7 +167,7 @@ export default function PublicTournamentsPage() {
                 placeholder="Search tournaments, teams, or cities..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-800/50 border border-slate-700 text-white placeholder:text-slate-500 rounded-2xl pl-12 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-cricket-accent)]/50 focus:border-[var(--color-cricket-accent)] transition-all font-medium"
+                className="w-full bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-2xl pl-12 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-cricket-accent)]/50 focus:border-[var(--color-cricket-accent)] transition-all font-medium"
               />
             </div>
 
@@ -177,7 +177,7 @@ export default function PublicTournamentsPage() {
                 <select 
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="appearance-none bg-slate-800/50 border border-slate-700 text-white rounded-2xl pl-4 pr-10 py-3.5 font-medium hover:border-slate-600 focus:outline-none focus:ring-2 focus:ring-[var(--color-cricket-accent)]/50 transition-all cursor-pointer"
+                  className="appearance-none bg-slate-50 border border-slate-200 text-slate-900 rounded-2xl pl-4 pr-10 py-3.5 font-medium hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-[var(--color-cricket-accent)]/50 transition-all cursor-pointer"
                 >
                   <option value="All">All Status</option>
                   <option value="Live">Live</option>
@@ -191,7 +191,7 @@ export default function PublicTournamentsPage() {
                 <select 
                   value={formatFilter}
                   onChange={(e) => setFormatFilter(e.target.value)}
-                  className="appearance-none bg-slate-800/50 border border-slate-700 text-white rounded-2xl pl-4 pr-10 py-3.5 font-medium hover:border-slate-600 focus:outline-none focus:ring-2 focus:ring-[var(--color-cricket-accent)]/50 transition-all cursor-pointer"
+                  className="appearance-none bg-slate-50 border border-slate-200 text-slate-900 rounded-2xl pl-4 pr-10 py-3.5 font-medium hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-[var(--color-cricket-accent)]/50 transition-all cursor-pointer"
                 >
                   <option value="All">All Formats</option>
                   <option value="T20">T20</option>
@@ -207,24 +207,24 @@ export default function PublicTournamentsPage() {
         {loading ? (
           <div className="flex justify-center items-center py-40">
             <div className="relative">
-              <div className="w-16 h-16 border-4 border-slate-800 border-t-[var(--color-cricket-accent)] rounded-full animate-spin"></div>
-              <div className="absolute inset-0 border-4 border-slate-800 border-b-[var(--color-cricket-blue)] rounded-full animate-spin direction-reverse opacity-50"></div>
+              <div className="w-16 h-16 border-4 border-slate-200 border-t-[var(--color-cricket-accent)] rounded-full animate-spin"></div>
+              <div className="absolute inset-0 border-4 border-slate-200 border-b-[var(--color-cricket-blue)] rounded-full animate-spin direction-reverse opacity-50"></div>
             </div>
           </div>
         ) : filteredTournaments.length === 0 ? (
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-slate-900/50 backdrop-blur-xl rounded-[2.5rem] p-16 text-center border border-slate-800 shadow-2xl max-w-2xl mx-auto"
+            className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-16 text-center border border-slate-200 shadow-xl max-w-2xl mx-auto"
           >
-            <div className="w-24 h-24 bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-700">
+            <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-200">
               <Search size={40} className="text-slate-400" />
             </div>
-            <h2 className="text-3xl font-black text-white mb-3">No Tournaments Found</h2>
-            <p className="text-slate-400 text-lg mb-8">Try adjusting your search or filters to find what you're looking for.</p>
+            <h2 className="text-3xl font-black text-slate-900 mb-3">No Tournaments Found</h2>
+            <p className="text-slate-500 text-lg mb-8">Try adjusting your search or filters to find what you're looking for.</p>
             <button 
               onClick={() => { setSearchQuery(''); setStatusFilter('All'); setFormatFilter('All'); }}
-              className="px-8 py-3.5 bg-white text-slate-900 hover:bg-slate-100 rounded-full font-bold transition-transform hover:scale-105"
+              className="px-8 py-3.5 bg-slate-900 text-white hover:bg-slate-800 rounded-full font-bold transition-transform hover:scale-105"
             >
               Clear All Filters
             </button>
@@ -238,12 +238,12 @@ export default function PublicTournamentsPage() {
                 <motion.div 
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`group relative overflow-hidden bg-slate-900 rounded-[2.5rem] border border-slate-800 shadow-2xl transition-all duration-500 hover:-translate-y-2 ${getStatusStyle(heroTournament.status).glow}`}
+                  className={`group relative overflow-hidden bg-white rounded-[2.5rem] border border-slate-200 shadow-xl transition-all duration-500 hover:-translate-y-2 ${getStatusStyle(heroTournament.status).glow}`}
                 >
                   <div className="absolute inset-0">
-                    <img src={heroTournament.coverImage} alt="Cover" className="w-full h-full object-cover opacity-40 group-hover:opacity-50 transition-opacity duration-700" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B1120] via-[#0B1120]/80 to-transparent"></div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#0B1120] via-[#0B1120]/60 to-transparent"></div>
+                    <img src={heroTournament.coverImage} alt="Cover" className="w-full h-full object-cover opacity-20 group-hover:opacity-30 transition-opacity duration-700" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-white via-white/60 to-transparent"></div>
                   </div>
 
                   <div className="relative p-8 md:p-12 flex flex-col lg:flex-row gap-8 items-start lg:items-end justify-between">
@@ -254,17 +254,17 @@ export default function PublicTournamentsPage() {
                       </span>
                       
                       <div>
-                        <h2 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight drop-shadow-lg">{heroTournament.name}</h2>
-                        <div className="flex flex-wrap items-center gap-4 md:gap-6 text-slate-300 font-medium">
-                          <div className="flex items-center gap-2 bg-slate-900/50 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-700/50">
+                        <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight drop-shadow-sm">{heroTournament.name}</h2>
+                        <div className="flex flex-wrap items-center gap-4 md:gap-6 text-slate-600 font-medium">
+                          <div className="flex items-center gap-2 bg-white/80 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-200">
                             <MapPin size={18} className={getStatusStyle(heroTournament.status).accent} />
                             {heroTournament.location}
                           </div>
-                          <div className="flex items-center gap-2 bg-slate-900/50 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-700/50">
+                          <div className="flex items-center gap-2 bg-white/80 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-200">
                             <Trophy size={18} className={getStatusStyle(heroTournament.status).accent} />
                             {heroTournament.format} Format
                           </div>
-                          <div className="flex items-center gap-2 bg-slate-900/50 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-700/50">
+                          <div className="flex items-center gap-2 bg-white/80 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-200">
                             <Calendar size={18} className={getStatusStyle(heroTournament.status).accent} />
                             {new Date(heroTournament.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                           </div>
@@ -272,15 +272,15 @@ export default function PublicTournamentsPage() {
                       </div>
                     </div>
 
-                    <div className="w-full lg:w-auto bg-slate-800/80 backdrop-blur-xl border border-slate-700/50 p-6 rounded-3xl shrink-0">
+                    <div className="w-full lg:w-auto bg-slate-50/80 backdrop-blur-xl border border-slate-200 p-6 rounded-3xl shrink-0">
                       <div className="grid grid-cols-2 gap-6 mb-6">
                         <div>
-                          <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Prize Pool</p>
-                          <p className="text-2xl font-black text-white">{heroTournament.prizePool}</p>
+                          <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Prize Pool</p>
+                          <p className="text-2xl font-black text-slate-900">{heroTournament.prizePool}</p>
                         </div>
                         <div>
-                          <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Registration</p>
-                          <p className="text-xl font-bold text-white flex items-center gap-2">
+                          <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Registration</p>
+                          <p className="text-xl font-bold text-slate-900 flex items-center gap-2">
                             <Users size={20} className={getStatusStyle(heroTournament.status).accent} />
                             {heroTournament.teamsRegistered}/{heroTournament.maxTeams}
                           </p>
@@ -288,7 +288,7 @@ export default function PublicTournamentsPage() {
                       </div>
                       
                       {/* Progress Bar */}
-                      <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden mb-6">
+                      <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden mb-6">
                         <div 
                           className={`h-full rounded-full bg-gradient-to-r ${heroTournament.status === 'active' ? 'from-emerald-500 to-green-400' : 'from-blue-600 to-blue-400'}`} 
                           style={{ width: `${(heroTournament.teamsRegistered / heroTournament.maxTeams) * 100}%` }}
@@ -314,12 +314,12 @@ export default function PublicTournamentsPage() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className={`group bg-slate-900 rounded-[2rem] overflow-hidden border border-slate-800 shadow-xl transition-all duration-300 hover:-translate-y-2 ${getStatusStyle(t.status).glow}`}
+                      className={`group bg-white rounded-[2rem] overflow-hidden border border-slate-200 shadow-md transition-all duration-300 hover:-translate-y-2 hover:shadow-xl ${getStatusStyle(t.status).glow}`}
                     >
                       {/* Image Top Half */}
                       <div className="h-48 relative overflow-hidden">
-                        <img src={t.coverImage} alt="Cover" className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
+                        <img src={t.coverImage} alt="Cover" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent"></div>
                         
                         <div className="absolute top-4 left-4">
                           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border backdrop-blur-md ${getStatusStyle(t.status).badge}`}>
@@ -330,25 +330,25 @@ export default function PublicTournamentsPage() {
 
                       {/* Content Bottom Half */}
                       <div className="p-6 relative -mt-6">
-                        <h3 className="text-2xl font-black text-white mb-4 tracking-tight line-clamp-1">{t.name}</h3>
+                        <h3 className="text-2xl font-black text-slate-900 mb-4 tracking-tight line-clamp-1">{t.name}</h3>
                         
                         <div className="space-y-3 mb-6">
-                          <div className="flex items-center gap-3 text-slate-300 text-sm font-medium">
-                            <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center shrink-0 border border-slate-700">
+                          <div className="flex items-center gap-3 text-slate-600 text-sm font-medium">
+                            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center shrink-0 border border-slate-200">
                               <MapPin size={14} className={getStatusStyle(t.status).accent} />
                             </div>
                             <span className="line-clamp-1">{t.location}</span>
                           </div>
-                          <div className="flex items-center gap-3 text-slate-300 text-sm font-medium">
-                            <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center shrink-0 border border-slate-700">
+                          <div className="flex items-center gap-3 text-slate-600 text-sm font-medium">
+                            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center shrink-0 border border-slate-200">
                               <Trophy size={14} className={getStatusStyle(t.status).accent} />
                             </div>
                             <span>{t.format} • {t.prizePool}</span>
                           </div>
                         </div>
 
-                        <div className="pt-5 border-t border-slate-800 flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-sm font-bold text-slate-400">
+                        <div className="pt-5 border-t border-slate-200 flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-sm font-bold text-slate-500">
                              <Users size={16} />
                              {t.teamsRegistered}/{t.maxTeams} Teams
                           </div>
