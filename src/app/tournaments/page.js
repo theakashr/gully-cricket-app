@@ -33,15 +33,7 @@ export default function PublicTournamentsPage() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       {/* HEADER */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200">
-        <div className="container mx-auto max-w-6xl px-4 py-3 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-              <span className="text-white font-black text-xs">SL</span>
-            </div>
-            <span className="text-lg font-black tracking-tight">
-              Stumpflow <span className="text-blue-500">Live</span>
-            </span>
-          </Link>
+        <div className="container mx-auto max-w-6xl px-4 py-3 flex justify-center items-center">
           <div className="hidden md:flex items-center gap-6">
             <Link href="/" className="text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors">Home</Link>
             <Link href="/matches" className="text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors">Matches</Link>
@@ -51,11 +43,9 @@ export default function PublicTournamentsPage() {
       </nav>
 
       <div className="container mx-auto max-w-5xl px-4 py-8 md:py-12">
-        <div className="mb-10 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900">Tournaments</h1>
-            <p className="text-slate-500 font-bold mt-2 text-sm uppercase tracking-widest">Select a league to view live analytics</p>
-          </div>
+        <div className="mb-10 flex flex-col items-center justify-center text-center gap-2">
+          <h1 className="text-xl md:text-2xl font-black tracking-tight text-slate-900">Tournaments</h1>
+          <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">Select a league to view live analytics</p>
         </div>
 
         {loading ? (
