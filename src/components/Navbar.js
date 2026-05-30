@@ -49,10 +49,10 @@ export default function Navbar() {
               className="flex items-center gap-2 md:gap-3 cursor-pointer"
             >
               <div className="w-9 h-9 md:w-11 md:h-11 rounded-full overflow-hidden flex-shrink-0 shadow-lg shadow-[var(--color-cricket-accent)]/20">
-                <img src="/stumpflow-logo.jpg" alt="StumpFlow Logo" className="w-full h-full object-cover" />
+                <img src="/stumpflow-logo.jpg" alt="11shots Logo" className="w-full h-full object-cover" />
               </div>
               <span className="text-lg md:text-2xl font-black tracking-tight text-[var(--color-cricket-dark)]">
-                STUMPFLOW <span className="text-[var(--color-cricket-accent)] neon-text-green">Live</span>
+                11shots <span className="text-[var(--color-cricket-accent)] neon-text-green">Live</span>
               </span>
             </motion.div>
           </Link>

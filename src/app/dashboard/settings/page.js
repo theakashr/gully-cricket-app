@@ -76,7 +76,7 @@ export default function SettingsPage() {
               <div className="flex-1">
                 <h4 className="font-bold text-slate-805">Spectator Admin View (Read-Only)</h4>
                 <p className="text-xs font-semibold text-slate-500 mt-1 leading-relaxed">
-                  Opt-in to enable a read-only view of the STUMPFLOW admin panel in the sidebar/navbar to inspect detailed stats, brackets, and team configurations.
+                  Opt-in to enable a read-only view of the 11shots admin panel in the sidebar/navbar to inspect detailed stats, brackets, and team configurations.
                 </p>
               </div>
               <div className="flex items-center gap-3">

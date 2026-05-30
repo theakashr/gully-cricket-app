@@ -7,13 +7,13 @@ import { Toaster } from 'react-hot-toast';
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata = {
-  title: "StumpFlow Live",
+  title: "11shots Live",
   description: "Premium Local Cricket Scoring Engine - Ball by Ball Live Scoring, Real-time Match Center, Tournament Management",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "StumpFlow",
+    title: "11shots",
   },
   icons: {
     icon: [
@@ -27,8 +27,8 @@ export const metadata = {
   other: {
     "mobile-web-app-capable": "yes",
     "apple-mobile-web-app-capable": "yes",
-    "application-name": "StumpFlow",
-    "apple-mobile-web-app-title": "StumpFlow",
+    "application-name": "11shots",
+    "apple-mobile-web-app-title": "11shots",
     "msapplication-TileColor": "#ffffff",
     "msapplication-TileImage": "/icons/icon-144x144.png",
   },

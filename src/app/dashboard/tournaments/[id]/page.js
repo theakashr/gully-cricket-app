@@ -533,7 +533,7 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
               <span className="text-slate-900 font-black text-xs">SL</span>
             </div>
             <span className="text-lg font-black tracking-tight">
-              Stumpflow <span className="text-blue-400">Live</span>
+              11shots <span className="text-blue-400">Live</span>
             </span>
           </Link>
           <div className="hidden md:flex items-center gap-6">

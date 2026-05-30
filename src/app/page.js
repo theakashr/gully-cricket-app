@@ -58,7 +58,7 @@ export default function Home() {
       
       {/* Compact Header */}
       <div className="container mx-auto max-w-3xl px-4 pt-6 pb-2">
-        <h1 className="text-2xl font-black text-slate-900 tracking-tight">StumpFlow</h1>
+        <h1 className="text-2xl font-black text-slate-900 tracking-tight">11shots</h1>
         <p className="text-xs text-slate-500 font-medium mt-0.5">Live cricket scoring engine</p>
       </div>
 
