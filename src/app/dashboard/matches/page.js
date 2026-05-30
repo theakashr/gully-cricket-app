@@ -278,14 +278,19 @@ export default function MatchesPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Total Overs</label>
-                    <input 
-                      type="number"
-                      value={newMatch.overs}
-                      onChange={e => setNewMatch({...newMatch, overs: parseInt(e.target.value) || 20})}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm"
-                      min="1" max="50"
-                      required
-                    />
+                    <div className="flex items-center gap-1.5">
+                      <button type="button" onClick={() => setNewMatch({...newMatch, overs: Math.max(1, newMatch.overs - 1)})} className="w-12 h-[46px] flex-shrink-0 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-xl text-xl font-black text-slate-700 transition-colors active:bg-slate-300">-</button>
+                      <input 
+                        type="number"
+                        value={newMatch.overs}
+                        onChange={e => setNewMatch({...newMatch, overs: parseInt(e.target.value) || 20})}
+                        className="w-full min-w-0 bg-white border border-slate-200 rounded-xl px-2 py-3 text-center text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-sm appearance-none m-0"
+                        style={{MozAppearance: 'textfield'}}
+                        min="1" max="50"
+                        required
+                      />
+                      <button type="button" onClick={() => setNewMatch({...newMatch, overs: Math.min(50, newMatch.overs + 1)})} className="w-12 h-[46px] flex-shrink-0 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-xl text-xl font-black text-slate-700 transition-colors active:bg-slate-300">+</button>
+                    </div>
                   </div>
                   <div>
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Scorer</label>
