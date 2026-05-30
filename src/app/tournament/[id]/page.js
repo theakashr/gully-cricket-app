@@ -194,6 +194,31 @@ export default function TournamentPage({ params: paramsPromise }) {
     return teams[id] || { name: 'Unknown Team', shortName: 'UNK' };
   };
 
+  // Selected Match for Live Analytics
+  const [selectedMatchId, setSelectedMatchId] = useState(null);
+
+  useEffect(() => {
+    if (matches.length > 0) {
+      const live = matches.find(m => m.status === 'live');
+      if (live) {
+        setSelectedMatchId(live.id);
+      } else {
+        const completed = matches.find(m => m.status === 'completed' && m.score);
+        if (completed) {
+          setSelectedMatchId(completed.id);
+        } else {
+          setSelectedMatchId(matches[0].id);
+        }
+      }
+    } else {
+      setSelectedMatchId(null);
+    }
+  }, [matches]);
+
+  const [chartOpen, setChartOpen] = useState(false);
+  const [activeChartTab, setActiveChartTab] = useState('worm');
+
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -216,27 +241,6 @@ export default function TournamentPage({ params: paramsPromise }) {
   const purpleLeader = playerStats.purpleCap[0];
   const liveMatch = matches.find(m => m.status === 'live');
   const recentMatch = matches.find(m => m.status === 'completed');
-
-  // Selected Match for Live Analytics
-  const [selectedMatchId, setSelectedMatchId] = useState(null);
-
-  useEffect(() => {
-    if (matches.length > 0) {
-      const live = matches.find(m => m.status === 'live');
-      if (live) {
-        setSelectedMatchId(live.id);
-      } else {
-        const completed = matches.find(m => m.status === 'completed' && m.score);
-        if (completed) {
-          setSelectedMatchId(completed.id);
-        } else {
-          setSelectedMatchId(matches[0].id);
-        }
-      }
-    } else {
-      setSelectedMatchId(null);
-    }
-  }, [matches]);
 
   const selectedMatch = matches.find(m => m.id === selectedMatchId);
 
@@ -508,9 +512,6 @@ export default function TournamentPage({ params: paramsPromise }) {
 
   const circumference = 2 * Math.PI * 40;
   const strokeA = (teamAProb / 100) * circumference;
-
-  const [chartOpen, setChartOpen] = useState(false);
-  const [activeChartTab, setActiveChartTab] = useState('worm');
 
   const tabs = [
     { id: 'standings', label: 'Points Table' },
