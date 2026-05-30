@@ -98,7 +98,7 @@ export default function DashboardLayout({ children }) {
         <div className="md:hidden fixed top-0 left-0 right-0 z-50 glass border-b border-slate-200 px-4 py-3 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-[var(--color-cricket-accent)]/30 flex-shrink-0">
-              <img src="/11shots-logo.png?v=2" alt="11shots Logo" className="w-full h-full object-cover" />
+              <img src="/11shots-logo.png?v=3" alt="11shots Logo" className="w-full h-full object-cover" />
             </div>
             <div>
               <h2 className="text-sm font-black text-slate-900 tracking-tighter">
@@ -134,7 +134,7 @@ export default function DashboardLayout({ children }) {
           {/* Logo - Desktop only (mobile has its own top bar) */}
           <div className="hidden md:flex p-6 items-center gap-3">
             <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-[var(--color-cricket-accent)]/30 flex-shrink-0 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-              <img src="/11shots-logo.png?v=2" alt="11shots Logo" className="w-full h-full object-cover" />
+              <img src="/11shots-logo.png?v=3" alt="11shots Logo" className="w-full h-full object-cover" />
             </div>
             <div>
               <h2 className="text-lg font-black text-slate-900 tracking-tighter">

@@ -49,7 +49,7 @@ export default function Navbar() {
               className="flex items-center gap-2 md:gap-3 cursor-pointer"
             >
               <div className="w-9 h-9 md:w-11 md:h-11 rounded-full overflow-hidden flex-shrink-0 shadow-lg shadow-[var(--color-cricket-accent)]/20">
-                <img src="/11shots-logo.png?v=2" alt="11shots Logo" className="w-full h-full object-cover" />
+                <img src="/11shots-logo.png?v=3" alt="11shots Logo" className="w-full h-full object-cover" />
               </div>
               <span className="text-lg md:text-2xl font-black tracking-tight text-[var(--color-cricket-dark)]">
                 11shots <span className="text-[var(--color-cricket-accent)] neon-text-green">Live</span>
