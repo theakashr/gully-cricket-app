@@ -283,7 +283,8 @@ export default function DashboardTournamentDetailsPage({ params: paramsPromise }
       const overLabels = [];
       
       innBalls.forEach(ball => {
-        const overIndex = Math.floor(ball.over);
+        const overValue = parseFloat(ball.over || 0);
+        const overIndex = (overValue > 0 && overValue % 1 === 0) ? Math.floor(overValue) - 1 : Math.floor(overValue);
         if (overIndex >= 0 && overIndex < maxOvers) {
           let r = ball.runs || 0;
           if (ball.type === 'wd' || ball.type === 'nb') {

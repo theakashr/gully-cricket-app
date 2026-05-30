@@ -32,6 +32,12 @@ export default function MatchCenterPage({ params: paramsPromise }) {
   const prevBallsLength = useRef(0);
   const summaryRef = useRef(null);
 
+  const getOverGroup = (overValue) => {
+     const num = parseFloat(overValue || 0);
+     if (num > 0 && num % 1 === 0) return Math.floor(num) - 1;
+     return Math.floor(num);
+  };
+
   useEffect(() => {
     // Generate random guest name
     const adjectives = ['Smashing', 'Quick', 'Spinning', 'Bouncing', 'Flying', 'Sweeping', 'Fierce'];
@@ -236,7 +242,7 @@ export default function MatchCenterPage({ params: paramsPromise }) {
     }
 
     sortedBalls.forEach(ball => {
-      const overIndex = Math.floor(ball.over); 
+      const overIndex = getOverGroup(ball.over); 
       if (overIndex >= maxOvers) return; 
       
       const runsFromBall = ball.runs + (ball.type === 'wd' || ball.type === 'nb' ? 1 : 0);
@@ -278,7 +284,7 @@ export default function MatchCenterPage({ params: paramsPromise }) {
      let currentOverGrp = null;
      
      inningsBalls.forEach(ball => {
-        const overBase = Math.floor(ball.over);
+        const overBase = getOverGroup(ball.over);
         if (!currentOverGrp || currentOverGrp.over !== overBase) {
            if (currentOverGrp) grouped.push(currentOverGrp);
            currentOverGrp = { over: overBase, balls: [], runs: 0, wickets: 0 };
@@ -388,8 +394,8 @@ export default function MatchCenterPage({ params: paramsPromise }) {
   let currentOverBalls = [];
   let currentOverTotal = 0;
   if (balls && balls.length > 0) {
-    const currentOverBase = Math.floor(overs);
-    currentOverBalls = balls.filter(b => Math.floor(b.over) === currentOverBase && b.innings === match.currentInnings)
+    const currentOverBase = getOverGroup(overs);
+    currentOverBalls = balls.filter(b => getOverGroup(b.over) === currentOverBase && b.innings === match.currentInnings)
                             .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
     currentOverTotal = currentOverBalls.reduce((acc, curr) => acc + curr.runs + (curr.type === 'wd' || curr.type === 'nb' ? 1 : 0), 0);
   }
@@ -748,7 +754,7 @@ export default function MatchCenterPage({ params: paramsPromise }) {
                      }
                      
                      // Show vertical pipe if over boundary
-                     const isNewOver = i > 0 && Math.floor(recentBalls[i-1].over) !== Math.floor(b.over);
+                     const isNewOver = i > 0 && getOverGroup(recentBalls[i-1].over) !== getOverGroup(b.over);
 
                      return (
                         <div key={b.id || i} className="flex items-center">
