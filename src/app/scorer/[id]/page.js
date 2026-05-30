@@ -585,12 +585,20 @@ export default function ScorerPage({ params: paramsPromise }) {
                     <div className="px-5 pb-4 pt-2 border-t border-slate-100 bg-slate-50 space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-[10px] font-black uppercase text-slate-500 block mb-1">Total Overs</label>
-                          <input type="number" min="1" max="50" value={editOvers} onChange={(e) => setEditOvers(parseInt(e.target.value) || 1)} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold focus:border-blue-500 outline-none" />
+                          <label className="text-[10px] font-black uppercase text-slate-500 block mb-1.5">Total Overs</label>
+                          <div className="flex items-center gap-1.5">
+                            <button onClick={() => setEditOvers(Math.max(1, editOvers - 1))} className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-lg text-lg font-black text-slate-700 transition-colors active:bg-slate-300">-</button>
+                            <input type="number" min="1" max="50" value={editOvers} onChange={(e) => setEditOvers(parseInt(e.target.value) || 1)} className="w-full min-w-0 bg-white border border-slate-200 rounded-lg px-2 py-2 text-center text-sm font-bold focus:border-blue-500 outline-none appearance-none m-0" style={{MozAppearance: 'textfield'}} />
+                            <button onClick={() => setEditOvers(Math.min(50, editOvers + 1))} className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-lg text-lg font-black text-slate-700 transition-colors active:bg-slate-300">+</button>
+                          </div>
                         </div>
                         <div>
-                          <label className="text-[10px] font-black uppercase text-slate-500 block mb-1">Balls/Over</label>
-                          <input type="number" min="1" max="10" value={editBallsPerOver} onChange={(e) => setEditBallsPerOver(parseInt(e.target.value) || 1)} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold focus:border-blue-500 outline-none" />
+                          <label className="text-[10px] font-black uppercase text-slate-500 block mb-1.5">Balls/Over</label>
+                          <div className="flex items-center gap-1.5">
+                            <button onClick={() => setEditBallsPerOver(Math.max(1, editBallsPerOver - 1))} className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-lg text-lg font-black text-slate-700 transition-colors active:bg-slate-300">-</button>
+                            <input type="number" min="1" max="10" value={editBallsPerOver} onChange={(e) => setEditBallsPerOver(parseInt(e.target.value) || 1)} className="w-full min-w-0 bg-white border border-slate-200 rounded-lg px-2 py-2 text-center text-sm font-bold focus:border-blue-500 outline-none appearance-none m-0" style={{MozAppearance: 'textfield'}} />
+                            <button onClick={() => setEditBallsPerOver(Math.min(10, editBallsPerOver + 1))} className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-lg text-lg font-black text-slate-700 transition-colors active:bg-slate-300">+</button>
+                          </div>
                         </div>
                       </div>
                       <button

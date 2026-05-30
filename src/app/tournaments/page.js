@@ -113,23 +113,7 @@ export default function PublicTournamentsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[var(--color-cricket-accent)] selection:text-white">
-      {/* HEADER NAVBAR */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200">
-        <div className="container mx-auto max-w-7xl px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-             <Link href="/">
-               <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 shadow-lg shadow-[var(--color-cricket-accent)]/20">
-                 <img src="/11shots-logo.png?v=3" alt="11shots Logo" className="w-full h-full object-cover" />
-               </div>
-             </Link>
-             <div className="hidden md:flex items-center gap-6 ml-4">
-               <Link href="/" className="text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors">Home</Link>
-               <Link href="/matches" className="text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors">Matches</Link>
-               <Link href="/tournaments" className="text-xs font-bold uppercase tracking-wider text-[var(--color-cricket-accent)] neon-text-green transition-colors">Tournaments</Link>
-             </div>
-          </div>
-        </div>
-      </nav>
+
 
       <div className="container mx-auto max-w-7xl px-4 py-10 md:py-16">
         
