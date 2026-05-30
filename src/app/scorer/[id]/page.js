@@ -622,17 +622,17 @@ export default function ScorerPage({ params: paramsPromise }) {
 
           {/* MASTER SCOREBOARD */}
           <div className="bg-white rounded-3xl p-6 relative overflow-hidden shadow-sm border border-slate-200">
-            <div className="flex justify-between items-end">
-              <div>
-                <p className="text-lg font-black text-slate-400 mb-1 leading-none">{battingTeam}</p>
-                <h2 className="text-7xl font-black text-slate-900 tracking-tighter tabular-nums leading-none">
-                  {runs}<span className="text-4xl text-slate-300">/{wickets}</span>
+            <div className="flex justify-between items-end gap-2">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm sm:text-lg font-black text-slate-400 mb-1 leading-none truncate">{battingTeam}</p>
+                <h2 className="text-5xl sm:text-7xl font-black text-slate-900 tracking-tighter tabular-nums leading-none">
+                  {runs}<span className="text-3xl sm:text-4xl text-slate-300">/{wickets}</span>
                 </h2>
               </div>
-              <div className="text-right flex flex-col items-end">
+              <div className="text-right flex flex-col items-end flex-shrink-0">
                 <div className="bg-slate-50 border border-slate-200 px-3.5 py-1.5 rounded-xl mb-3">
                   <span className="text-slate-400 text-[10px] font-black uppercase tracking-wider block mb-0.5 text-left">Overs</span>
-                  <span className="text-xl font-black text-slate-900 tabular-nums">{overs.toFixed(1)} <span className="text-xs text-slate-400">/ {match.overs}.0</span></span>
+                  <span className="text-lg sm:text-xl font-black text-slate-900 tabular-nums">{overs.toFixed(1)} <span className="text-xs text-slate-400">/ {match.overs}.0</span></span>
                 </div>
                 <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">CRR: <span className="text-blue-600 text-sm">{crr}</span></p>
               </div>
@@ -650,11 +650,11 @@ export default function ScorerPage({ params: paramsPromise }) {
           <div className="grid grid-cols-2 gap-3">
              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col justify-center">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5"><Users size={12}/> Partnership</p>
-                <p className="text-xl font-black text-slate-800">{partnership.runs} <span className="text-xs text-slate-400 font-bold">({partnership.balls})</span></p>
+                <p className="text-lg sm:text-xl font-black text-slate-800">{partnership.runs} <span className="text-xs text-slate-400 font-bold">({partnership.balls})</span></p>
              </div>
              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5"><Target size={12}/> Last Wicket</p>
-                <p className="text-sm font-bold text-slate-700 mt-1 truncate">
+                <p className="text-xs sm:text-sm font-bold text-slate-700 mt-1 truncate">
                    {match.balls && Object.values(match.balls).filter(b => b.innings === match.currentInnings && b.type === 'wicket').pop()?.commentary.split(',')[0] || 'None yet'}
                 </p>
              </div>
@@ -675,7 +675,7 @@ export default function ScorerPage({ params: paramsPromise }) {
                     ball === null ? 'bg-slate-50 border-2 border-dashed border-slate-200 text-transparent' :
                     ball === 'W' ? 'bg-red-500 text-white shadow-sm' : 
                     (ball === '6' || ball === '4') ? 'bg-emerald-500 text-white shadow-sm' : 
-                    ball.includes('wd') || ball.includes('nb') ? 'bg-amber-400 text-white text-xs shadow-sm' :
+                    ball?.includes('wd') || ball?.includes('nb') ? 'bg-amber-400 text-white text-xs shadow-sm' :
                     'bg-slate-100 text-slate-700 border border-slate-200 shadow-sm'
                   }`}
                 >
@@ -709,14 +709,14 @@ export default function ScorerPage({ params: paramsPromise }) {
           )}
 
           {/* PLAYER MANAGEMENT */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm relative">
+          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm relative">
             <div className="absolute right-4 top-4">
                <button onClick={manualSwapStrike} className="flex items-center gap-1.5 text-[9px] uppercase font-black tracking-widest text-slate-500 hover:text-slate-900 bg-slate-100 px-2.5 py-1.5 rounded-lg transition-colors">
                   <RotateCcw size={12} /> Swap
                </button>
             </div>
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 <div>
                   <SearchablePlayerSelect 
                     label="Striker" 
@@ -766,21 +766,21 @@ export default function ScorerPage({ params: paramsPromise }) {
 
           {/* ADVANCED SCORING PAD */}
           {(!isAllOut && !isOversDone && (match.currentInnings === 1 || runsNeeded > 0)) && (
-            <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
+            <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200 shadow-sm space-y-4">
               
-              <div className="grid grid-cols-4 gap-3">
-                <button onClick={() => recordBall(0, 'wd')} className="h-12 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 text-[11px] font-black uppercase tracking-wider transition-colors">Wide</button>
-                <button onClick={() => recordBall(0, 'nb')} className="h-12 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 text-[11px] font-black uppercase tracking-wider transition-colors">No Ball</button>
-                <button onClick={() => recordBall(1, 'b')} className="h-12 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 text-slate-600 text-[11px] font-black uppercase tracking-wider transition-colors">Bye 1</button>
-                <button onClick={() => recordBall(1, 'lb')} className="h-12 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 text-slate-600 text-[11px] font-black uppercase tracking-wider transition-colors">LB 1</button>
+              <div className="grid grid-cols-4 gap-2 sm:gap-3">
+                <button onClick={() => recordBall(0, 'wd')} className="h-10 sm:h-12 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-colors">Wide</button>
+                <button onClick={() => recordBall(0, 'nb')} className="h-10 sm:h-12 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-colors">No Ball</button>
+                <button onClick={() => recordBall(1, 'b')} className="h-10 sm:h-12 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 text-slate-600 text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-colors">Bye 1</button>
+                <button onClick={() => recordBall(1, 'lb')} className="h-10 sm:h-12 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 text-slate-600 text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-colors">LB 1</button>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {[0, 1, 2, 3, 4, 6].map(run => (
                   <motion.button 
                     whileTap={{ scale: 0.95 }}
                     key={run} 
-                    className={`h-[72px] rounded-2xl text-2xl font-black transition-all ${
+                    className={`h-[60px] sm:h-[72px] rounded-2xl text-2xl font-black transition-all ${
                       run === 4 || run === 6 
                       ? 'bg-emerald-500 text-white shadow-md shadow-emerald-200' 
                       : 'bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 shadow-sm'
@@ -792,11 +792,11 @@ export default function ScorerPage({ params: paramsPromise }) {
                 ))}
               </div>
               
-              <div className="grid grid-cols-12 gap-3 pt-2">
+              <div className="grid grid-cols-12 gap-2 sm:gap-3 pt-2">
                 <motion.button 
                   whileTap={{ scale: 0.98 }}
                   disabled={!lastBallId}
-                  className={`col-span-4 h-16 rounded-2xl text-xs font-black uppercase tracking-widest flex flex-col justify-center items-center gap-1 transition-all ${
+                  className={`col-span-4 h-14 sm:h-16 rounded-2xl text-xs font-black uppercase tracking-widest flex flex-col justify-center items-center gap-1 transition-all ${
                     lastBallId 
                       ? 'bg-slate-50 hover:bg-slate-100 text-slate-500 border border-slate-200' 
                       : 'bg-slate-50 text-slate-300 border border-slate-100 cursor-not-allowed'
@@ -808,7 +808,7 @@ export default function ScorerPage({ params: paramsPromise }) {
                 
                 <motion.button 
                   whileTap={{ scale: 0.98 }}
-                  className="col-span-8 h-16 rounded-2xl bg-red-600 text-white text-xl font-black uppercase tracking-widest shadow-md shadow-red-200 border-none flex justify-center items-center gap-2"
+                  className="col-span-8 h-14 sm:h-16 rounded-2xl bg-red-600 text-white text-lg sm:text-xl font-black uppercase tracking-widest shadow-md shadow-red-200 border-none flex justify-center items-center gap-2"
                   onClick={() => recordBall(0, 'wicket')}
                 >
                   <AlertTriangle size={20} /> Wicket
