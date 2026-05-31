@@ -109,3 +109,31 @@
     padding-top: env(safe-area-inset-top, 0px);
   }
 }
+
+/* V2 UI Animations & Accordion */
+@theme {
+  --animate-live-pulse: livePulse 2s ease-in-out infinite;
+
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+}
+
+@layer utilities {
+  .neon-live-dot {
+    box-shadow: 0 0 8px rgba(255, 77, 79, 0.6);
+  }
+  .accordion-content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 300ms ease-in-out;
+  }
+  .accordion-content.expanded {
+    grid-template-rows: 1fr;
+  }
+  .accordion-inner {
+    overflow: hidden;
+  }
+}
+
