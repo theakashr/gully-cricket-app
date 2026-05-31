@@ -1,6 +1,7 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
 import Navbar from '@/components/Navbar';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import { AuthProvider } from '@/context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 
@@ -50,10 +51,12 @@ export default function RootLayout({ children }) {
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
-      <body className={`${inter.variable} min-h-screen flex flex-col font-sans`}>
+      <body className={`${inter.variable} min-h-screen flex flex-col font-sans bg-[#f3f4f6] md:bg-[#f8fafc]`}>
         <AuthProvider>
-          <Navbar />
-          <main className="flex-1">
+          <div className="hidden md:block">
+            <Navbar />
+          </div>
+          <main className="flex-1 pb-[80px] md:pb-0">
             <Toaster 
               position="top-center"
               toastOptions={{
@@ -67,6 +70,7 @@ export default function RootLayout({ children }) {
             />
             {children}
           </main>
+          <MobileBottomNav />
         </AuthProvider>
       </body>
     </html>
