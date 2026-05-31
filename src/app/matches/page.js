@@ -85,7 +85,9 @@ export default function MatchesHub() {
       {/* top-0 since Navbar is usually static or not overlapping, we use z-40 */}
       <header className="sticky top-0 bg-white/80 backdrop-blur-xl z-40 border-b border-[#E5E7EB] pt-6 pb-0">
         <div className="px-4 mb-4">
-          <h1 className="text-3xl font-black tracking-tight mb-2">Matches Hub</h1>
+          <h1 className="text-3xl font-black tracking-tight mb-2">
+            <span className="text-[#00A854]">M</span>atches <span className="text-[#00A854]">H</span>ub
+          </h1>
           <p className="text-gray-500 text-sm font-medium">Track live scores and upcoming fixtures.</p>
         </div>
 
