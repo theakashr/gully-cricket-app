@@ -44,7 +44,7 @@ export default function MatchCard({ match, teams, tournamentName, index = 0 }) {
           {/* Team 1 */}
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-2">
-              <span className={`font-bold text-sm md:text-base capitalize ${isTeam1Batting ? 'text-[#111827]' : 'text-gray-600'}`}>
+              <span className="font-bold text-sm md:text-base capitalize text-[#111827]">
                 {getTeamName(match.teamA)}
               </span>
               {isTeam1Batting && (
@@ -54,7 +54,7 @@ export default function MatchCard({ match, teams, tournamentName, index = 0 }) {
               )}
             </div>
             <div className="text-right flex flex-col justify-end">
-              <span className={`font-black text-lg md:text-xl leading-none ${isTeam1Batting ? 'text-[#00A854]' : 'text-[#111827]'}`}>
+              <span className={`font-black text-lg md:text-xl leading-none ${isTeam1Batting ? 'text-[#00A854]' : 'text-gray-500'}`}>
                 {innings1?.runs || 0}<span className={`text-sm font-bold ${isTeam1Batting ? 'text-[#00A854]/70' : 'text-gray-400'}`}>/{innings1?.wickets || 0}</span>
               </span>
               <span className="text-[10px] text-gray-400 font-bold tracking-wider mt-1">
@@ -66,7 +66,7 @@ export default function MatchCard({ match, teams, tournamentName, index = 0 }) {
           {/* Team 2 */}
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-2">
-              <span className={`font-bold text-sm md:text-base capitalize ${!isTeam1Batting ? 'text-[#111827]' : 'text-gray-600'}`}>
+              <span className="font-bold text-sm md:text-base capitalize text-[#111827]">
                 {getTeamName(match.teamB)}
               </span>
               {!isTeam1Batting && currentInning > 1 && (
@@ -78,7 +78,7 @@ export default function MatchCard({ match, teams, tournamentName, index = 0 }) {
             <div className="text-right flex flex-col justify-end">
               {currentInning > 1 ? (
                 <>
-                  <span className={`font-black text-lg md:text-xl leading-none ${!isTeam1Batting ? 'text-[#00A854]' : 'text-[#111827]'}`}>
+                  <span className={`font-black text-lg md:text-xl leading-none ${!isTeam1Batting ? 'text-[#00A854]' : 'text-gray-500'}`}>
                     {innings2?.runs || 0}<span className={`text-sm font-bold ${!isTeam1Batting ? 'text-[#00A854]/70' : 'text-gray-400'}`}>/{innings2?.wickets || 0}</span>
                   </span>
                   <span className="text-[10px] text-gray-400 font-bold tracking-wider mt-1">
@@ -131,11 +131,11 @@ export default function MatchCard({ match, teams, tournamentName, index = 0 }) {
         
         <div className="p-4 space-y-4">
           <div className="flex justify-between items-start">
-            <span className={`font-bold text-sm md:text-base capitalize ${match.result?.winner === match.teamA ? 'text-[#111827]' : 'text-gray-500'}`}>
+            <span className="font-bold text-sm md:text-base capitalize text-[#111827]">
               {getTeamName(match.teamA)}
             </span>
             <div className="text-right flex flex-col justify-end">
-              <span className={`font-black text-lg md:text-xl leading-none ${match.result?.winner === match.teamA ? 'text-[#111827]' : 'text-gray-500'}`}>
+              <span className={`font-black text-lg md:text-xl leading-none ${match.result?.winner === match.teamA ? 'text-[#00A854]' : 'text-gray-500'}`}>
                 {innings1?.runs || 0}<span className="text-sm font-bold">/{innings1?.wickets || 0}</span>
               </span>
               <span className="text-[10px] text-gray-400 font-bold tracking-wider mt-1">{innings1?.overs || 0}.{innings1?.balls || 0} OV</span>
@@ -143,13 +143,13 @@ export default function MatchCard({ match, teams, tournamentName, index = 0 }) {
           </div>
           
           <div className="flex justify-between items-start">
-            <span className={`font-bold text-sm md:text-base capitalize ${match.result?.winner === match.teamB ? 'text-[#111827]' : 'text-gray-500'}`}>
+            <span className="font-bold text-sm md:text-base capitalize text-[#111827]">
               {getTeamName(match.teamB)}
             </span>
             <div className="text-right flex flex-col justify-end">
               {match.score?.innings2 ? (
                 <>
-                  <span className={`font-black text-lg md:text-xl leading-none ${match.result?.winner === match.teamB ? 'text-[#111827]' : 'text-gray-500'}`}>
+                  <span className={`font-black text-lg md:text-xl leading-none ${match.result?.winner === match.teamB ? 'text-[#00A854]' : 'text-gray-500'}`}>
                     {innings2?.runs || 0}<span className="text-sm font-bold">/{innings2?.wickets || 0}</span>
                   </span>
                   <span className="text-[10px] text-gray-400 font-bold tracking-wider mt-1">{innings2?.overs || 0}.{innings2?.balls || 0} OV</span>
